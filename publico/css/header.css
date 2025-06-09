@@ -1,418 +1,524 @@
-/* ============================================
-   ESTILOS DEL COMPONENTE HEADER
-   ============================================ */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        /* ============================================
+           ESTILOS DEL COMPONENTE HEADER CORREGIDO
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* ============================================
-   CONTENEDOR PRINCIPAL DEL HEADER
-   ============================================ */
-.tech-header {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 25px;
-    padding: 2rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    animation: headerEntry 1s ease-out;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-}
+        /* ============================================
+           CONTENEDOR PRINCIPAL DEL HEADER
+           ============================================ */
+        .tech-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: headerEntry 1s ease-out;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            /* ASEGURAR QUE EL HEADER RESPETE EL SIDEBAR */
+            z-index: 999 !important; /* Menor que el sidebar (2000) */
+        }
 
-@keyframes headerEntry {
-    0% { opacity: 0; transform: translateY(-20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
 
-/* Efecto de brillo tecnológico */
-.tech-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.1), transparent);
-    animation: headerGlow 8s ease-in-out infinite;
-}
-
-@keyframes headerGlow {
-    0%, 100% { left: -100%; }
-    50% { left: 100%; }
-}
-
-/* ============================================
-   CONTENIDO DEL HEADER
-   ============================================ */
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-    gap: 2rem;
-}
-
-/* ============================================
-   SECCIÓN IZQUIERDA - LOGO Y BRANDING
-   ============================================ */
-.welcome-section {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.logo-container {
-    width: 160px;
-    height: 160px;
-    border-radius: 12px;
-    overflow: hidden;
-    animation: logoGlow 3s ease-in-out infinite alternate;
-}
-
-@keyframes logoGlow {
-    0% { filter: drop-shadow(0 0 10px rgba(220, 38, 38, 0.3)); }
-    100% { filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.6)); }
-}
-
-.logo-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.welcome-text h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-    background: linear-gradient(135deg, #dc2626, #991b1b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
-    animation: textPulse 4s ease-in-out infinite alternate;
-}
-
-@keyframes textPulse {
-    0% { opacity: 0.8; }
-    100% { opacity: 1; }
-}
-
-.welcome-text p {
-    color: #6b7280;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-/* ============================================
-   SECCIÓN DERECHA - CONTROLES Y USUARIO
-   ============================================ */
-.user-controls {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-/* ============================================
-   BOTÓN DE NOTIFICACIONES
-   ============================================ */
-.notifications-btn {
-    width: 50px;
-    height: 50px;
-    background: rgba(220, 38, 38, 0.1);
-    border: 2px solid rgba(220, 38, 38, 0.2);
-    border-radius: 15px;
-    color: #dc2626;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    text-decoration: none;
-}
-
-.notifications-btn:hover {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    color: white;
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
-    text-decoration: none;
-}
-
-/* Badge de notificaciones */
-.notification-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ef4444;
-    color: white;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    font-size: 0.7rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    animation: notificationPulse 2s infinite;
-    border: 2px solid white;
-}
-
-@keyframes notificationPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-/* ============================================
-   TARJETA DE USUARIO Y CONTROLES
-   ============================================ */
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 1rem 1.5rem;
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* ============================================
-   AVATAR DEL USUARIO
-   ============================================ */
-.user-avatar {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-    animation: avatarPulse 3s ease-in-out infinite;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    overflow: hidden;
-    font-weight: bold;
-}
-
-@keyframes avatarPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.user-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* ============================================
-   DETALLES DEL USUARIO
-   ============================================ */
-.user-details {
-    color: #1f2937;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-}
-
-.user-details h4 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-    color: #1f2937;
-}
-
-.user-details .user-role {
-    color: #dc2626;
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-transform: capitalize;
-    letter-spacing: 0.5px;
-}
-
-.user-details .user-email {
-    color: #6b7280;
-    font-size: 0.8rem;
-    font-weight: 400;
-}
-
-/* ============================================
-   INFORMACIÓN DE FECHA Y HORA
-   ============================================ */
-.datetime-info {
-    text-align: right;
-    color: #6b7280;
-    font-size: 0.9rem;
-    margin-left: 1rem;
-    font-weight: 500;
-}
-
-.datetime-item {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.4rem;
-    margin-bottom: 0.3rem;
-}
-
-.datetime-item:last-child {
-    margin-bottom: 0;
-}
-
-.datetime-item i {
-    color: #dc2626;
-    font-size: 0.8rem;
-}
-
-/* ============================================
-   BOTÓN DE LOGOUT
-   ============================================ */
-.logout-btn {
-    background: rgba(220, 38, 38, 0.2);
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    color: #dc2626;
-    padding: 0.6rem 1rem;
-    border-radius: 10px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    margin-left: 1rem;
-    font-weight: 600;
-}
-
-.logout-btn:hover {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    border-color: #dc2626;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
-    text-decoration: none;
-}
-
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
-@media (max-width: 1024px) {
-    .header-content {
-        flex-direction: column;
-        gap: 1.5rem;
-        text-align: center;
-    }
-    
-    .user-controls {
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
-    }
-    
-    .user-info {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1.5rem;
-        width: 100%;
-    }
-    
-    .datetime-info {
-        text-align: center;
-        margin-left: 0;
-    }
-    
-    .logout-btn {
-        margin-left: 0;
-        margin-top: 1rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .tech-header {
-        padding: 1rem;
+        /* Icono del logo con animación */
+        .header-logo-icon {
+        width: 85px;
+        height: 90px;
+        background: linear-gradient(135deg, #dc2626, #ef4444);
         border-radius: 15px;
-    }
-    
-    .welcome-section {
-        flex-direction: column;
-        text-align: center;
-        gap: 1rem;
-    }
-    
-    .logo-container {
-        width: 120px;
-        height: 120px;
-    }
-    
-    .welcome-text h1 {
-        font-size: 2rem;
-    }
-    
-    .user-controls {
-        flex-direction: row;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        flex-wrap: wrap;
-        width: 100%;
-    }
-    
-    .notifications-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-    }
-}
+        font-size: 50px;
+        color: white;
+        box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+        animation: logoGlow 4s ease-in-out infinite;
+        }
 
-@media (max-width: 480px) {
-    .welcome-text h1 {
-        font-size: 1.6rem;
-    }
-    
-    .logo-container {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .user-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-    
-    .notifications-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-}
+        @keyframes logoGlow {
+        0%, 100% {
+        box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+        transform: scale(1);
+        }
+        50% {
+        box-shadow: 0 12px 30px rgba(220, 38, 38, 0.6);
+        transform: scale(1.05);
+        }
+        } 
 
-/* ============================================
-   EFECTOS ADICIONALES
-   ============================================ */
-.tech-circuit {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.03;
-    background-image: 
-        radial-gradient(circle at 25% 75%, #dc2626 2px, transparent 2px),
-        radial-gradient(circle at 75% 25%, #dc2626 1px, transparent 1px);
-    background-size: 40px 40px, 30px 30px;
-    animation: circuitMove 20s linear infinite;
-}
+        @keyframes headerEntry {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
 
-@keyframes circuitMove {
-    0% { background-position: 0 0, 0 0; }
-    100% { background-position: 40px 40px, 30px 30px; }
-}
+        /* Efecto de brillo tecnológico */
+        .tech-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.1), transparent);
+            animation: headerGlow 8s ease-in-out infinite;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+
+        /* ============================================
+           TEMA OSCURO PARA EL HEADER
+           ============================================ */
+        body.ithr-dark-mode .tech-header,
+        body.dark-theme .tech-header {
+            background: rgba(17, 24, 39, 0.95);
+            border-color: rgba(55, 65, 81, 0.3);
+        }
+
+        body.ithr-dark-mode .tech-header::before,
+        body.dark-theme .tech-header::before {
+            background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.15), transparent);
+        }
+
+        /* ============================================
+           CONTENIDO DEL HEADER
+           ============================================ */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            gap: 2rem;
+        }
+
+        /* ============================================
+           SECCIÓN IZQUIERDA - LOGO Y BRANDING
+           ============================================ */
+        .welcome-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo-container {
+            width: 160px;
+            height: 160px;
+            border-radius: 12px;
+            overflow: hidden;
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(220, 38, 38, 0.3)); }
+            100% { filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.6)); }
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .welcome-text h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            animation: textPulse 4s ease-in-out infinite alternate;
+        }
+
+        /* Tema oscuro para el título */
+        body.ithr-dark-mode .welcome-text h1,
+        body.dark-theme .welcome-text h1 {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes textPulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .welcome-text p {
+            color: #6b7280;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Tema oscuro para el subtítulo */
+        body.ithr-dark-mode .welcome-text p,
+        body.dark-theme .welcome-text p {
+            color: #9ca3af;
+        }
+
+        /* ============================================
+           SECCIÓN DERECHA - CONTROLES Y USUARIO
+           ============================================ */
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* ============================================
+           BOTÓN DE NOTIFICACIONES
+           ============================================ */
+        .notifications-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 2px solid rgba(220, 38, 38, 0.2);
+            border-radius: 15px;
+            color: #dc2626;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            text-decoration: none;
+        }
+
+        .notifications-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+            text-decoration: none;
+        }
+
+        /* Tema oscuro para notificaciones */
+        body.ithr-dark-mode .notifications-btn,
+        body.dark-theme .notifications-btn {
+            background: rgba(220, 38, 38, 0.15);
+            border-color: rgba(220, 38, 38, 0.3);
+        }
+
+        /* Badge de notificaciones */
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: notificationPulse 2s infinite;
+            border: 2px solid white;
+        }
+
+        @keyframes notificationPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* ============================================
+           TARJETA DE USUARIO Y CONTROLES
+           ============================================ */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Tema oscuro para user-info */
+        body.ithr-dark-mode .user-info,
+        body.dark-theme .user-info {
+            background: rgba(17, 24, 39, 0.3);
+            border-color: rgba(55, 65, 81, 0.3);
+        }
+
+        /* ============================================
+           AVATAR DEL USUARIO
+           ============================================ */
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+            animation: avatarPulse 3s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            font-weight: bold;
+        }
+
+        @keyframes avatarPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ============================================
+           DETALLES DEL USUARIO
+           ============================================ */
+        .user-details {
+            color: #1f2937;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .user-details h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .user-details .user-role {
+            color: #dc2626;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+        }
+
+        .user-details .user-email {
+            color: #6b7280;
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+
+        /* Tema oscuro para detalles del usuario */
+        body.ithr-dark-mode .user-details h4,
+        body.dark-theme .user-details h4 {
+            color: #f9fafb;
+        }
+
+        body.ithr-dark-mode .user-details .user-role,
+        body.dark-theme .user-details .user-role {
+            color: #ef4444;
+        }
+
+        body.ithr-dark-mode .user-details .user-email,
+        body.dark-theme .user-details .user-email {
+            color: #9ca3af;
+        }
+
+        /* ============================================
+           INFORMACIÓN DE FECHA Y HORA
+           ============================================ */
+        .datetime-info {
+            text-align: right;
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            font-weight: 500;
+        }
+
+        .datetime-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.4rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .datetime-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .datetime-item i {
+            color: #dc2626;
+            font-size: 0.8rem;
+        }
+
+        /* Tema oscuro para datetime */
+        body.ithr-dark-mode .datetime-info,
+        body.dark-theme .datetime-info {
+            color: #9ca3af;
+        }
+
+        body.ithr-dark-mode .datetime-item i,
+        body.dark-theme .datetime-item i {
+            color: #ef4444;
+        }
+
+        /* ============================================
+           BOTÓN DE LOGOUT
+           ============================================ */
+        .logout-btn {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #dc2626;
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border-color: #dc2626;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+            text-decoration: none;
+        }
+
+        /* Tema oscuro para logout */
+        body.ithr-dark-mode .logout-btn,
+        body.dark-theme .logout-btn {
+            background: rgba(220, 38, 38, 0.25);
+            border-color: rgba(220, 38, 38, 0.4);
+            color: #ef4444;
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 1024px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            
+            .user-controls {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.5rem;
+                width: 100%;
+            }
+            
+            .datetime-info {
+                text-align: center;
+                margin-left: 0;
+            }
+            
+            .logout-btn {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tech-header {
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .logo-container {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 2rem;
+            }
+            
+            .user-controls {
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: wrap;
+                width: 100%;
+            }
+            
+            .notifications-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .welcome-text h1 {
+                font-size: 1.6rem;
+            }
+            
+            .logo-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .notifications-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+
+        /* ============================================
+           EFECTOS ADICIONALES
+           ============================================ */
+        .tech-circuit {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 25% 75%, #dc2626 2px, transparent 2px),
+                radial-gradient(circle at 75% 25%, #dc2626 1px, transparent 1px);
+            background-size: 40px 40px, 30px 30px;
+            animation: circuitMove 20s linear infinite;
+        }
+
+        @keyframes circuitMove {
+            0% { background-position: 0 0, 0 0; }
+            100% { background-position: 40px 40px, 30px 30px; }
+        }

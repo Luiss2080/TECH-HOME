@@ -1,0 +1,611 @@
+        /* ============================================
+           RESET Y CONFIGURACIÓN BASE
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        /* ============================================
+           TEMA OSCURO GLOBAL
+           ============================================ */
+        body.ithr-dark-mode {
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        }
+
+        body.ithr-dark-mode .ithr-main-content {
+            background: rgba(17, 24, 39, 0.95) !important;
+            color: #f9fafb !important;
+        }
+
+        body.ithr-dark-mode .ithr-main-content h2 {
+            color: #f9fafb !important;
+        }
+
+        body.ithr-dark-mode .ithr-main-content p {
+            color: #d1d5db !important;
+        }
+
+        /* ============================================
+           CONTENEDOR PRINCIPAL DEL SIDEBAR
+           ============================================ */
+        .ithr-navigation-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 260px;
+            height: calc(100vh - 40px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            animation: ithr-panel-slide-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes ithr-panel-slide-in {
+            0% {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ============================================
+           FONDO ANIMADO DEL SIDEBAR
+           ============================================ */
+        .ithr-animated-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ithr-floating-element {
+            position: absolute;
+            border-radius: 50%;
+            animation: ithr-element-float 20s ease-in-out infinite;
+        }
+
+        .ithr-floating-element-1 {
+            width: 60px;
+            height: 60px;
+            background: rgba(220, 38, 38, 0.05);
+            top: 10%;
+            left: -20px;
+            animation-delay: 0s;
+        }
+
+        .ithr-floating-element-2 {
+            width: 40px;
+            height: 40px;
+            background: rgba(239, 68, 68, 0.04);
+            top: 50%;
+            right: -15px;
+            animation-delay: 7s;
+        }
+
+        .ithr-floating-element-3 {
+            width: 80px;
+            height: 80px;
+            background: rgba(220, 38, 38, 0.03);
+            bottom: 20%;
+            left: -25px;
+            animation-delay: 14s;
+        }
+
+        @keyframes ithr-element-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-15px) rotate(180deg); opacity: 0.6; }
+        }
+
+        /* ============================================
+           HEADER DEL SIDEBAR CON NUEVO ESTILO
+           ============================================ */
+        .ithr-panel-header {
+            position: relative;
+            z-index: 10;
+            padding: 1.5rem 1.25rem 1rem;
+        }
+
+        .ithr-brand-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .ithr-brand-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+            animation: ithr-brand-glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes ithr-brand-glow {
+            0% { box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); }
+            100% { box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5); }
+        }
+
+        .ithr-brand-text {
+            flex: 1;
+        }
+
+        .ithr-brand-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 0 0 0.2rem 0;
+            background: linear-gradient(135deg, #1f2937, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ithr-brand-subtitle {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           NAVEGACIÓN PRINCIPAL CON ESTILO MEJORADO
+           ============================================ */
+        .ithr-main-navigation {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            padding: 0.5rem 0;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .ithr-main-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+        .ithr-nav-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* TÍTULOS CON ESTILO DE LA IMAGEN DEL FOOTER */
+        .ithr-nav-group-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin: 0 0 0.5rem 1.25rem;
+            padding-bottom: 0.4rem;
+            position: relative;
+        }
+
+        .ithr-nav-group-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            border-radius: 1px;
+        }
+
+        .ithr-nav-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ithr-nav-item {
+            margin-bottom: 0.3rem;
+        }
+
+        .ithr-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            margin: 0 0.75rem;
+            color: #4b5563;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .ithr-nav-link:hover {
+            background: rgba(220, 38, 38, 0.08);
+            color: #1f2937;
+            text-decoration: none;
+            transform: translateX(3px);
+        }
+
+        .ithr-nav-item.ithr-active .ithr-nav-link {
+            background: rgba(220, 38, 38, 0.12);
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .ithr-nav-icon {
+            font-size: 1rem;
+            min-width: 18px;
+            text-align: center;
+            color: #dc2626;
+            transition: transform 0.3s ease;
+        }
+
+        .ithr-nav-link:hover .ithr-nav-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .ithr-nav-text {
+            flex: 1;
+        }
+
+        .ithr-nav-badge {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+        }
+
+        .ithr-nav-indicator {
+            position: absolute;
+            left: -0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border-radius: 0 3px 3px 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ithr-nav-item.ithr-active .ithr-nav-indicator {
+            opacity: 1;
+        }
+
+        /* ============================================
+           FOOTER REDISEÑADO CON NUEVAS FUNCIONES
+           ============================================ */
+        .ithr-panel-footer {
+            position: relative;
+            z-index: 10;
+            padding: 1rem 1.25rem 1.5rem;
+            border-top: 1px solid rgba(220, 38, 38, 0.1);
+            margin-top: auto;
+        }
+
+        /* TARJETA DE VISITA AL SITIO WEB */
+        .ithr-website-promotion {
+            margin-bottom: 1rem;
+        }
+
+        .ithr-website-link {
+            display: block;
+            text-decoration: none;
+        }
+
+        .ithr-website-card {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .ithr-website-card:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .ithr-website-content {
+            color: white;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .ithr-website-content i {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+
+        .ithr-website-content span {
+            font-size: 0.9rem;
+        }
+
+        /* TOGGLE DE MODO OSCURO MEJORADO */
+        .ithr-theme-control {
+            background: rgba(220, 38, 38, 0.05);
+            border: 1px solid rgba(220, 38, 38, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ithr-theme-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .ithr-theme-icon-container {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .ithr-theme-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .ithr-theme-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .ithr-theme-description {
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+
+        /* SWITCH MEJORADO */
+        .ithr-theme-switch {
+            position: relative;
+        }
+
+        .ithr-theme-checkbox {
+            display: none;
+        }
+
+        .ithr-theme-slider {
+            width: 52px;
+            height: 28px;
+            background: #e5e7eb;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+        }
+
+        .ithr-theme-checkbox:checked + .ithr-theme-slider {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .ithr-theme-knob {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            left: 4px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .ithr-theme-checkbox:checked + .ithr-theme-slider .ithr-theme-knob {
+            transform: translateX(24px);
+        }
+
+        .ithr-switch-icon {
+            font-size: 0.7rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .ithr-sun-icon {
+            color: #f59e0b;
+            opacity: 1;
+        }
+
+        .ithr-moon-icon {
+            color: #6366f1;
+            opacity: 0;
+            position: absolute;
+        }
+
+        .ithr-theme-checkbox:checked + .ithr-theme-slider .ithr-sun-icon {
+            opacity: 0;
+        }
+
+        .ithr-theme-checkbox:checked + .ithr-theme-slider .ithr-moon-icon {
+            opacity: 1;
+        }
+
+        /* ============================================
+           TEMA OSCURO PARA EL SIDEBAR
+           ============================================ */
+        body.ithr-dark-mode .ithr-navigation-panel {
+            background: rgba(17, 24, 39, 0.95);
+            border-color: rgba(55, 65, 81, 0.3);
+        }
+
+        body.ithr-dark-mode .ithr-brand-title {
+            background: linear-gradient(135deg, #f9fafb, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.ithr-dark-mode .ithr-brand-subtitle {
+            color: #9ca3af;
+        }
+
+        body.ithr-dark-mode .ithr-nav-group-title {
+            color: #9ca3af;
+        }
+
+        body.ithr-dark-mode .ithr-nav-link {
+            color: #d1d5db;
+        }
+
+        body.ithr-dark-mode .ithr-nav-link:hover {
+            background: rgba(220, 38, 38, 0.15);
+            color: #f9fafb;
+        }
+
+        body.ithr-dark-mode .ithr-nav-item.ithr-active .ithr-nav-link {
+            background: rgba(220, 38, 38, 0.2);
+            color: #ef4444;
+        }
+
+        body.ithr-dark-mode .ithr-theme-label {
+            color: #f9fafb;
+        }
+
+        body.ithr-dark-mode .ithr-theme-description {
+            color: #9ca3af;
+        }
+
+        body.ithr-dark-mode .ithr-theme-control {
+            background: rgba(55, 65, 81, 0.3);
+            border-color: rgba(75, 85, 99, 0.3);
+        }
+
+        body.ithr-dark-mode .ithr-panel-footer {
+            border-color: rgba(55, 65, 81, 0.3);
+        }
+
+        /* ============================================
+           CONTENIDO PRINCIPAL
+           ============================================ */
+        .ithr-main-content {
+            margin-left: 280px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .ithr-main-content h2 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .ithr-main-content p {
+            color: #6b7280;
+        }
+
+        /* ============================================
+           ANIMACIONES ADICIONALES
+           ============================================ */
+        @keyframes ithr-particle-float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-400px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 1024px) {
+            .ithr-navigation-panel {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .ithr-navigation-panel.ithr-show {
+                transform: translateX(0);
+            }
+
+            .ithr-main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ithr-navigation-panel {
+                width: 280px;
+                left: 10px;
+                top: 10px;
+                height: calc(100vh - 20px);
+            }
+            
+            .ithr-nav-link {
+                padding: 1rem 1.25rem;
+            }
+            
+            .ithr-website-card {
+                height: 70px;
+            }
+
+            body {
+                padding: 10px;
+            }
+        }

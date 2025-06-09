@@ -1,7 +1,7 @@
 <?php
 /**
  * ============================================================================
- * TECH HOME BOLIVIA - DASHBOARD ADMINISTRADOR MEJORADO
+ * TECH HOME BOLIVIA - DASHBOARD ADMINISTRADOR LIMPIO
  * Instituto: Tech Home Bolivia – Escuela de Robótica y Tecnología Avanzada
  * ============================================================================
  */
@@ -70,457 +70,371 @@ logDebug("Usuario admin cargado: " . $usuario['nombre']);
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .welcome-section h1 {
-            color: #333;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .welcome-section p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-        
-        .user-info {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        .info-badge {
-            background: #f8f9fa;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: #555;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: white;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-primary { background: #007bff; }
-        .btn-success { background: #28a745; }
-        .btn-danger { background: #dc3545; }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            color: white;
-            text-decoration: none;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-        
-        .stat-icon {
-            font-size: 2.5rem;
-            color: #007bff;
-            width: 60px;
-            text-align: center;
-        }
-        
-        .stat-content h3 {
-            font-size: 2.5rem;
-            color: #333;
-            margin: 0;
-        }
-        
-        .stat-content p {
-            color: #666;
-            margin: 5px 0 0 0;
-            font-size: 1.1rem;
-        }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .dashboard-section {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .dashboard-section:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
-        }
-        
-        .section-header h2 {
-            color: #333;
-            margin: 0 0 15px 0;
-            font-size: 1.3rem;
-        }
-        
-        .section-content p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-sm {
-            padding: 8px 15px;
-            font-size: 0.9rem;
-        }
-        
-        /* Estilo especial para botón de logout */
-        .btn-logout {
-            background: #dc3545 !important;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-logout:hover {
-            background: #c82333 !important;
-            border-color: #bd2130;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
-        }
-        
-        .debug-info {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 10px;
-            margin-top: 20px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../../publico/css/admin/Admin.css">
+
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="welcome-section">
-                <h1>
-                    <i class="fas fa-user-shield"></i>
-                    Bienvenido, <?php echo htmlspecialchars($usuario['nombre']); ?>
-                </h1>
-                <p>Panel de Administración - Tech Home Bolivia</p>
-                <div class="user-info">
-                    <span class="info-badge">
-                        <i class="fas fa-crown"></i>
-                        <?php echo htmlspecialchars($usuario['rol']); ?>
-                    </span>
-                    <span class="info-badge">
-                        <i class="fas fa-envelope"></i>
-                        <?php echo htmlspecialchars($usuario['email']); ?>
-                    </span>
-                    <span class="info-badge">
-                        <i class="fas fa-clock"></i>
-                        Sesión: <?php echo session_id(); ?>
-                    </span>
+    <!-- Incluir Sidebar Component con máxima prioridad -->
+    <?php
+    // Ruta al componente sidebar reutilizable
+    $sidebar_path = '../../vistas/layouts/sidebar.php';
+    
+    // Verificar si el archivo existe antes de incluirlo
+    if (file_exists($sidebar_path)) {
+        include_once $sidebar_path;
+    } else {
+        // Sidebar alternativo si no se encuentra el archivo
+        echo '<div class="sidebar-placeholder">
+                <div style="text-align: center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i><br>
+                    <strong>Sidebar no encontrado</strong><br>
+                    <small>Archivo: sidebar.php</small>
                 </div>
-            </div>
-            
-            <div class="actions">
-                <a href="../usuarios/crear.php" class="btn btn-primary">
-                    <i class="fas fa-user-plus"></i>
-                    Crear Usuario
-                </a>
-                <a href="../cursos/crear.php" class="btn btn-success">
-                    <i class="fas fa-plus-circle"></i>
-                    Nuevo Curso
-                </a>
-                <!-- Botón de logout mejorado con confirmación -->
-                <a href="#" class="btn btn-logout" id="logoutBtn" 
-                   data-logout-url="../../logout.php">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Cerrar Sesión
-                </a>
-            </div>
-        </div>
+              </div>';
+    }
+    ?>
 
-        <!-- Estadísticas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>125</h3>
-                    <p>Total Usuarios</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>35</h3>
-                    <p>Cursos Activos</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>12</h3>
-                    <p>Docentes</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-book"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>450</h3>
-                    <p>Recursos</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Secciones de gestión -->
-        <div class="dashboard-grid">
-            <!-- Gestión de Usuarios -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-users-cog"></i> Gestión de Usuarios</h2>
-                </div>
-                <div class="section-content">
-                    <p>Administra todos los usuarios del sistema</p>
-                    <div class="action-buttons">
-                        <a href="../usuarios/index.php" class="btn btn-primary btn-sm">
-                            <i class="fas fa-list"></i> Ver Usuarios
-                        </a>
-                        <a href="../usuarios/crear.php" class="btn btn-success btn-sm">
-                            <i class="fas fa-user-plus"></i> Crear Usuario
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gestión de Cursos -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-graduation-cap"></i> Gestión de Cursos</h2>
-                </div>
-                <div class="section-content">
-                    <p>Supervisa y administra todos los cursos</p>
-                    <div class="action-buttons">
-                        <a href="../cursos/index.php" class="btn btn-primary btn-sm">
-                            <i class="fas fa-list"></i> Ver Cursos
-                        </a>
-                        <a href="../cursos/crear.php" class="btn btn-success btn-sm">
-                            <i class="fas fa-plus-circle"></i> Crear Curso
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Biblioteca -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-book"></i> Biblioteca Digital</h2>
-                </div>
-                <div class="section-content">
-                    <p>Gestiona los libros y recursos bibliográficos</p>
-                    <div class="action-buttons">
-                        <a href="../libros/index.php" class="btn btn-primary btn-sm">
-                            <i class="fas fa-list"></i> Ver Biblioteca
-                        </a>
-                        <a href="../libros/subir.php" class="btn btn-success btn-sm">
-                            <i class="fas fa-upload"></i> Subir Libro
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Configuración -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-cog"></i> Configuración</h2>
-                </div>
-                <div class="section-content">
-                    <p>Ajustes generales del sistema</p>
-                    <div class="action-buttons">
-                        <a href="../configuracion/general.php" class="btn btn-primary btn-sm">
-                            <i class="fas fa-settings"></i> Configurar
-                        </a>
-                        <a href="../reportes/index.php" class="btn btn-success btn-sm">
-                            <i class="fas fa-chart-bar"></i> Reportes
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Incluir Header Component -->
+    <div class="header-container">
+        <?php
+        // Ruta al componente header reutilizable
+        $header_path = '../../vistas/layouts/header.php';
         
-        <!-- Información de debug (solo en desarrollo) -->
-        <?php if (defined('TECH_HOME_ENV') && TECH_HOME_ENV === 'development'): ?>
-        <div class="debug-info">
-            <strong>Debug Info:</strong><br>
-            Session ID: <?php echo session_id(); ?><br>
-            Usuario ID: <?php echo $_SESSION['usuario_id'] ?? 'No definido'; ?><br>
-            Rol: <?php echo $_SESSION['usuario_rol'] ?? 'No definido'; ?><br>
-            Tiempo de login: <?php echo date('Y-m-d H:i:s', $_SESSION['login_time'] ?? time()); ?><br>
-            Ruta actual: <?php echo $_SERVER['REQUEST_URI'] ?? 'No definida'; ?>
+        // Verificar si el archivo existe antes de incluirlo
+        if (file_exists($header_path)) {
+            include_once $header_path;
+        } else {
+            // Header alternativo si no se encuentra el archivo
+            echo '<div class="header-placeholder" style="background: rgba(220, 38, 38, 0.1); border-radius: 25px; padding: 20px; color: #dc2626; font-weight: bold; text-align: center;">Header no encontrado</div>';
+        }
+        ?>
+    </div>
+
+   <div style="height: 180px;"></div>
+
+    <!-- Área de Contenido Principal -->
+    <div class="main-content-area">
+        <div class="dashboard-content">
+            <h2>Dashboard Administrador</h2>
+            <p>
+                Bienvenido al panel de administración de Tech Home Bolivia. 
+            </p>
+            <p>
+                <strong>Usuario:</strong> <?php echo htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']); ?><br>
+                <strong>Rol:</strong> <?php echo htmlspecialchars($usuario['rol']); ?><br>
+                <strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?>
+            </p>
         </div>
-        <?php endif; ?>
+    </div>
+
+    <!-- Incluir Footer Component -->
+    <div class="footer-container">
+        <?php
+        // Ruta al componente footer reutilizable
+        $footer_path = '../../vistas/layouts/footer.php';
+        
+        // Verificar si el archivo existe antes de incluirlo
+        if (file_exists($footer_path)) {
+            include_once $footer_path;
+        } else {
+            // Footer alternativo si no se encuentra el archivo
+            echo '<div class="footer-placeholder" style="background: rgba(220, 38, 38, 0.1); border-radius: 25px; padding: 20px; color: #dc2626; font-weight: bold; text-align: center; margin: 20px;">Footer no encontrado</div>';
+        }
+        ?>
     </div>
 
     <script>
-        console.log('Dashboard Administrador cargado correctamente');
+        console.log('Dashboard Administrador limpio cargado correctamente');
         console.log('Usuario:', <?php echo json_encode($usuario); ?>);
         console.log('Session ID:', '<?php echo session_id(); ?>');
         
-        // Función mejorada de logout con confirmación
-        document.getElementById('logoutBtn').addEventListener('click', function(e) {
-            e.preventDefault();
+        // Configurar el header para admin
+        document.addEventListener('DOMContentLoaded', function() {
             
-            const logoutUrl = this.getAttribute('data-logout-url');
-            
-            // Confirmación de logout
-            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-                console.log('Cerrando sesión...');
-                console.log('Redirect a:', logoutUrl);
-                
-                // Limpiar cualquier storage local
-                if (typeof(Storage) !== "undefined") {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                }
-                
-                // Forzar limpieza de cache del navegador
-                window.location.href = logoutUrl + '?t=' + Date.now();
-            }
-        });
-        
-        // Verificar conectividad y estado de sesión cada 30 segundos
-        setInterval(function() {
-            // Verificación simple de sesión via fetch (opcional)
-            fetch('../../verify_session.php', {
-                method: 'GET',
-                cache: 'no-cache'
-            }).then(response => response.json())
-              .then(data => {
-                  if (!data.authenticated) {
-                      console.log('Sesión expirada, redirigiendo...');
-                      window.location.href = '../../login.php?session_expired=1';
-                  }
-              }).catch(error => {
-                  console.log('Error verificando sesión:', error);
-              });
-        }, 30000);
-        
-        // Animaciones de entrada
-        const cards = document.querySelectorAll('.stat-card, .dashboard-section');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            
+            // ASEGURAR QUE EL SIDEBAR TENGA LA MÁXIMA PRIORIDAD
             setTimeout(() => {
-                card.style.transition = 'all 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
+                const sidebarElements = document.querySelectorAll('.ithr-navigation-panel, .tech-home-sidebar, [class*="sidebar"]');
+                sidebarElements.forEach(sidebar => {
+                    sidebar.style.zIndex = '2000';
+                    sidebar.style.position = 'fixed';
+                });
+                
+                // Verificar que no haya elementos con z-index mayor
+                const allElements = document.querySelectorAll('*');
+                allElements.forEach(element => {
+                    const zIndex = window.getComputedStyle(element).zIndex;
+                    if (zIndex && parseInt(zIndex) > 2000 && !element.classList.contains('ithr-navigation-panel') && !element.classList.contains('tech-home-sidebar')) {
+                        console.warn('Elemento con z-index mayor al sidebar detectado:', element);
+                    }
+                });
+
+                // APLICAR PARÁMETROS UNIFICADOS BASADOS EN EL HEADER
+                const footerContainer = document.querySelector('.footer-container');
+                const footer = document.querySelector('.tech-home-footer');
+                const headerContainer = document.querySelector('.header-container');
+                const mainContent = document.querySelector('.main-content-area');
+                const dashboardContent = document.querySelector('.dashboard-content');
+                
+                // PARÁMETROS UNIFICADOS PARA TODOS LOS CONTENEDORES PRINCIPALES
+                const unifiedStyles = {
+                    marginLeft: '250px',
+                    marginRight: '20px',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    zIndex: '1'
+                };
+                
+                // Aplicar estilos unificados a todos los contenedores principales
+                [footerContainer, headerContainer, mainContent].forEach(element => {
+                    if (element) {
+                        Object.assign(element.style, unifiedStyles);
+                    }
+                });
+                
+                // PARÁMETROS INTERNOS UNIFICADOS (del CSS tech-header)
+                const internalStyles = {
+                    width: '100%',
+                    maxWidth: '1600px',
+                    margin: '0 auto',
+                    position: 'relative'
+                };
+                
+                // HEADER con parámetros específicos pero manteniendo consistencia
+                if (headerContainer) {
+                    headerContainer.style.position = 'fixed';
+                    headerContainer.style.top = '0';
+                    headerContainer.style.left = '0';
+                    headerContainer.style.right = '0';
+                    headerContainer.style.zIndex = '999'; 
+                }
+
+                // TECH-HEADER dentro del header-container
+                const techHeader = headerContainer?.querySelector('.tech-header');
+                if (techHeader) {
+                    Object.assign(techHeader.style, internalStyles);
+                }
+
+                // FOOTER con exactamente los mismos parámetros internos que el header
+                if (footer) {
+                    Object.assign(footer.style, internalStyles);
+                    footer.style.zIndex = '998'; 
+                }
+
+                // DASHBOARD CONTENT con parámetros similares
+                if (dashboardContent) {
+                    Object.assign(dashboardContent.style, internalStyles);
+                }
+
+                // FORZAR RECALCULO DE ESTILOS PARA EL FOOTER (soluciona el zoom)
+                if (footer && footerContainer) {
+                    // Forzar reflow del footer
+                    footer.style.display = 'none';
+                    footer.offsetHeight; 
+                    footer.style.display = '';
+                    
+                    // Aplicar estilos adicionales al footer para zoom
+                    footer.style.boxSizing = 'border-box';
+                    footer.style.minWidth = '0';
+                    footer.style.transform = 'translateZ(0)'; 
+                }
+
+                console.log('Layout unificado aplicado - Header y Footer con parámetros idénticos');
+
+                // SINCRONIZAR TEMA CORRECTAMENTE AL INICIALIZAR
+                syncThemeCorrectly();
+                
+                console.log('Layout unificado: todos los elementos con parámetros del header');
+            }, 50);
+            
+            // Esperar a que el header se inicialice
+            setTimeout(() => {
+                if (window.TechHeader) {
+                    // Configurar URL de logout específica para admin
+                    window.TechHeader.setLogoutUrl('../../logout.php');
+                    
+                    // Actualizar información del usuario si es necesario
+                    window.TechHeader.updateUserInfo({
+                        nombre: '<?php echo htmlspecialchars($usuario['nombre']); ?>',
+                        apellido: '<?php echo htmlspecialchars($usuario['apellido']); ?>',
+                        rol: '<?php echo htmlspecialchars($usuario['rol']); ?>',
+                        email: '<?php echo htmlspecialchars($usuario['email']); ?>'
+                    });
+                }
+
+                // Configurar el sidebar si tiene funciones de inicialización
+                if (window.TechSidebar) {
+                    window.TechSidebar.init();
+                }
+            }, 100);
         });
-        
-        // Prevenir ir hacia atrás después de logout
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                window.location.reload();
+
+        // Función para verificar espacios y posicionamiento 
+        function debugSpacing() {
+            const sidebar = document.querySelector('.ithr-navigation-panel, .tech-home-sidebar, [class*="sidebar"]');
+            const header = document.querySelector('.header-container');
+            const content = document.querySelector('.main-content-area');
+            const footerContainer = document.querySelector('.footer-container');
+            const footer = document.querySelector('.tech-home-footer');
+            
+            console.log('=== DEBUG TECH HOME - SEPARACIÓN ÚNICA 250PX ===');
+            
+            if (sidebar) {
+                console.log('Sidebar:', {
+                    position: window.getComputedStyle(sidebar).position,
+                    zIndex: window.getComputedStyle(sidebar).zIndex,
+                    width: sidebar.offsetWidth,
+                    left: sidebar.offsetLeft
+                });
+            }
+            
+            if (header) {
+                console.log('Header:', {
+                    marginLeft: window.getComputedStyle(header).marginLeft,
+                    position: window.getComputedStyle(header).position,
+                    top: window.getComputedStyle(header).top,
+                    zIndex: window.getComputedStyle(header).zIndex,
+                    isFixed: window.getComputedStyle(header).position === 'fixed'
+                });
+            }
+            
+            if (content) {
+                console.log('Content:', {
+                    marginLeft: window.getComputedStyle(content).marginLeft,
+                    marginTop: window.getComputedStyle(content).marginTop,
+                    position: window.getComputedStyle(content).position
+                });
+            }
+            
+            
+            if (footer) {
+                console.log('Footer Element:', {
+                    marginLeft: window.getComputedStyle(footer).marginLeft,
+                    marginRight: window.getComputedStyle(footer).marginRight,
+                    marginTop: window.getComputedStyle(footer).marginTop,
+                    position: window.getComputedStyle(footer).position,
+                    zIndex: window.getComputedStyle(footer).zIndex,
+                    maxWidth: window.getComputedStyle(footer).maxWidth,
+                    width: window.getComputedStyle(footer).width
+                });
+            }
+
+            // Verificar tema actual
+            const currentTheme = localStorage.getItem('ithrGlobalTheme') || 'light';
+            const hasIthrDark = document.body.classList.contains('ithr-dark-mode');
+            const hasDarkTheme = document.body.classList.contains('dark-theme');
+            
+            console.log('Tema:', {
+                localStorage: currentTheme,
+                ithrDarkMode: hasIthrDark,
+                darkTheme: hasDarkTheme,
+                sincronizado: (currentTheme === 'dark' && hasIthrDark) || (currentTheme === 'light' && !hasIthrDark)
+            });
+            
+            console.log('=== SEPARACIÓN ESPERADA: 250px ===');
+        }
+
+        // Función para sincronizar el tema CORRECTAMENTE (sin inversión)
+        function syncThemeCorrectly() {
+            const savedTheme = localStorage.getItem('ithrGlobalTheme') || 'light';
+            
+            // Limpiar clases anteriores
+            document.body.classList.remove('ithr-dark-mode', 'dark-theme');
+            
+            // Aplicar tema correcto
+            if (savedTheme === 'dark') {
+                document.body.classList.add('ithr-dark-mode');
+                document.body.classList.add('dark-theme');
+            }
+            
+            console.log('Tema sincronizado:', savedTheme, 'Body classes:', Array.from(document.body.classList));
+        }
+
+        // Función para forzar actualización del tema en el sidebar
+        function updateSidebarTheme() {
+            setTimeout(() => {
+                // Disparar evento personalizado para notificar cambio de tema
+                const themeEvent = new CustomEvent('themeChanged', {
+                    detail: { theme: localStorage.getItem('ithrGlobalTheme') || 'light' }
+                });
+                document.dispatchEvent(themeEvent);
+            }, 100);
+        }
+
+        // Sincronizar tema al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            syncThemeCorrectly();
+        });
+
+        // Escuchar cambios de tema del sidebar 
+        document.addEventListener('themeChanged', function(event) {
+            console.log('Evento de cambio de tema recibido');
+            syncThemeCorrectly();
+        });
+
+        // Monitorear cambios en localStorage 
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'ithrGlobalTheme') {
+                console.log('Cambio en localStorage detectado:', e.newValue);
+                syncThemeCorrectly();
             }
         });
+
+        // Verificar tema cada 500ms para asegurar sincronización
+        let themeCheckInterval = setInterval(() => {
+            const currentTheme = localStorage.getItem('ithrGlobalTheme') || 'light';
+            const bodyHasDark = document.body.classList.contains('ithr-dark-mode');
+            
+            // Si hay desincronización, corregir
+            if ((currentTheme === 'dark' && !bodyHasDark) || (currentTheme === 'light' && bodyHasDark)) {
+                console.log('Desincronización detectada, corrigiendo...');
+                syncThemeCorrectly();
+            }
+        }, 500);
+
+        // ESCUCHAR CAMBIOS DE ZOOM PARA RECALCULAR FOOTER
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Recalcular posicionamiento después del zoom
+                const footer = document.querySelector('.tech-home-footer');
+                const footerContainer = document.querySelector('.footer-container');
+                
+                if (footer && footerContainer) {
+                    // Reaplicar estilos del footer para zoom
+                    footer.style.width = '100%';
+                    footer.style.maxWidth = '1600px';
+                    footer.style.margin = '0 auto';
+                    footer.style.position = 'relative';
+                    footer.style.boxSizing = 'border-box';
+                    
+                    // Forzar recalculo
+                    footer.style.transform = 'translateZ(0)';
+                    footer.offsetHeight; // Trigger reflow
+                    
+                    console.log('Footer reajustado después del zoom');
+                }
+            }, 100);
+        });
+
+        // Función global para debug (disponible en consola)
+        window.debugTechHome = debugSpacing;
+
+        // Animación de entrada para el contenido
+        setTimeout(() => {
+            const content = document.querySelector('.dashboard-content');
+            if (content) {
+                content.style.opacity = '0';
+                content.style.transform = 'translateY(20px)';
+                content.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    content.style.opacity = '1';
+                    content.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        }, 200);
     </script>
 </body>
 </html>
