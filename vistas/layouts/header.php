@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,39 +8,52 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../publico/css/header.css">
 </head>
+
 <body style="margin: 2rem; background: linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #1f2937 100%); min-height: 100vh;">
-    <!-- Componente Header Tech Home -->
+    
+    <!-- ============================================
+         COMPONENTE HEADER TECH HOME
+         ============================================ -->
     <div class="tech-header" id="techHeader">
         <!-- Circuitos tecnológicos de fondo -->
         <div class="tech-circuit"></div>
         
-        
-<div class="header-content">
-    <!-- Sección Izquierda: Logo + Branding -->
-    <div class="welcome-section">
-        <div class="loga-container">
-            <!-- Icono Tech Home con estilo cuadrado como en footer -->
-            <div class="header-logo-icon">
-                <i class="fas fa-robot"></i>
+        <!-- ============================================
+             CONTENIDO PRINCIPAL DEL HEADER
+             ============================================ -->
+        <div class="header-content">
+            
+            <!-- ============================================
+                 SECCIÓN DEL LOGO (POSICIONADO AL INICIO)
+                 ============================================ -->
+            <div class="welcome-section">
+                <div class="loga-container">
+                    <img src="../../publico/imagenes/logos/LogoTech.png" alt="Tech Home Logo" class="header-logo-img">
+                </div>
             </div>
-        </div>
-        <div class="welcome-text">
-            <h1>TECH HOME</h1>
-            <p>Panel de control y gestión integral</p>
-        </div>
-    </div>
-
-            <!-- Sección Derecha: Controles y Usuario -->
+            
+            
+            <!-- ============================================
+                 SECCIÓN DERECHA: CONTROLES Y USUARIO
+                 ============================================ -->
             <div class="user-controls">
-                <!-- Botón de Notificaciones -->
+                
+                <!-- ============================================
+                     BOTÓN DE NOTIFICACIONES
+                     ============================================ -->
                 <a href="index.php?controlador=Dashboard&accion=notificaciones" class="notifications-btn" title="Notificaciones">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge" id="notification-count" style="display: none;">0</span>
                 </a>
-
-                <!-- Tarjeta de Usuario y Controles -->
+                
+                <!-- ============================================
+                     TARJETA DE USUARIO Y CONTROLES
+                     ============================================ -->
                 <div class="user-info">
-                    <!-- Avatar del Usuario -->
+                    
+                    <!-- ============================================
+                         AVATAR DEL USUARIO
+                         ============================================ -->
                     <div class="user-avatar" id="user-avatar">
                         <?php
                         // Mostrar avatar o iniciales del usuario
@@ -55,7 +69,9 @@
                         ?>
                     </div>
                     
-                    <!-- Datos del Usuario (Desde Sesión PHP) -->
+                    <!-- ============================================
+                         DATOS DEL USUARIO (DESDE SESIÓN PHP)
+                         ============================================ -->
                     <div class="user-details">
                         <h4 id="user-name">
                             <?php echo htmlspecialchars(($_SESSION['usuario_nombre'] ?? '') . ' ' . ($_SESSION['usuario_apellido'] ?? '')); ?>
@@ -68,7 +84,9 @@
                         </span>
                     </div>
                     
-                    <!-- Información de Fecha y Hora -->
+                    <!-- ============================================
+                         INFORMACIÓN DE FECHA Y HORA
+                         ============================================ -->
                     <div class="datetime-info">
                         <div class="datetime-item">
                             <i class="fas fa-calendar"></i>
@@ -80,7 +98,9 @@
                         </div>
                     </div>
                     
-                    <!-- Botón Cerrar Sesión Mejorado -->
+                    <!-- ============================================
+                         BOTÓN CERRAR SESIÓN MEJORADO
+                         ============================================ -->
                     <a href="#" class="logout-btn" id="logoutBtn" 
                        data-logout-url="logout.php" 
                        title="Cerrar Sesión">
@@ -91,6 +111,7 @@
             </div>
         </div>
     </div>
+
 
     <!-- JavaScript del Componente -->
     <script>

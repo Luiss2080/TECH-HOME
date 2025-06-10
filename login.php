@@ -185,7 +185,7 @@ if ($_POST) {
 
             <div class="logo-section">
                 <div class="logo-container">
-                    <img src="publico/imagenes/logos/tech_home_logo.png" alt="Tech Home Logo" class="logo-img">
+                    <img src="../TECH-HOME/publico/imagenes/logos/LogoTech-Home.png" alt="Tech Home Logo" class="logo-img">
                 </div>
                 <div class="logo-underline"></div>
             </div>

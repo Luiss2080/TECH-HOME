@@ -1,60 +1,37 @@
 <?php
 /**
  * ============================================================================
- * TECH HOME BOLIVIA - DASHBOARD ADMINISTRADOR LIMPIO
+ * TECH HOME BOLIVIA - Dashboard Administrador Unificado
  * Instituto: Tech Home Bolivia – Escuela de Robótica y Tecnología Avanzada
  * ============================================================================
  */
 
-// Iniciar sesión de forma segura
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Incluir el controlador
+require_once __DIR__ . '/../../controladores/AdminControlador.php';
 
-// Función de debug
+// Crear instancia del controlador
+$adminControlador = new AdminControlador();
+
+// Obtener todos los datos del dashboard
+$datosDashboard = $adminControlador->prepararDatosDashboard();
+
+// Extraer variables para usar en la vista
+$estadisticas = $datosDashboard['estadisticas'];
+$actividades_recientes = $datosDashboard['actividades_recientes'];
+$sesiones_activas = $datosDashboard['sesiones_activas'];
+$ventas_recientes = $datosDashboard['ventas_recientes'];
+$libros_recientes = $datosDashboard['libros_recientes'];
+$componentes_recientes = $datosDashboard['componentes_recientes'];
+$resumen_sistema = $datosDashboard['resumen_sistema'];
+$usuario = $datosDashboard['usuario'];
+
+// Función para debug
 function logDebug($mensaje) {
     error_log("[ADMIN DASHBOARD] " . $mensaje);
 }
 
-logDebug("Dashboard admin accedido");
-logDebug("Session ID: " . session_id());
-logDebug("Usuario en sesión: " . ($_SESSION['usuario_id'] ?? 'no definido'));
-
-// Verificar autenticación
-if (!isset($_SESSION['usuario_id']) || empty($_SESSION['usuario_id'])) {
-    logDebug("Usuario no autenticado, redirigiendo a login");
-    header("Location: ../../login.php");
-    exit();
-}
-
-// Verificar rol de administrador
-$rol = strtolower($_SESSION['usuario_rol'] ?? '');
-logDebug("Rol del usuario: " . $rol);
-
-if ($rol !== 'administrador') {
-    logDebug("Usuario sin permisos de administrador, redirigiendo según rol");
-    // Redirigir al dashboard apropiado según el rol
-    switch ($rol) {
-        case 'docente':
-            header("Location: docente.php");
-            break;
-        case 'estudiante':
-        default:
-            header("Location: estudiante.php");
-            break;
-    }
-    exit();
-}
-
-// Obtener datos del usuario
-$usuario = [
-    'nombre' => $_SESSION['usuario_nombre'] ?? '',
-    'apellido' => $_SESSION['usuario_apellido'] ?? '',
-    'email' => $_SESSION['usuario_email'] ?? '',
-    'rol' => $_SESSION['usuario_rol'] ?? ''
-];
-
-logDebug("Usuario admin cargado: " . $usuario['nombre']);
+logDebug("Dashboard admin cargado dinámicamente");
+logDebug("Usuario: " . $usuario['nombre'] . " " . $usuario['apellido']);
 ?>
 
 <!DOCTYPE html>
@@ -64,27 +41,24 @@ logDebug("Usuario admin cargado: " . $usuario['nombre']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Administrador - Tech Home Bolivia</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Evitar cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <!-- Estilos -->
-    <link rel="stylesheet" href="../../publico/css/admin/Admin.css">
-
+    <!-- Estilos base -->
+    <link rel="stylesheet" href="../../publico/css/admin/admin.css">
 </head>
 <body>
-    <!-- Incluir Sidebar Component con máxima prioridad -->
+    <!-- Incluir Sidebar Component -->
     <?php
-    // Ruta al componente sidebar reutilizable
     $sidebar_path = '../../vistas/layouts/sidebar.php';
     
-    // Verificar si el archivo existe antes de incluirlo
     if (file_exists($sidebar_path)) {
         include_once $sidebar_path;
     } else {
-        // Sidebar alternativo si no se encuentra el archivo
         echo '<div class="sidebar-placeholder">
                 <div style="text-align: center;">
                     <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i><br>
@@ -98,343 +72,503 @@ logDebug("Usuario admin cargado: " . $usuario['nombre']);
     <!-- Incluir Header Component -->
     <div class="header-container">
         <?php
-        // Ruta al componente header reutilizable
         $header_path = '../../vistas/layouts/header.php';
         
-        // Verificar si el archivo existe antes de incluirlo
         if (file_exists($header_path)) {
             include_once $header_path;
         } else {
-            // Header alternativo si no se encuentra el archivo
             echo '<div class="header-placeholder" style="background: rgba(220, 38, 38, 0.1); border-radius: 25px; padding: 20px; color: #dc2626; font-weight: bold; text-align: center;">Header no encontrado</div>';
         }
         ?>
     </div>
 
-   <div style="height: 180px;"></div>
+    <div style="height: 180px;"></div>
 
     <!-- Área de Contenido Principal -->
     <div class="main-content-area">
         <div class="dashboard-content">
-            <h2>Dashboard Administrador</h2>
-            <p>
-                Bienvenido al panel de administración de Tech Home Bolivia. 
-            </p>
-            <p>
-                <strong>Usuario:</strong> <?php echo htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']); ?><br>
-                <strong>Rol:</strong> <?php echo htmlspecialchars($usuario['rol']); ?><br>
-                <strong>Email:</strong> <?php echo htmlspecialchars($usuario['email']); ?>
-            </p>
+            
+            <!-- Sección 1: Acciones Rápidas -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-bolt"></i>
+                    Acciones Rápidas
+                </h2>
+                <p class="section-subtitle">Accede rápidamente a las funciones principales del sistema</p>
+                
+                <div class="quick-actions-grid">
+                    <a href="../../vistas/usuarios/crear.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h3 class="action-title">Nuevo Usuario</h3>
+                        <p class="action-description">Registrar un nuevo usuario en el sistema</p>
+                    </a>
+
+                    <a href="../../vistas/cursos/crear.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h3 class="action-title">Nuevo Curso</h3>
+                        <p class="action-description">Crear un nuevo curso en la plataforma</p>
+                    </a>
+
+                    <a href="../../vistas/componentes/crear.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <h3 class="action-title">Nuevo Componente</h3>
+                        <p class="action-description">Agregar componente al inventario</p>
+                    </a>
+
+                    <a href="../../vistas/ventas/crear.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h3 class="action-title">Nueva Venta</h3>
+                        <p class="action-description">Procesar una nueva orden de venta</p>
+                    </a>
+
+                    <a href="../../vistas/libros/crear.php" class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-book"></i> <!-- ÍCONO DE LIBRO AGREGADO -->
+                        </div>
+                        <h3 class="action-title">Nuevo Libro</h3>
+                        <p class="action-description">Agregar libro a la biblioteca</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sección 2: Métricas del Sistema -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Métricas del Sistema
+                </h2>
+                
+                <div class="metrics-grid">
+                    <!-- Primera fila: Estudiantes, Docentes, Reportes -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon students">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value"><?php echo $estadisticas['estudiantes_total']; ?></div>
+                                <div class="metric-label">Estudiantes Registrados</div>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-trend trend-positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span><?php echo $estadisticas['estudiantes_activos']; ?> activos</span>
+                            </div>
+                            <a href="../../vistas/usuarios/index.php?rol=estudiante" class="metric-action">
+                                <i class="fas fa-users-cog"></i>
+                                Gestionar
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon teachers">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value"><?php echo $estadisticas['docentes_total']; ?></div>
+                                <div class="metric-label">Docentes Certificados</div>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-trend trend-positive">
+                                <i class="fas fa-check-circle"></i>
+                                <span><?php echo $estadisticas['docentes_activos']; ?> activos</span>
+                            </div>
+                            <a href="../../vistas/usuarios/index.php?rol=docente" class="metric-action">
+                                <i class="fas fa-user-tie"></i>
+                                Ver Docentes
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon reports">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value"><?php echo $estadisticas['reportes_generados']; ?></div>
+                                <div class="metric-label">Reportes del Mes</div>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-trend trend-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span><?php echo $estadisticas['reportes_pendientes']; ?> pendientes</span>
+                            </div>
+                            <a href="../../vistas/Reportes/index.php" class="metric-action">
+                                <i class="fas fa-chart-line"></i>
+                                Ver Reportes
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Segunda fila: Cursos, Libros, Componentes -->
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon courses">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value"><?php echo $estadisticas['cursos_total']; ?></div>
+                                <div class="metric-label">Cursos Disponibles</div>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-trend trend-positive">
+                                <i class="fas fa-check-circle"></i>
+                                <span><?php echo $estadisticas['cursos_publicados']; ?> publicados</span>
+                            </div>
+                            <a href="../../vistas/cursos/index.php" class="metric-action">
+                                <i class="fas fa-book-reader"></i>
+                                Ver Cursos
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon books">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value"><?php echo $estadisticas['libros_total']; ?></div>
+                                <div class="metric-label">Libros en Biblioteca</div>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-trend trend-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span><?php echo $estadisticas['libros_stock_bajo']; ?> stock bajo</span>
+                            </div>
+                            <a href="../../vistas/libros/index.php" class="metric-action">
+                                <i class="fas fa-book-open"></i>
+                                Ver Biblioteca
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-icon components">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="metric-info">
+                                <div class="metric-value"><?php echo $estadisticas['componentes_total']; ?></div>
+                                <div class="metric-label">Componentes Electrónicos</div>
+                            </div>
+                        </div>
+                        <div class="metric-footer">
+                            <div class="metric-trend trend-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span><?php echo $estadisticas['componentes_stock_bajo']; ?> stock bajo</span>
+                            </div>
+                            <a href="../../vistas/componentes/index.php" class="metric-action">
+                                <i class="fas fa-warehouse"></i>
+                                Ver Inventario
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 3: Actividad Reciente y Sesiones Activas -->
+            <div class="section-card">
+                <div class="widgets-grid">
+                    
+                    <!-- Widget de Actividad Reciente -->
+                    <div class="widget">
+                        <h3 class="widget-title">
+                            <i class="fas fa-clock"></i>
+                            Actividad Reciente
+                        </h3>
+                        
+                        <?php foreach ($actividades_recientes as $actividad): ?>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: <?php echo $actividad['color']; ?>;">
+                                <i class="fas fa-<?php echo $actividad['icono']; ?>"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title"><?php echo $actividad['titulo']; ?></div>
+                                <div class="activity-description"><?php echo $actividad['descripcion']; ?></div>
+                            </div>
+                            <div class="activity-time">Hace <?php echo $actividad['tiempo']; ?></div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- Widget de Sesiones Activas -->
+                    <div class="widget">
+                        <h3 class="widget-title">
+                            <i class="fas fa-wifi"></i>
+                            Sesiones Activas (<?php echo count($sesiones_activas); ?>)
+                        </h3>
+                        
+                        <?php foreach ($sesiones_activas as $sesion): ?>
+                        <div class="session-item">
+                            <div class="session-user">
+                                <div class="status-indicator"></div>
+                                <div>
+                                    <div class="session-name"><?php echo $sesion['usuario']; ?></div>
+                                    <div class="session-role"><?php echo $sesion['rol']; ?></div>
+                                </div>
+                            </div>
+                            <div class="session-info">
+                                <div class="session-time"><?php echo $sesion['tiempo']; ?></div>
+                                <div class="session-device"><?php echo $sesion['dispositivo']; ?></div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 4: Resumen del Sistema y Ventas Recientes -->
+            <div class="section-card">
+                <div class="widgets-grid">
+                    
+                    <!-- Widget de Resumen del Sistema -->
+                    <div class="widget summary-widget">
+                        <h3 class="widget-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Resumen del Sistema
+                            <a href="../../vistas/reportes/index.php" class="widget-action">Ver reportes</a>
+                        </h3>
+                        
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="summary-content">
+                                    <div class="summary-label">Promedio por venta</div>
+                                    <div class="summary-value">Bs. <?php echo AdminControlador::formatearNumero($resumen_sistema['promedio_venta'], 2); ?></div>
+                                    <div class="summary-description">Valor promedio de transacción</div>
+                                </div>
+                                <div class="summary-badge trend-positive">Promedio</div>
+                            </div>
+
+                            <div class="summary-item">
+                                <div class="summary-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                                    <i class="fas fa-tags"></i>
+                                </div>
+                                <div class="summary-content">
+                                    <div class="summary-label">Categorías activas</div>
+                                    <div class="summary-value"><?php echo $resumen_sistema['categorias_activas']; ?></div>
+                                    <div class="summary-description">Robótica, Electrónica, IoT, etc.</div>
+                                </div>
+                                <div class="summary-badge trend-positive">Activas</div>
+                            </div>
+
+                            <div class="summary-item">
+                                <div class="summary-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="summary-content">
+                                    <div class="summary-label">Usuarios del sistema</div>
+                                    <div class="summary-value"><?php echo $resumen_sistema['total_usuarios']; ?></div>
+                                    <div class="summary-description">Admin, supervisores, vendedores</div>
+                                </div>
+                                <div class="summary-badge trend-warning">Personal</div>
+                            </div>
+
+                            <div class="summary-item">
+                                <div class="summary-icon" style="background: linear-gradient(135deg, #10b981, #047857);">
+                                    <i class="fas fa-warehouse"></i>
+                                </div>
+                                <div class="summary-content">
+                                    <div class="summary-label">Valor total inventario</div>
+                                    <div class="summary-value">Bs. <?php echo AdminControlador::formatearNumero($resumen_sistema['valor_inventario'] / 1000, 0); ?>K</div>
+                                    <div class="summary-description">Valor comercial del stock</div>
+                                </div>
+                                <div class="summary-badge trend-positive">Inventario</div>
+                            </div>
+
+                            <div class="summary-item">
+                                <div class="summary-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="summary-content">
+                                    <div class="summary-label">Tasa de conversión</div>
+                                    <div class="summary-value"><?php echo $resumen_sistema['tasa_conversion']; ?>%</div>
+                                    <div class="summary-description">Visitantes que realizan compras</div>
+                                </div>
+                                <div class="summary-badge trend-positive"><?php echo $resumen_sistema['tasa_conversion']; ?>%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Widget de Ventas Recientes -->
+                    <div class="widget sales-widget">
+                        <h3 class="widget-title">
+                            <i class="fas fa-shopping-cart"></i>
+                            Ventas Recientes
+                            <a href="../../vistas/ventas/index.php" class="widget-action">Ver todas</a>
+                        </h3>
+                        
+                        <div class="sales-scroll">
+                            <?php foreach ($ventas_recientes as $venta): ?>
+                            <div class="sale-item">
+                                <div class="sale-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="sale-content">
+                                    <div class="sale-customer"><?php echo htmlspecialchars($venta['cliente']); ?></div>
+                                    <div class="sale-product"><?php echo htmlspecialchars($venta['producto']); ?></div>
+                                    <div class="sale-date">Hace <?php echo $venta['fecha']; ?></div>
+                                </div>
+                                <div class="sale-details">
+                                    <div class="sale-amount"><?php echo AdminControlador::formatearMoneda($venta['monto']); ?></div>
+                                    <div class="sale-location"><?php echo htmlspecialchars($venta['ciudad']); ?></div>
+                                    <div class="sale-status <?php echo AdminControlador::obtenerClaseEstado($venta['estado']); ?>">
+                                        <?php echo $venta['estado']; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 5: Libros Recientemente Registrados -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-header-content">
+                        <h2 class="section-title">
+                            <i class="fas fa-book"></i>
+                            Libros Recientemente Registrados
+                        </h2>
+                        <p class="section-subtitle">Últimas incorporaciones a la biblioteca digital de Tech Home Bolivia</p>
+                    </div>
+                    <div class="section-header-actions">
+                        <a href="../../vistas/libros/index.php" class="section-action-header">
+                            <i class="fas fa-book-open"></i>
+                            Ver toda la biblioteca
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="products-scroll">
+                    <div class="products-grid">
+                        <?php foreach ($libros_recientes as $libro): ?>
+                        <div class="product-card book-card">
+                            <div class="product-image">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="product-content">
+                                <div class="product-category"><?php echo htmlspecialchars($libro['categoria']); ?></div>
+                                <div class="product-title"><?php echo htmlspecialchars($libro['titulo']); ?></div>
+                                <div class="product-author">Por: <?php echo htmlspecialchars($libro['autor']); ?></div>
+                                <div class="product-price"><?php echo AdminControlador::formatearMoneda($libro['precio']); ?></div>
+                                <div class="product-footer">
+                                    <div class="product-stock">Stock: <?php echo $libro['stock']; ?> unidades</div>
+                                    <div class="product-status <?php echo AdminControlador::obtenerClaseEstado($libro['estado']); ?>">
+                                        <?php echo $libro['estado']; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 6: Componentes Registrados Recientemente -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-header-content">
+                        <h2 class="section-title">
+                            <i class="fas fa-microchip"></i>
+                            Componentes Registrados Recientemente
+                        </h2>
+                        <p class="section-subtitle">Últimos componentes electrónicos agregados al inventario</p>
+                    </div>
+                    <div class="section-header-actions">
+                        <a href="../../vistas/componentes/index.php" class="section-action-header">
+                            <i class="fas fa-warehouse"></i>
+                            Ver inventario completo
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="products-scroll">
+                    <div class="products-grid">
+                        <?php foreach ($componentes_recientes as $componente): ?>
+                        <div class="product-card component-card">
+                            <div class="product-image">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="product-content">
+                                <div class="product-category"><?php echo htmlspecialchars($componente['categoria']); ?></div>
+                                <div class="product-title"><?php echo htmlspecialchars($componente['nombre']); ?></div>
+                                <div class="product-code">Código: <?php echo htmlspecialchars($componente['codigo']); ?></div>
+                                <div class="product-price"><?php echo AdminControlador::formatearMoneda($componente['precio']); ?></div>
+                                <div class="product-footer">
+                                    <div class="product-stock">Stock: <?php echo $componente['stock']; ?> unidades</div>
+                                    <div class="product-status <?php echo AdminControlador::obtenerClaseEstado($componente['estado']); ?>">
+                                        <?php echo $componente['estado']; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Incluir Footer Component -->
     <div class="footer-container">
         <?php
-        // Ruta al componente footer reutilizable
         $footer_path = '../../vistas/layouts/footer.php';
         
-        // Verificar si el archivo existe antes de incluirlo
         if (file_exists($footer_path)) {
             include_once $footer_path;
         } else {
-            // Footer alternativo si no se encuentra el archivo
             echo '<div class="footer-placeholder" style="background: rgba(220, 38, 38, 0.1); border-radius: 25px; padding: 20px; color: #dc2626; font-weight: bold; text-align: center; margin: 20px;">Footer no encontrado</div>';
         }
         ?>
     </div>
 
+    <!-- Scripts -->
+    <script src="../../publico/js/admin.js"></script>
     <script>
-        console.log('Dashboard Administrador limpio cargado correctamente');
-        console.log('Usuario:', <?php echo json_encode($usuario); ?>);
-        console.log('Session ID:', '<?php echo session_id(); ?>');
-        
-        // Configurar el header para admin
+        // Inicializar el dashboard cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
+            // Preparar datos del usuario para JavaScript
+            const userData = {
+                nombre: '<?php echo htmlspecialchars($usuario['nombre']); ?>',
+                apellido: '<?php echo htmlspecialchars($usuario['apellido']); ?>',
+                rol: '<?php echo htmlspecialchars($usuario['rol']); ?>',
+                email: '<?php echo htmlspecialchars($usuario['email']); ?>',
+                sessionId: '<?php echo session_id(); ?>'
+            };
             
-            // ASEGURAR QUE EL SIDEBAR TENGA LA MÁXIMA PRIORIDAD
+            // Inicializar el dashboard con los datos del usuario
+            if (typeof initAdminDashboard === 'function') {
+                initAdminDashboard(userData);
+            }
+            
+            // Inicializar efectos adicionales
             setTimeout(() => {
-                const sidebarElements = document.querySelectorAll('.ithr-navigation-panel, .tech-home-sidebar, [class*="sidebar"]');
-                sidebarElements.forEach(sidebar => {
-                    sidebar.style.zIndex = '2000';
-                    sidebar.style.position = 'fixed';
-                });
-                
-                // Verificar que no haya elementos con z-index mayor
-                const allElements = document.querySelectorAll('*');
-                allElements.forEach(element => {
-                    const zIndex = window.getComputedStyle(element).zIndex;
-                    if (zIndex && parseInt(zIndex) > 2000 && !element.classList.contains('ithr-navigation-panel') && !element.classList.contains('tech-home-sidebar')) {
-                        console.warn('Elemento con z-index mayor al sidebar detectado:', element);
-                    }
-                });
-
-                // APLICAR PARÁMETROS UNIFICADOS BASADOS EN EL HEADER
-                const footerContainer = document.querySelector('.footer-container');
-                const footer = document.querySelector('.tech-home-footer');
-                const headerContainer = document.querySelector('.header-container');
-                const mainContent = document.querySelector('.main-content-area');
-                const dashboardContent = document.querySelector('.dashboard-content');
-                
-                // PARÁMETROS UNIFICADOS PARA TODOS LOS CONTENEDORES PRINCIPALES
-                const unifiedStyles = {
-                    marginLeft: '250px',
-                    marginRight: '20px',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                    zIndex: '1'
-                };
-                
-                // Aplicar estilos unificados a todos los contenedores principales
-                [footerContainer, headerContainer, mainContent].forEach(element => {
-                    if (element) {
-                        Object.assign(element.style, unifiedStyles);
-                    }
-                });
-                
-                // PARÁMETROS INTERNOS UNIFICADOS (del CSS tech-header)
-                const internalStyles = {
-                    width: '100%',
-                    maxWidth: '1600px',
-                    margin: '0 auto',
-                    position: 'relative'
-                };
-                
-                // HEADER con parámetros específicos pero manteniendo consistencia
-                if (headerContainer) {
-                    headerContainer.style.position = 'fixed';
-                    headerContainer.style.top = '0';
-                    headerContainer.style.left = '0';
-                    headerContainer.style.right = '0';
-                    headerContainer.style.zIndex = '999'; 
+                if (typeof initAdvancedEffects === 'function') {
+                    initAdvancedEffects();
                 }
-
-                // TECH-HEADER dentro del header-container
-                const techHeader = headerContainer?.querySelector('.tech-header');
-                if (techHeader) {
-                    Object.assign(techHeader.style, internalStyles);
-                }
-
-                // FOOTER con exactamente los mismos parámetros internos que el header
-                if (footer) {
-                    Object.assign(footer.style, internalStyles);
-                    footer.style.zIndex = '998'; 
-                }
-
-                // DASHBOARD CONTENT con parámetros similares
-                if (dashboardContent) {
-                    Object.assign(dashboardContent.style, internalStyles);
-                }
-
-                // FORZAR RECALCULO DE ESTILOS PARA EL FOOTER (soluciona el zoom)
-                if (footer && footerContainer) {
-                    // Forzar reflow del footer
-                    footer.style.display = 'none';
-                    footer.offsetHeight; 
-                    footer.style.display = '';
-                    
-                    // Aplicar estilos adicionales al footer para zoom
-                    footer.style.boxSizing = 'border-box';
-                    footer.style.minWidth = '0';
-                    footer.style.transform = 'translateZ(0)'; 
-                }
-
-                console.log('Layout unificado aplicado - Header y Footer con parámetros idénticos');
-
-                // SINCRONIZAR TEMA CORRECTAMENTE AL INICIALIZAR
-                syncThemeCorrectly();
-                
-                console.log('Layout unificado: todos los elementos con parámetros del header');
-            }, 50);
-            
-            // Esperar a que el header se inicialice
-            setTimeout(() => {
-                if (window.TechHeader) {
-                    // Configurar URL de logout específica para admin
-                    window.TechHeader.setLogoutUrl('../../logout.php');
-                    
-                    // Actualizar información del usuario si es necesario
-                    window.TechHeader.updateUserInfo({
-                        nombre: '<?php echo htmlspecialchars($usuario['nombre']); ?>',
-                        apellido: '<?php echo htmlspecialchars($usuario['apellido']); ?>',
-                        rol: '<?php echo htmlspecialchars($usuario['rol']); ?>',
-                        email: '<?php echo htmlspecialchars($usuario['email']); ?>'
-                    });
-                }
-
-                // Configurar el sidebar si tiene funciones de inicialización
-                if (window.TechSidebar) {
-                    window.TechSidebar.init();
-                }
-            }, 100);
+            }, 500);
         });
-
-        // Función para verificar espacios y posicionamiento 
-        function debugSpacing() {
-            const sidebar = document.querySelector('.ithr-navigation-panel, .tech-home-sidebar, [class*="sidebar"]');
-            const header = document.querySelector('.header-container');
-            const content = document.querySelector('.main-content-area');
-            const footerContainer = document.querySelector('.footer-container');
-            const footer = document.querySelector('.tech-home-footer');
-            
-            console.log('=== DEBUG TECH HOME - SEPARACIÓN ÚNICA 250PX ===');
-            
-            if (sidebar) {
-                console.log('Sidebar:', {
-                    position: window.getComputedStyle(sidebar).position,
-                    zIndex: window.getComputedStyle(sidebar).zIndex,
-                    width: sidebar.offsetWidth,
-                    left: sidebar.offsetLeft
-                });
-            }
-            
-            if (header) {
-                console.log('Header:', {
-                    marginLeft: window.getComputedStyle(header).marginLeft,
-                    position: window.getComputedStyle(header).position,
-                    top: window.getComputedStyle(header).top,
-                    zIndex: window.getComputedStyle(header).zIndex,
-                    isFixed: window.getComputedStyle(header).position === 'fixed'
-                });
-            }
-            
-            if (content) {
-                console.log('Content:', {
-                    marginLeft: window.getComputedStyle(content).marginLeft,
-                    marginTop: window.getComputedStyle(content).marginTop,
-                    position: window.getComputedStyle(content).position
-                });
-            }
-            
-            
-            if (footer) {
-                console.log('Footer Element:', {
-                    marginLeft: window.getComputedStyle(footer).marginLeft,
-                    marginRight: window.getComputedStyle(footer).marginRight,
-                    marginTop: window.getComputedStyle(footer).marginTop,
-                    position: window.getComputedStyle(footer).position,
-                    zIndex: window.getComputedStyle(footer).zIndex,
-                    maxWidth: window.getComputedStyle(footer).maxWidth,
-                    width: window.getComputedStyle(footer).width
-                });
-            }
-
-            // Verificar tema actual
-            const currentTheme = localStorage.getItem('ithrGlobalTheme') || 'light';
-            const hasIthrDark = document.body.classList.contains('ithr-dark-mode');
-            const hasDarkTheme = document.body.classList.contains('dark-theme');
-            
-            console.log('Tema:', {
-                localStorage: currentTheme,
-                ithrDarkMode: hasIthrDark,
-                darkTheme: hasDarkTheme,
-                sincronizado: (currentTheme === 'dark' && hasIthrDark) || (currentTheme === 'light' && !hasIthrDark)
-            });
-            
-            console.log('=== SEPARACIÓN ESPERADA: 250px ===');
-        }
-
-        // Función para sincronizar el tema CORRECTAMENTE (sin inversión)
-        function syncThemeCorrectly() {
-            const savedTheme = localStorage.getItem('ithrGlobalTheme') || 'light';
-            
-            // Limpiar clases anteriores
-            document.body.classList.remove('ithr-dark-mode', 'dark-theme');
-            
-            // Aplicar tema correcto
-            if (savedTheme === 'dark') {
-                document.body.classList.add('ithr-dark-mode');
-                document.body.classList.add('dark-theme');
-            }
-            
-            console.log('Tema sincronizado:', savedTheme, 'Body classes:', Array.from(document.body.classList));
-        }
-
-        // Función para forzar actualización del tema en el sidebar
-        function updateSidebarTheme() {
-            setTimeout(() => {
-                // Disparar evento personalizado para notificar cambio de tema
-                const themeEvent = new CustomEvent('themeChanged', {
-                    detail: { theme: localStorage.getItem('ithrGlobalTheme') || 'light' }
-                });
-                document.dispatchEvent(themeEvent);
-            }, 100);
-        }
-
-        // Sincronizar tema al cargar
-        document.addEventListener('DOMContentLoaded', function() {
-            syncThemeCorrectly();
-        });
-
-        // Escuchar cambios de tema del sidebar 
-        document.addEventListener('themeChanged', function(event) {
-            console.log('Evento de cambio de tema recibido');
-            syncThemeCorrectly();
-        });
-
-        // Monitorear cambios en localStorage 
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'ithrGlobalTheme') {
-                console.log('Cambio en localStorage detectado:', e.newValue);
-                syncThemeCorrectly();
-            }
-        });
-
-        // Verificar tema cada 500ms para asegurar sincronización
-        let themeCheckInterval = setInterval(() => {
-            const currentTheme = localStorage.getItem('ithrGlobalTheme') || 'light';
-            const bodyHasDark = document.body.classList.contains('ithr-dark-mode');
-            
-            // Si hay desincronización, corregir
-            if ((currentTheme === 'dark' && !bodyHasDark) || (currentTheme === 'light' && bodyHasDark)) {
-                console.log('Desincronización detectada, corrigiendo...');
-                syncThemeCorrectly();
-            }
-        }, 500);
-
-        // ESCUCHAR CAMBIOS DE ZOOM PARA RECALCULAR FOOTER
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                // Recalcular posicionamiento después del zoom
-                const footer = document.querySelector('.tech-home-footer');
-                const footerContainer = document.querySelector('.footer-container');
-                
-                if (footer && footerContainer) {
-                    // Reaplicar estilos del footer para zoom
-                    footer.style.width = '100%';
-                    footer.style.maxWidth = '1600px';
-                    footer.style.margin = '0 auto';
-                    footer.style.position = 'relative';
-                    footer.style.boxSizing = 'border-box';
-                    
-                    // Forzar recalculo
-                    footer.style.transform = 'translateZ(0)';
-                    footer.offsetHeight; // Trigger reflow
-                    
-                    console.log('Footer reajustado después del zoom');
-                }
-            }, 100);
-        });
-
-        // Función global para debug (disponible en consola)
-        window.debugTechHome = debugSpacing;
-
-        // Animación de entrada para el contenido
-        setTimeout(() => {
-            const content = document.querySelector('.dashboard-content');
-            if (content) {
-                content.style.opacity = '0';
-                content.style.transform = 'translateY(20px)';
-                content.style.transition = 'all 0.6s ease';
-                
-                setTimeout(() => {
-                    content.style.opacity = '1';
-                    content.style.transform = 'translateY(0)';
-                }, 100);
-            }
-        }, 200);
     </script>
 </body>
 </html>
