@@ -12,7 +12,8 @@ class AdminModelo {
     private $conexion;
     
     public function __construct() {
-        $this->conexion = Database::getConnection();
+        $db = new Database();
+        $this->conexion = $db->getConnection();
     }
     
     /**

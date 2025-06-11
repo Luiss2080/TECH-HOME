@@ -101,9 +101,7 @@
                     <!-- ============================================
                          BOTÓN CERRAR SESIÓN MEJORADO
                          ============================================ -->
-                    <a href="#" class="logout-btn" id="logoutBtn" 
-                       data-logout-url="logout.php" 
-                       title="Cerrar Sesión">
+                   <a href="/TECH-HOME/logout.php" class="logout-btn" title="Cerrar Sesión">
                         <i class="fas fa-sign-out-alt"></i>
                         Cerrar Sesión
                     </a>

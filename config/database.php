@@ -1,328 +1,128 @@
 <?php
 /**
- * ============================================================================
- * TECH HOME BOLIVIA - CONFIGURACIÓN DE BASE DE DATOS
- * Instituto: Tech Home Bolivia – Escuela de Robótica y Tecnología Avanzada
- * ============================================================================
+ * Configuración de base de datos para Tech Home Bolivia
+ * Configuración actualizada para la nueva estructura
  */
 
 class Database {
+    private $host = "localhost";
+    private $dbname = "tech_home";
+    private $username = "root";
+    private $password = "";
+    private $pdo = null;
     
-    // Configuración de la base de datos
-    private static $host = 'localhost';
-    private static $dbname = 'tech_home';
-    private static $username = 'root';
-    private static $password = '';
-    private static $charset = 'utf8mb4';
-    private static $options = [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-    ];
-    
-    // Instancia única de la conexión
-    private static $instance = null;
-    
-    /**
-     * Constructor privado para implementar Singleton
-     */
-    private function __construct() {}
-    
-    /**
-     * Clonar privado para implementar Singleton
-     */
-    private function __clone() {}
-    
-    /**
-     * Obtener instancia única de la conexión
-     * @return PDO Conexión a la base de datos
-     */
-    public static function getConnection() {
-        if (self::$instance === null) {
+    public function getConnection() {
+        if ($this->pdo === null) {
             try {
-                // Construir DSN
-                $dsn = "mysql:host=" . self::$host . ";dbname=" . self::$dbname . ";charset=" . self::$charset;
+                $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+                $options = [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+                ];
                 
-                // Crear nueva conexión PDO
-                self::$instance = new PDO($dsn, self::$username, self::$password, self::$options);
+                $this->pdo = new PDO($dsn, $this->username, $this->password, $options);
                 
-                // Log de conexión exitosa
-                error_log("[DATABASE] Conexión establecida exitosamente a la base de datos: " . self::$dbname);
+                // Verificar que las tablas existen
+                $this->verificarEstructura();
                 
             } catch (PDOException $e) {
-                // Log del error
-                error_log("[DATABASE ERROR] Error al conectar con la base de datos: " . $e->getMessage());
-                
-                // En desarrollo, mostrar error detallado
-                if (defined('TECH_HOME_ENV') && TECH_HOME_ENV === 'development') {
-                    die("Error de conexión a la base de datos: " . $e->getMessage());
-                } else {
-                    // En producción, error genérico
-                    die("Error de conexión a la base de datos. Contacte al administrador.");
-                }
+                error_log("Error de conexión a la base de datos: " . $e->getMessage());
+                throw new Exception("Error de conexión a la base de datos: " . $e->getMessage());
             }
         }
         
-        return self::$instance;
+        return $this->pdo;
     }
     
     /**
-     * Configurar parámetros de conexión
-     * @param array $config Configuración de la base de datos
+     * Verificar que existen las tablas necesarias
      */
-    public static function configure($config) {
-        // Solo permitir configuración si no hay conexión activa
-        if (self::$instance === null) {
-            self::$host = $config['host'] ?? self::$host;
-            self::$dbname = $config['dbname'] ?? self::$dbname;
-            self::$username = $config['username'] ?? self::$username;
-            self::$password = $config['password'] ?? self::$password;
-            self::$charset = $config['charset'] ?? self::$charset;
+    private function verificarEstructura() {
+        try {
+            $tablasRequeridas = [
+                'usuarios', 'roles', 'categorias', 'cursos', 'libros', 
+                'componentes', 'ventas', 'detalle_ventas', 'progreso_estudiantes',
+                'descargas_libros', 'configuraciones', 'sesiones_activas', 
+                'acceso_invitados', 'intentos_login'
+            ];
             
-            // Configurar opciones adicionales si se proporcionan
-            if (isset($config['options'])) {
-                self::$options = array_merge(self::$options, $config['options']);
-            }
-            
-            error_log("[DATABASE] Configuración actualizada para host: " . self::$host . ", database: " . self::$dbname);
-        } else {
-            error_log("[DATABASE WARNING] Intento de reconfigurar base de datos con conexión activa");
-        }
-    }
-    
-    /**
-     * Verificar si la conexión está activa
-     * @return boolean True si la conexión está activa
-     */
-    public static function isConnected() {
-        if (self::$instance === null) {
-            return false;
-        }
-        
-        try {
-            // Hacer una consulta simple para verificar la conexión
-            self::$instance->query("SELECT 1");
-            return true;
-        } catch (PDOException $e) {
-            error_log("[DATABASE] Conexión perdida: " . $e->getMessage());
-            // Resetear la instancia para permitir reconexión
-            self::$instance = null;
-            return false;
-        }
-    }
-    
-    /**
-     * Cerrar conexión
-     */
-    public static function disconnect() {
-        if (self::$instance !== null) {
-            error_log("[DATABASE] Cerrando conexión a la base de datos");
-            self::$instance = null;
-        }
-    }
-    
-    /**
-     * Obtener información de la conexión
-     * @return array Información de la conexión
-     */
-    public static function getConnectionInfo() {
-        return [
-            'host' => self::$host,
-            'database' => self::$dbname,
-            'username' => self::$username,
-            'charset' => self::$charset,
-            'connected' => self::isConnected(),
-            'driver' => self::$instance ? self::$instance->getAttribute(PDO::ATTR_DRIVER_NAME) : null,
-            'server_version' => self::$instance ? self::$instance->getAttribute(PDO::ATTR_SERVER_VERSION) : null
-        ];
-    }
-    
-    /**
-     * Ejecutar consulta preparada de forma segura
-     * @param string $sql Consulta SQL
-     * @param array $params Parámetros para la consulta
-     * @return PDOStatement Resultado de la consulta
-     */
-    public static function query($sql, $params = []) {
-        try {
-            $connection = self::getConnection();
-            $stmt = $connection->prepare($sql);
-            $stmt->execute($params);
-            
-            return $stmt;
-            
-        } catch (PDOException $e) {
-            error_log("[DATABASE ERROR] Error en consulta: " . $e->getMessage() . " | SQL: " . $sql);
-            throw $e;
-        }
-    }
-    
-    /**
-     * Iniciar transacción
-     * @return boolean True si se inició correctamente
-     */
-    public static function beginTransaction() {
-        try {
-            $connection = self::getConnection();
-            $result = $connection->beginTransaction();
-            error_log("[DATABASE] Transacción iniciada");
-            return $result;
-        } catch (PDOException $e) {
-            error_log("[DATABASE ERROR] Error al iniciar transacción: " . $e->getMessage());
-            throw $e;
-        }
-    }
-    
-    /**
-     * Confirmar transacción
-     * @return boolean True si se confirmó correctamente
-     */
-    public static function commit() {
-        try {
-            $connection = self::getConnection();
-            $result = $connection->commit();
-            error_log("[DATABASE] Transacción confirmada");
-            return $result;
-        } catch (PDOException $e) {
-            error_log("[DATABASE ERROR] Error al confirmar transacción: " . $e->getMessage());
-            throw $e;
-        }
-    }
-    
-    /**
-     * Revertir transacción
-     * @return boolean True si se revirtió correctamente
-     */
-    public static function rollback() {
-        try {
-            $connection = self::getConnection();
-            $result = $connection->rollback();
-            error_log("[DATABASE] Transacción revertida");
-            return $result;
-        } catch (PDOException $e) {
-            error_log("[DATABASE ERROR] Error al revertir transacción: " . $e->getMessage());
-            throw $e;
-        }
-    }
-    
-    /**
-     * Obtener último ID insertado
-     * @return string Último ID insertado
-     */
-    public static function lastInsertId() {
-        try {
-            $connection = self::getConnection();
-            return $connection->lastInsertId();
-        } catch (PDOException $e) {
-            error_log("[DATABASE ERROR] Error al obtener último ID: " . $e->getMessage());
-            throw $e;
-        }
-    }
-    
-    /**
-     * Verificar si la base de datos existe y tiene las tablas necesarias
-     * @return boolean True si la estructura es válida
-     */
-    public static function verificarEstructura() {
-        try {
-            $connection = self::getConnection();
-            
-            // Verificar tablas principales
-            $tablasRequeridas = ['usuarios', 'roles', 'cursos', 'categorias', 'materiales', 'libros'];
-            $tablasExistentes = [];
-            
-            $stmt = $connection->query("SHOW TABLES");
-            while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-                $tablasExistentes[] = $row[0];
-            }
+            $stmt = $this->pdo->query("SHOW TABLES");
+            $tablasExistentes = $stmt->fetchAll(PDO::FETCH_COLUMN);
             
             $tablasFaltantes = array_diff($tablasRequeridas, $tablasExistentes);
             
             if (!empty($tablasFaltantes)) {
                 error_log("[DATABASE WARNING] Tablas faltantes: " . implode(', ', $tablasFaltantes));
-                return false;
+                // No lanzar excepción, solo registrar el warning
             }
             
-            error_log("[DATABASE] Estructura de base de datos verificada correctamente");
-            return true;
-            
         } catch (PDOException $e) {
-            error_log("[DATABASE ERROR] Error al verificar estructura: " . $e->getMessage());
+            error_log("Error verificando estructura de BD: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Método para probar la conexión
+     */
+    public function testConnection() {
+        try {
+            $pdo = $this->getConnection();
+            $stmt = $pdo->query("SELECT 1 as test");
+            $result = $stmt->fetch();
+            return $result['test'] === 1;
+        } catch (Exception $e) {
+            error_log("Test de conexión fallido: " . $e->getMessage());
             return false;
         }
     }
     
     /**
-     * Obtener estadísticas de la base de datos
-     * @return array Estadísticas
+     * Obtener información de la base de datos
      */
-    public static function getStats() {
+    public function getInfo() {
         try {
-            $connection = self::getConnection();
-            $stats = [];
+            $pdo = $this->getConnection();
             
-            // Información de tablas
-            $stmt = $connection->query("
-                SELECT TABLE_NAME, TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH 
-                FROM information_schema.TABLES 
-                WHERE TABLE_SCHEMA = '" . self::$dbname . "'
-            ");
+            // Información básica
+            $info = [
+                'host' => $this->host,
+                'database' => $this->dbname,
+                'charset' => 'utf8mb4',
+                'connection_status' => 'Conectado'
+            ];
             
-            $stats['tables'] = $stmt->fetchAll();
+            // Contar registros en tablas principales
+            $tablas = ['usuarios', 'roles', 'cursos', 'libros', 'componentes'];
+            foreach ($tablas as $tabla) {
+                try {
+                    $stmt = $pdo->query("SELECT COUNT(*) as total FROM `$tabla`");
+                    $result = $stmt->fetch();
+                    $info['tablas'][$tabla] = $result['total'];
+                } catch (PDOException $e) {
+                    $info['tablas'][$tabla] = 'N/A';
+                }
+            }
             
-            // Información de conexiones
-            $stmt = $connection->query("SHOW STATUS LIKE 'Connections'");
-            $stats['connections'] = $stmt->fetch();
+            return $info;
             
-            // Información de versión
-            $stats['version'] = $connection->getAttribute(PDO::ATTR_SERVER_VERSION);
-            
-            return $stats;
-            
-        } catch (PDOException $e) {
-            error_log("[DATABASE ERROR] Error al obtener estadísticas: " . $e->getMessage());
-            return [];
+        } catch (Exception $e) {
+            return [
+                'host' => $this->host,
+                'database' => $this->dbname,
+                'connection_status' => 'Error: ' . $e->getMessage()
+            ];
         }
     }
 }
 
-// Configuración específica para diferentes entornos
-if (!defined('TECH_HOME_ENV')) {
-    define('TECH_HOME_ENV', 'development');
-}
-
-// Configuración según el entorno
-switch (TECH_HOME_ENV) {
-    case 'production':
-        // En producción, usar configuración desde variables de entorno o archivo seguro
-        if (file_exists(__DIR__ . '/database_production.php')) {
-            include __DIR__ . '/database_production.php';
-        }
-        break;
-        
-    case 'testing':
-        // Configuración para testing
-        Database::configure([
-            'dbname' => 'tech_home_test',
-            'host' => 'localhost',
-            'username' => 'root',
-            'password' => ''
-        ]);
-        break;
-        
-    case 'development':
-    default:
-        // Configuración por defecto para desarrollo (ya está configurada)
-        break;
-}
-
-// Verificar estructura al cargar (solo en desarrollo)
-if (TECH_HOME_ENV === 'development') {
-    register_shutdown_function(function() {
-        if (Database::isConnected()) {
-            Database::verificarEstructura();
-        }
-    });
+// Función global para obtener la conexión (opcional)
+function getDBConnection() {
+    static $database = null;
+    if ($database === null) {
+        $database = new Database();
+    }
+    return $database->getConnection();
 }
 ?>

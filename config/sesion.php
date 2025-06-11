@@ -1,398 +1,629 @@
 <?php
 /**
- * ============================================================================
- * TECH HOME BOLIVIA - MANEJO COMPLETO DE SESIONES (VERSIÓN CORREGIDA)
- * Instituto: Tech Home Bolivia – Escuela de Robótica y Tecnología Avanzada
- * ============================================================================
+ * Sistema de Sesiones y Autenticación - Tech Home Bolivia
+ * Manejo completo de sesiones, autenticación y seguridad
  */
 
-class Sesion {
-    
-    // Configuración de timeout en segundos (30 minutos)
-    const TIMEOUT_DURACION = 1800;
-    
-    // Flag para debugging
-    private static $debug = true;
-    
-    /**
-     * Inicializar sesión de forma segura
-     */
-    public static function iniciar() {
-        // Verificar si ya hay una sesión activa
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            self::log("Sesión ya activa: " . session_id());
-            return true;
-        }
+// Prevenir acceso directo
+if (!defined('TECH_HOME_INIT')) {
+    die('Acceso directo no permitido');
+}
+
+// ============================================================================
+// CONFIGURACIÓN INICIAL DE SESIONES
+// ============================================================================
+
+/**
+ * Configurar parámetros de sesión antes de iniciarla
+ */
+function configurarSesion() {
+    // Solo configurar si la sesión no está activa
+    if (session_status() === PHP_SESSION_NONE) {
+        // Configuraciones de seguridad
+        ini_set('session.cookie_httponly', SESSION_COOKIE_HTTPONLY);
+        ini_set('session.cookie_secure', SESSION_COOKIE_SECURE);
+        ini_set('session.use_only_cookies', 1);
+        ini_set('session.cookie_samesite', SESSION_COOKIE_SAMESITE);
+        ini_set('session.gc_maxlifetime', SESSION_LIFETIME);
+        ini_set('session.cookie_lifetime', SESSION_LIFETIME);
         
-        // Configurar parámetros de sesión seguros
-        self::configurarSesion();
+        // Nombre personalizado de sesión
+        session_name(SESSION_NAME);
         
-        // Iniciar sesión
-        if (session_start()) {
-            self::log("Sesión iniciada exitosamente: " . session_id());
-            
-            // Verificar integridad de la sesión
-            self::verificarIntegridad();
-            
-            return true;
-        } else {
-            self::log("ERROR: No se pudo iniciar la sesión", 'ERROR');
-            return false;
-        }
-    }
-    
-    /**
-     * Configurar parámetros de sesión seguros
-     */
-    private static function configurarSesion() {
-        // Solo configurar si no se han enviado headers
-        if (!headers_sent()) {
-            // Configuración de cookies seguras
-            ini_set('session.cookie_httponly', 1);
-            ini_set('session.use_strict_mode', 1);
-            ini_set('session.cookie_samesite', 'Strict');
-            
-            // Configuración de timeout
-            ini_set('session.gc_maxlifetime', self::TIMEOUT_DURACION);
-            
-            // Configuración de seguridad adicional
-            ini_set('session.use_only_cookies', 1);
-            ini_set('session.entropy_length', 32);
-            ini_set('session.hash_function', 'sha256');
-            
-            // Configurar nombre de sesión personalizado
-            session_name('TECHHOME_SESSION');
-            
-            self::log("Configuración de sesión aplicada");
-        }
-    }
-    
-    /**
-     * Verificar integridad de la sesión
-     */
-    private static function verificarIntegridad() {
-        // Verificar que las variables básicas de seguridad estén presentes
-        if (!isset($_SESSION['_token'])) {
-            $_SESSION['_token'] = self::generarToken();
-            self::log("Token de sesión generado");
-        }
-        
-        if (!isset($_SESSION['_ip'])) {
-            $_SESSION['_ip'] = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-            self::log("IP de sesión registrada: " . $_SESSION['_ip']);
-        }
-        
-        if (!isset($_SESSION['_user_agent'])) {
-            $_SESSION['_user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
-            self::log("User agent registrado");
-        }
-        
-        // Verificar que la IP no haya cambiado (seguridad básica)
-        $ip_actual = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-        if ($_SESSION['_ip'] !== $ip_actual) {
-            self::log("WARNING: Cambio de IP detectado. Original: " . $_SESSION['_ip'] . ", Actual: " . $ip_actual, 'WARNING');
-            // En un entorno de producción podrías querer cerrar la sesión aquí
-        }
-    }
-    
-    /**
-     * Establecer usuario en sesión
-     * @param array $usuario Datos del usuario
-     */
-    public static function establecerUsuario($usuario) {
-        self::iniciar();
-        
-        // Limpiar sesión anterior si existe
-        self::limpiarDatosUsuario();
-        
-        // Establecer nuevos datos
-        $_SESSION['usuario_id'] = (int)$usuario['id'];
-        $_SESSION['usuario_nombre'] = trim($usuario['nombre']);
-        $_SESSION['usuario_apellido'] = trim($usuario['apellido']);
-        $_SESSION['usuario_email'] = trim($usuario['email']);
-        $_SESSION['usuario_telefono'] = trim($usuario['telefono'] ?? '');
-        $_SESSION['usuario_avatar'] = trim($usuario['avatar'] ?? '');
-        $_SESSION['usuario_rol'] = trim($usuario['rol_nombre'] ?? 'Estudiante');
-        $_SESSION['usuario_nombre_completo'] = trim($usuario['nombre'] . ' ' . $usuario['apellido']);
-        $_SESSION['login_time'] = time();
-        $_SESSION['last_activity'] = time();
-        
-        // Regenerar ID de sesión por seguridad
-        session_regenerate_id(true);
-        
-        self::log("Usuario establecido en sesión: ID=" . $usuario['id'] . ", Rol=" . ($_SESSION['usuario_rol'] ?? 'N/A'));
-    }
-    
-    /**
-     * Limpiar datos de usuario de la sesión
-     */
-    private static function limpiarDatosUsuario() {
-        $campos_usuario = [
-            'usuario_id', 'usuario_nombre', 'usuario_apellido', 'usuario_email',
-            'usuario_telefono', 'usuario_avatar', 'usuario_rol', 'usuario_nombre_completo',
-            'login_time', 'last_activity'
-        ];
-        
-        foreach ($campos_usuario as $campo) {
-            if (isset($_SESSION[$campo])) {
-                unset($_SESSION[$campo]);
-            }
-        }
-        
-        self::log("Datos de usuario limpiados de la sesión");
-    }
-    
-    /**
-     * Verificar si el usuario está autenticado
-     * @return boolean
-     */
-    public static function estaAutenticado() {
-        self::iniciar();
-        
-        // Verificar que exista ID de usuario
-        if (!isset($_SESSION['usuario_id']) || empty($_SESSION['usuario_id'])) {
-            self::log("Usuario no autenticado: sin usuario_id");
-            return false;
-        }
-        
-        // Verificar timeout
-        if (self::verificarTimeout()) {
-            self::log("Sesión expirada por timeout");
-            return false;
-        }
-        
-        // Actualizar última actividad
-        $_SESSION['last_activity'] = time();
-        
-        return true;
-    }
-    
-    /**
-     * Obtener datos del usuario actual
-     * @return array|null
-     */
-    public static function obtenerUsuario() {
-        if (!self::estaAutenticado()) {
-            return null;
-        }
-        
-        return [
-            'id' => $_SESSION['usuario_id'] ?? null,
-            'nombre' => $_SESSION['usuario_nombre'] ?? '',
-            'apellido' => $_SESSION['usuario_apellido'] ?? '',
-            'email' => $_SESSION['usuario_email'] ?? '',
-            'telefono' => $_SESSION['usuario_telefono'] ?? '',
-            'avatar' => $_SESSION['usuario_avatar'] ?? '',
-            'rol' => $_SESSION['usuario_rol'] ?? '',
-            'nombre_completo' => $_SESSION['usuario_nombre_completo'] ?? '',
-            'login_time' => $_SESSION['login_time'] ?? null,
-            'last_activity' => $_SESSION['last_activity'] ?? null
-        ];
-    }
-    
-    /**
-     * Verificar permisos por rol
-     * @param array $rolesPermitidos
-     * @return boolean
-     */
-    public static function puedeAcceder($rolesPermitidos) {
-        if (!self::estaAutenticado()) {
-            self::log("Acceso denegado: usuario no autenticado");
-            return false;
-        }
-        
-        $rolUsuario = strtolower($_SESSION['usuario_rol'] ?? '');
-        $rolesPermitidos = array_map('strtolower', (array)$rolesPermitidos);
-        
-        $puede_acceder = in_array($rolUsuario, $rolesPermitidos);
-        
-        self::log("Verificación de acceso: Rol=" . $rolUsuario . ", Permitidos=" . implode(',', $rolesPermitidos) . ", Resultado=" . ($puede_acceder ? 'PERMITIDO' : 'DENEGADO'));
-        
-        return $puede_acceder;
-    }
-    
-    /**
-     * Regenerar ID de sesión
-     */
-    public static function regenerarId() {
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            $old_id = session_id();
-            if (session_regenerate_id(true)) {
-                $new_id = session_id();
-                self::log("ID de sesión regenerado: " . $old_id . " -> " . $new_id);
-                return true;
-            } else {
-                self::log("ERROR: No se pudo regenerar el ID de sesión", 'ERROR');
-                return false;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Verificar timeout de sesión
-     * @return boolean True si la sesión ha expirado
-     */
-    public static function verificarTimeout() {
-        if (!isset($_SESSION['last_activity'])) {
-            $_SESSION['last_activity'] = time();
-            return false;
-        }
-        
-        $tiempo_inactivo = time() - $_SESSION['last_activity'];
-        
-        if ($tiempo_inactivo > self::TIMEOUT_DURACION) {
-            self::log("Timeout de sesión detectado: " . $tiempo_inactivo . " segundos de inactividad");
-            return true;
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Cerrar sesión completamente
-     */
-    public static function cerrar() {
-        $session_id = session_id();
-        self::log("Iniciando cierre de sesión: " . $session_id);
-        
-        // Iniciar sesión si no está iniciada
-        self::iniciar();
-        
-        // Guardar datos para logging
-        $usuario_id = $_SESSION['usuario_id'] ?? 'unknown';
-        $usuario_email = $_SESSION['usuario_email'] ?? 'unknown';
-        
-        // Limpiar TODAS las variables de sesión
-        $_SESSION = array();
-        
-        // Eliminar cookie de sesión si existe
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-            $cookie_set = setcookie(
-                session_name(), 
-                '', 
-                time() - 42000,
-                $params["path"], 
-                $params["domain"],
-                $params["secure"], 
-                $params["httponly"]
-            );
-            
-            // También limpiar cookie con diferentes parámetros por si acaso
-            setcookie(session_name(), '', time() - 42000, '/');
-            setcookie('TECHHOME_SESSION', '', time() - 42000, '/');
-            
-            self::log("Cookie de sesión eliminada: " . ($cookie_set ? 'exitoso' : 'falló'));
-        }
-        
-        // Destruir la sesión
-        if (session_destroy()) {
-            self::log("Sesión destruida exitosamente - Usuario: " . $usuario_id . " (" . $usuario_email . ")");
-        } else {
-            self::log("ERROR: No se pudo destruir la sesión", 'ERROR');
-        }
-        
-        // Limpiar cualquier variable global relacionada
-        if (isset($GLOBALS['current_user'])) {
-            unset($GLOBALS['current_user']);
-        }
-    }
-    
-    /**
-     * Obtener información de debug de la sesión
-     * @return array
-     */
-    public static function getDebugInfo() {
-        return [
-            'session_status' => session_status(),
-            'session_id' => session_id(),
-            'session_name' => session_name(),
-            'cookie_params' => session_get_cookie_params(),
-            'save_path' => session_save_path(),
-            'variables_count' => count($_SESSION ?? []),
-            'session_vars' => array_keys($_SESSION ?? []),
-            'authenticated' => self::estaAutenticado(),
-            'current_user' => self::obtenerUsuario()
-        ];
-    }
-    
-    /**
-     * Verificar estado de la sesión
-     * @return array
-     */
-    public static function verificarEstado() {
-        $info = [
-            'session_active' => session_status() === PHP_SESSION_ACTIVE,
-            'session_id' => session_id(),
-            'authenticated' => false,
-            'user_id' => null,
-            'timeout_remaining' => 0,
-            'errors' => []
-        ];
-        
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            $info['authenticated'] = self::estaAutenticado();
-            $info['user_id'] = $_SESSION['usuario_id'] ?? null;
-            
-            if (isset($_SESSION['last_activity'])) {
-                $tiempo_restante = self::TIMEOUT_DURACION - (time() - $_SESSION['last_activity']);
-                $info['timeout_remaining'] = max(0, $tiempo_restante);
-            }
-        } else {
-            $info['errors'][] = 'Sesión no activa';
-        }
-        
-        return $info;
-    }
-    
-    /**
-     * Generar token de seguridad
-     * @return string
-     */
-    private static function generarToken() {
-        return bin2hex(random_bytes(32));
-    }
-    
-    /**
-     * Logging interno
-     * @param string $mensaje
-     * @param string $nivel
-     */
-    private static function log($mensaje, $nivel = 'INFO') {
-        if (!self::$debug) {
-            return;
-        }
-        
-        $timestamp = date('Y-m-d H:i:s');
-        $session_id = session_id() ?: 'no-session';
-        $log_message = "[$timestamp] [SESION-$nivel] [$session_id] $mensaje";
-        
-        // Log a archivo si existe el directorio
-        $log_dir = __DIR__ . '/../logs/';
-        if (is_dir($log_dir) || @mkdir($log_dir, 0755, true)) {
-            @file_put_contents(
-                $log_dir . 'sesiones.log', 
-                $log_message . PHP_EOL, 
-                FILE_APPEND | LOCK_EX
-            );
-        }
-        
-        // También a error_log del sistema
-        error_log($log_message);
-    }
-    
-    /**
-     * Habilitar/deshabilitar debug
-     * @param boolean $enable
-     */
-    public static function setDebug($enable) {
-        self::$debug = (bool)$enable;
+        // Regenerar ID de sesión periódicamente
+        ini_set('session.gc_probability', 1);
+        ini_set('session.gc_divisor', 100);
     }
 }
 
-// Auto-inicializar si no hay sesión activa
-if (session_status() === PHP_SESSION_NONE) {
-    Sesion::iniciar();
+/**
+ * Iniciar sesión de forma segura
+ */
+function iniciarSesion() {
+    configurarSesion();
+    
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+        
+        // Regenerar ID de sesión si es una nueva sesión o cada 30 minutos
+        if (!isset($_SESSION['iniciada']) || (time() - ($_SESSION['ultima_regeneracion'] ?? 0)) > 1800) {
+            session_regenerate_id(true);
+            $_SESSION['ultima_regeneracion'] = time();
+        }
+        
+        $_SESSION['iniciada'] = true;
+    }
 }
+
+// ============================================================================
+// FUNCIONES DE AUTENTICACIÓN
+// ============================================================================
+
+/**
+ * Verificar si el usuario está autenticado
+ */
+function estaAutenticado() {
+    return isset($_SESSION['usuario_id']) && 
+           isset($_SESSION['email']) && 
+           isset($_SESSION['rol']);
+}
+
+/**
+ * Verificar si el usuario tiene un rol específico
+ */
+function tieneRol($rol) {
+    return estaAutenticado() && $_SESSION['rol'] === $rol;
+}
+
+/**
+ * Verificar si el usuario es administrador
+ */
+function esAdministrador() {
+    return tieneRol('Administrador');
+}
+
+/**
+ * Verificar si el usuario es invitado
+ */
+function esInvitado() {
+    return tieneRol('Invitado');
+}
+
+/**
+ * Obtener información del usuario actual
+ */
+function usuarioActual() {
+    if (!estaAutenticado()) return null;
+    
+    return [
+        'id' => $_SESSION['usuario_id'],
+        'nombre' => $_SESSION['nombre'] ?? '',
+        'apellido' => $_SESSION['apellido'] ?? '',
+        'email' => $_SESSION['email'],
+        'rol' => $_SESSION['rol'],
+        'avatar' => $_SESSION['avatar'] ?? null
+    ];
+}
+
+// ============================================================================
+// GESTIÓN DE SESIONES EN BASE DE DATOS
+// ============================================================================
+
+/**
+ * Registrar sesión activa en la base de datos
+ */
+function registrarSesionActiva($usuario_id) {
+    try {
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        // Obtener información del navegador y sistema
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $ipAddress = obtenerIPReal();
+        $navegador = detectarNavegador($userAgent);
+        $sistemaOperativo = detectarSistemaOperativo($userAgent);
+        $dispositivo = detectarDispositivo($userAgent);
+        
+        // Verificar si ya existe una sesión activa para este usuario
+        $restriccionSesion = obtenerConfiguracion('session_restriction', true);
+        
+        if ($restriccionSesion) {
+            // Desactivar otras sesiones del mismo usuario
+            $stmt = $pdo->prepare("UPDATE sesiones_activas SET activa = 0 WHERE usuario_id = ? AND activa = 1");
+            $stmt->execute([$usuario_id]);
+        }
+        
+        // Insertar nueva sesión
+        $stmt = $pdo->prepare("
+            INSERT INTO sesiones_activas 
+            (usuario_id, session_id, dispositivo, ip_address, user_agent, navegador, sistema_operativo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $usuario_id,
+            session_id(),
+            $dispositivo,
+            $ipAddress,
+            $userAgent,
+            $navegador,
+            $sistemaOperativo
+        ]);
+        
+        // Guardar ID de sesión en la sesión PHP
+        $_SESSION['sesion_db_id'] = $pdo->lastInsertId();
+        
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("Error registrando sesión activa: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Actualizar actividad de la sesión
+ */
+function actualizarActividadSesion() {
+    if (!isset($_SESSION['sesion_db_id'])) return false;
+    
+    try {
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        $stmt = $pdo->prepare("
+            UPDATE sesiones_activas 
+            SET fecha_actividad = CURRENT_TIMESTAMP 
+            WHERE id = ? AND activa = 1
+        ");
+        
+        return $stmt->execute([$_SESSION['sesion_db_id']]);
+        
+    } catch (Exception $e) {
+        error_log("Error actualizando actividad de sesión: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Cerrar sesión activa en la base de datos
+ */
+function cerrarSesionActiva($usuario_id = null) {
+    if (!$usuario_id && isset($_SESSION['usuario_id'])) {
+        $usuario_id = $_SESSION['usuario_id'];
+    }
+    
+    if (!$usuario_id) return false;
+    
+    try {
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        if (isset($_SESSION['sesion_db_id'])) {
+            // Cerrar sesión específica
+            $stmt = $pdo->prepare("UPDATE sesiones_activas SET activa = 0 WHERE id = ?");
+            $stmt->execute([$_SESSION['sesion_db_id']]);
+        } else {
+            // Cerrar todas las sesiones del usuario
+            $stmt = $pdo->prepare("UPDATE sesiones_activas SET activa = 0 WHERE usuario_id = ?");
+            $stmt->execute([$usuario_id]);
+        }
+        
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("Error cerrando sesión activa: " . $e->getMessage());
+        return false;
+    }
+}
+
+// ============================================================================
+// GESTIÓN DE ACCESO PARA INVITADOS
+// ============================================================================
+
+/**
+ * Verificar acceso de usuario invitado
+ */
+function verificarAccesoInvitado($usuario_id) {
+    try {
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        $stmt = $pdo->prepare("
+            SELECT ai.*, DATEDIFF(ai.fecha_vencimiento, CURRENT_DATE) as dias_restantes_calc
+            FROM acceso_invitados ai 
+            WHERE ai.usuario_id = ? AND ai.acceso_bloqueado = 0
+        ");
+        $stmt->execute([$usuario_id]);
+        $acceso = $stmt->fetch();
+        
+        if (!$acceso) {
+            // No tiene registro de acceso de invitado, crear uno
+            $diasAcceso = obtenerConfiguracion('invitado_dias_acceso', INVITADO_DIAS_ACCESO);
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO acceso_invitados (usuario_id, fecha_inicio, fecha_vencimiento, dias_restantes)
+                VALUES (?, CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL ? DAY), ?)
+            ");
+            $stmt->execute([$usuario_id, $diasAcceso, $diasAcceso]);
+            
+            return [
+                'acceso_valido' => true,
+                'dias_restantes' => $diasAcceso,
+                'mensaje' => "Bienvenido! Tienes $diasAcceso días de acceso gratuito."
+            ];
+        }
+        
+        // Verificar si el acceso ha vencido
+        if ($acceso['dias_restantes_calc'] < 0) {
+            // Bloquear acceso
+            $stmt = $pdo->prepare("UPDATE acceso_invitados SET acceso_bloqueado = 1 WHERE usuario_id = ?");
+            $stmt->execute([$usuario_id]);
+            
+            return [
+                'acceso_valido' => false,
+                'dias_restantes' => 0,
+                'mensaje' => 'Tu período de acceso como invitado ha vencido. Contacta con el administrador.'
+            ];
+        }
+        
+        // Actualizar días restantes
+        $stmt = $pdo->prepare("
+            UPDATE acceso_invitados 
+            SET dias_restantes = DATEDIFF(fecha_vencimiento, CURRENT_DATE)
+            WHERE usuario_id = ?
+        ");
+        $stmt->execute([$usuario_id]);
+        
+        return [
+            'acceso_valido' => true,
+            'dias_restantes' => $acceso['dias_restantes_calc'],
+            'mensaje' => $acceso['dias_restantes_calc'] <= 1 ? 
+                'Este es tu último día de acceso gratuito.' : 
+                "Te quedan {$acceso['dias_restantes_calc']} días de acceso gratuito."
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Error verificando acceso de invitado: " . $e->getMessage());
+        return [
+            'acceso_valido' => false,
+            'dias_restantes' => 0,
+            'mensaje' => 'Error verificando el acceso.'
+        ];
+    }
+}
+
+// ============================================================================
+// CONTROL DE INTENTOS DE LOGIN
+// ============================================================================
+
+/**
+ * Registrar intento de login
+ */
+function registrarIntentoLogin($email, $exito = false) {
+    try {
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        $stmt = $pdo->prepare("
+            INSERT INTO intentos_login (email, ip_address, user_agent, exito)
+            VALUES (?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $email,
+            obtenerIPReal(),
+            $_SERVER['HTTP_USER_AGENT'] ?? '',
+            $exito ? 1 : 0
+        ]);
+        
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("Error registrando intento de login: " . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Verificar si la IP/email está bloqueada por demasiados intentos
+ */
+function verificarBloqueoPorIntentos($email) {
+    try {
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        $maxIntentos = obtenerConfiguracion('max_login_attempts', LOGIN_MAX_ATTEMPTS);
+        $tiempoBloqueo = obtenerConfiguracion('lockout_time', LOGIN_LOCKOUT_TIME);
+        
+        // Verificar intentos por email en la última hora
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as intentos_fallidos
+            FROM intentos_login 
+            WHERE email = ? 
+            AND exito = 0 
+            AND fecha_intento > DATE_SUB(NOW(), INTERVAL ? SECOND)
+        ");
+        $stmt->execute([$email, $tiempoBloqueo]);
+        $result = $stmt->fetch();
+        
+        if ($result['intentos_fallidos'] >= $maxIntentos) {
+            return [
+                'bloqueado' => true,
+                'intentos' => $result['intentos_fallidos'],
+                'tiempo_restante' => $tiempoBloqueo / 60 // en minutos
+            ];
+        }
+        
+        return [
+            'bloqueado' => false,
+            'intentos' => $result['intentos_fallidos'],
+            'intentos_restantes' => $maxIntentos - $result['intentos_fallidos']
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Error verificando bloqueo por intentos: " . $e->getMessage());
+        return ['bloqueado' => false, 'intentos' => 0];
+    }
+}
+
+// ============================================================================
+// FUNCIONES DE LOGIN Y LOGOUT
+// ============================================================================
+
+/**
+ * Realizar login del usuario
+ */
+function login($email, $password) {
+    // Verificar bloqueo por intentos
+    $bloqueo = verificarBloqueoPorIntentos($email);
+    if ($bloqueo['bloqueado']) {
+        registrarIntentoLogin($email, false);
+        return [
+            'success' => false,
+            'message' => "Demasiados intentos fallidos. Intenta de nuevo en {$bloqueo['tiempo_restante']} minutos."
+        ];
+    }
+    
+    try {
+        $db = new Database();
+        $pdo = $db->getConnection();
+        
+        // Buscar usuario por email
+        $stmt = $pdo->prepare("
+            SELECT u.*, r.nombre as rol_nombre
+            FROM usuarios u
+            INNER JOIN roles r ON u.rol_id = r.id
+            WHERE u.email = ? AND u.estado = 1
+        ");
+        $stmt->execute([$email]);
+        $usuario = $stmt->fetch();
+        
+        if (!$usuario || !password_verify($password, $usuario['password'])) {
+            registrarIntentoLogin($email, false);
+            return [
+                'success' => false,
+                'message' => 'Email o contraseña incorrectos.',
+                'intentos_restantes' => $bloqueo['intentos_restantes'] ?? 0
+            ];
+        }
+        
+        // Login exitoso
+        registrarIntentoLogin($email, true);
+        
+        // Configurar sesión
+        $_SESSION['usuario_id'] = $usuario['id'];
+        $_SESSION['nombre'] = $usuario['nombre'];
+        $_SESSION['apellido'] = $usuario['apellido'];
+        $_SESSION['email'] = $usuario['email'];
+        $_SESSION['rol'] = $usuario['rol_nombre'];
+        $_SESSION['avatar'] = $usuario['avatar'];
+        $_SESSION['login_time'] = time();
+        
+        // Registrar sesión en BD
+        registrarSesionActiva($usuario['id']);
+        
+        // Verificar acceso de invitado si aplica
+        if ($usuario['rol_nombre'] === 'Invitado') {
+            $accesoInvitado = verificarAccesoInvitado($usuario['id']);
+            $_SESSION['acceso_invitado'] = $accesoInvitado;
+            
+            if (!$accesoInvitado['acceso_valido']) {
+                logout();
+                return [
+                    'success' => false,
+                    'message' => $accesoInvitado['mensaje']
+                ];
+            }
+        }
+        
+        return [
+            'success' => true,
+            'message' => 'Login exitoso',
+            'usuario' => $usuario,
+            'rol' => $usuario['rol_nombre']
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Error en login: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Error del sistema. Intenta más tarde.'
+        ];
+    }
+}
+
+/**
+ * Cerrar sesión del usuario
+ */
+function logout() {
+    // Cerrar sesión en BD
+    if (isset($_SESSION['usuario_id'])) {
+        cerrarSesionActiva($_SESSION['usuario_id']);
+    }
+    
+    // Limpiar variables de sesión
+    $_SESSION = [];
+    
+    // Destruir cookie de sesión
+    if (isset($_COOKIE[session_name()])) {
+        setcookie(session_name(), '', time() - 3600, '/');
+    }
+    
+    // Destruir sesión
+    session_destroy();
+    
+    return true;
+}
+
+// ============================================================================
+// MIDDLEWARE DE VERIFICACIÓN DE SESIÓN
+// ============================================================================
+
+/**
+ * Verificar sesión y permisos antes de cargar una página
+ */
+function verificarSesion($requiereAuth = true, $rolesPermitidos = []) {
+    iniciarSesion();
+    
+    // Actualizar actividad de sesión
+    if (estaAutenticado()) {
+        actualizarActividadSesion();
+        
+        // Verificar tiempo de sesión
+        $tiempoSesion = time() - ($_SESSION['login_time'] ?? 0);
+        if ($tiempoSesion > SESSION_LIFETIME) {
+            logout();
+            redirigirA('login', ['mensaje' => 'Sesión expirada']);
+        }
+        
+        // Verificar acceso de invitado si aplica
+        if (esInvitado() && isset($_SESSION['acceso_invitado'])) {
+            $acceso = $_SESSION['acceso_invitado'];
+            if (!$acceso['acceso_valido']) {
+                logout();
+                redirigirA('login', ['mensaje' => $acceso['mensaje']]);
+            }
+        }
+    }
+    
+    // Verificar si requiere autenticación
+    if ($requiereAuth && !estaAutenticado()) {
+        $_SESSION['return_url'] = $_SERVER['REQUEST_URI'] ?? '';
+        redirigirA('login');
+    }
+    
+    // Verificar roles permitidos
+    if (!empty($rolesPermitidos) && estaAutenticado()) {
+        $rolActual = $_SESSION['rol'] ?? '';
+        if (!in_array($rolActual, $rolesPermitidos)) {
+            redirigirA('error.403');
+        }
+    }
+    
+    return estaAutenticado();
+}
+
+/**
+ * Requerir autenticación (shortcut)
+ */
+function requiereAuth($rolesPermitidos = []) {
+    return verificarSesion(true, $rolesPermitidos);
+}
+
+/**
+ * Requerir rol de administrador
+ */
+function requiereAdmin() {
+    return verificarSesion(true, ['Administrador']);
+}
+
+// ============================================================================
+// FUNCIONES AUXILIARES
+// ============================================================================
+
+/**
+ * Obtener IP real del usuario
+ */
+function obtenerIPReal() {
+    $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'];
+    
+    foreach ($ipKeys as $key) {
+        if (!empty($_SERVER[$key])) {
+            $ip = $_SERVER[$key];
+            if (strpos($ip, ',') !== false) {
+                $ip = explode(',', $ip)[0];
+            }
+            $ip = trim($ip);
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return $ip;
+            }
+        }
+    }
+    
+    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+}
+
+/**
+ * Detectar navegador del user agent
+ */
+function detectarNavegador($userAgent) {
+    $navegadores = [
+        'Chrome' => '/Chrome/i',
+        'Firefox' => '/Firefox/i',
+        'Safari' => '/Safari/i',
+        'Edge' => '/Edge/i',
+        'Opera' => '/Opera|OPR/i',
+        'Internet Explorer' => '/Trident/i'
+    ];
+    
+    foreach ($navegadores as $nombre => $patron) {
+        if (preg_match($patron, $userAgent)) {
+            return $nombre;
+        }
+    }
+    
+    return 'Desconocido';
+}
+
+/**
+ * Detectar sistema operativo del user agent
+ */
+function detectarSistemaOperativo($userAgent) {
+    $sistemas = [
+        'Windows' => '/Windows/i',
+        'Mac' => '/Mac/i',
+        'Linux' => '/Linux/i',
+        'Android' => '/Android/i',
+        'iOS' => '/iPhone|iPad/i'
+    ];
+    
+    foreach ($sistemas as $nombre => $patron) {
+        if (preg_match($patron, $userAgent)) {
+            return $nombre;
+        }
+    }
+    
+    return 'Desconocido';
+}
+
+/**
+ * Detectar tipo de dispositivo
+ */
+function detectarDispositivo($userAgent) {
+    if (preg_match('/Mobile|Android|iPhone|iPad/i', $userAgent)) {
+        return 'Móvil';
+    } elseif (preg_match('/Tablet|iPad/i', $userAgent)) {
+        return 'Tablet';
+    } else {
+        return 'Escritorio';
+    }
+}
+
+// ============================================================================
+// INICIALIZACIÓN AUTOMÁTICA
+// ============================================================================
+
+// Iniciar sesión automáticamente al cargar este archivo
+iniciarSesion();
 ?>
