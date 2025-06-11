@@ -148,7 +148,7 @@
         <div class="ithr-panel-footer">
             <!-- Tarjeta de visita al sitio web -->
             <div class="ithr-website-promotion">
-                <a href="https://www.techhome.edu.bo" target="_blank" class="ithr-website-link">
+                <a href="https://techhomebolivia.com/index.php" target="_blank" class="ithr-website-link">
                     <div class="ithr-website-card">
                         <div class="ithr-website-content">
                             <i class="fas fa-external-link-alt"></i>
