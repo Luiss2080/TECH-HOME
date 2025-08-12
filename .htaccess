@@ -1,0 +1,17 @@
+RewriteEngine On
+RewriteBase /TECH-HOME/
+
+
+<IfModule mod_headers.c>
+    # Permitir la cabecera Authorization
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+    # Configurar CORS
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+    Header set Access-Control-Allow-Headers "X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control"
+</IfModule>
+
+# Redirigir todas las solicitudes a index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
