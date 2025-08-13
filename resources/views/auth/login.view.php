@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Tech Home Bolivia</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="publico/css/login.css">
-
+    <link rel="stylesheet" href="<?= asset('css/login.css') ?>">
     <!-- Headers anti-cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -34,7 +33,7 @@
 
             <div class="logo-section">
                 <div class="logo-container">
-                    <img src="../TECH-HOME/publico/imagenes/logos/LogoTech-Home.png" alt="Tech Home Logo" class="logo-img">
+                    <img src="<?= asset('imagenes/logos/LogoTech-Home.png') ?>" alt="Tech Home Logo" class="logo-img">
                 </div>
                 <div class="logo-underline"></div>
             </div>
@@ -112,19 +111,19 @@
 
             <div class="social-buttons">
                 <a href="#" class="social-btn tiktok-btn">
-                    <img src="publico/imagenes/logos/tiktok.webp" alt="TikTok" class="social-logo">
+                    <img src="<?= asset('imagenes/logos/tiktok.webp') ?>" alt="TikTok" class="social-logo">
                     TikTok
                 </a>
                 <a href="#" class="social-btn facebook-btn">
-                    <img src="publico/imagenes/logos/facebook.webp" alt="Facebook" class="social-logo">
+                    <img src="<?= asset('imagenes/logos/facebook.webp') ?>" alt="Facebook" class="social-logo">
                     Facebook
                 </a>
                 <a href="#" class="social-btn instagram-btn">
-                    <img src="publico/imagenes/logos/Instagram.webp" alt="Instagram" class="social-logo">
+                    <img src="<?= asset('imagenes/logos/Instagram.webp') ?>" alt="Instagram" class="social-logo">
                     Instagram
                 </a>
                 <a href="#" class="social-btn whatsapp-btn">
-                    <img src="publico/imagenes/logos/wpps.webp" alt="WhatsApp" class="social-logo">
+                    <img src="<?= asset('imagenes/logos/wpps.webp') ?>" alt="WhatsApp" class="social-logo">
                     WhatsApp
                 </a>
             </div>
