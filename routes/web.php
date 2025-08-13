@@ -6,4 +6,5 @@ use App\Controllers\HomeController;
 
 
 Router::get('/', [HomeController::class, 'index'])->name('home');
+Router::get('/login', [HomeController::class, 'index'])->name('home');
 Router::post('/login', [AuthController::class, 'loginForm'])->name('login.loginForm');
