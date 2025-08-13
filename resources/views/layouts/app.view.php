@@ -68,20 +68,20 @@
                     <h6 class="ithr-nav-group-title">Panel Principal</h6>
                     <ul class="ithr-nav-list">
                         <li class="ithr-nav-item ithr-active">
-                            <a href="../dashboard/index.php" class="ithr-nav-link">
+                            <a href="<?= route('dashboard') ?>" class="ithr-nav-link">
                                 <i class="fas fa-tachometer-alt ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Dashboard</span>
                                 <div class="ithr-nav-indicator"></div>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../reportes/index.php" class="ithr-nav-link">
+                            <a href="<?= route('reportes') ?>" class="ithr-nav-link">
                                 <i class="fas fa-chart-bar ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Reportes</span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../configuracion/index.php" class="ithr-nav-link">
+                            <a href="<?= route('configuracion') ?>" class="ithr-nav-link">
                                 <i class="fas fa-cog ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Configuración</span>
                             </a>
@@ -93,21 +93,21 @@
                     <h6 class="ithr-nav-group-title">Gestión Académica</h6>
                     <ul class="ithr-nav-list">
                         <li class="ithr-nav-item">
-                            <a href="../estudiantes/index.php" class="ithr-nav-link">
+                            <a href="<?= route('estudiantes') ?>" class="ithr-nav-link">
                                 <i class="fas fa-user-graduate ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Estudiantes</span>
                                 <span class="ithr-nav-badge">125</span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../cursos/index.php" class="ithr-nav-link">
+                            <a href="<?= route('cursos') ?>" class="ithr-nav-link">
                                 <i class="fas fa-graduation-cap ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Cursos</span>
                                 <span class="ithr-nav-badge">35</span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../usuarios/index.php" class="ithr-nav-link">
+                            <a href="<?= route('usuarios') ?>" class="ithr-nav-link">
                                 <i class="fas fa-users-cog ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Usuarios</span>
                             </a>
@@ -119,20 +119,20 @@
                     <h6 class="ithr-nav-group-title">Recursos</h6>
                     <ul class="ithr-nav-list">
                         <li class="ithr-nav-item">
-                            <a href="../libros/index.php" class="ithr-nav-link">
+                            <a href="<?= route('libros') ?>" class="ithr-nav-link">
                                 <i class="fas fa-book ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Biblioteca</span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../materiales/index.php" class="ithr-nav-link">
+                            <a href="<?= route('materiales') ?>" class="ithr-nav-link">
                                 <i class="fas fa-file-alt ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Materiales</span>
                                 <span class="ithr-nav-badge">450</span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../laboratorios/index.php" class="ithr-nav-link">
+                            <a href="<?= route('laboratorios') ?>" class="ithr-nav-link">
                                 <i class="fas fa-flask ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Laboratorios</span>
                             </a>
@@ -144,19 +144,19 @@
                     <h6 class="ithr-nav-group-title">Módulos</h6>
                     <ul class="ithr-nav-list">
                         <li class="ithr-nav-item">
-                            <a href="../cursos/lecciones.php" class="ithr-nav-link">
+                            <a href="<?= route('aulaVirtual') ?>" class="ithr-nav-link">
                                 <i class="fas fa-chalkboard-teacher ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Aula Virtual</span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../evaluaciones/index.php" class="ithr-nav-link">
+                            <a href="<?= route('evaluaciones') ?>" class="ithr-nav-link">
                                 <i class="fas fa-clipboard-check ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Evaluaciones</span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
-                            <a href="../certificados/index.php" class="ithr-nav-link">
+                            <a href="<?= route('certificados') ?>" class="ithr-nav-link">
                                 <i class="fas fa-certificate ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Certificados</span>
                             </a>
