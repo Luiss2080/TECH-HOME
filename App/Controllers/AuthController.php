@@ -9,6 +9,13 @@ use Core\Validation;
 
 class AuthController extends Controller
 {
+     public function login()
+    {
+        return view('auth.login', ['title' => 'Bienvenido'], false);
+    }
+
+
+
     public function loginForm(Request $request)
     {
         // Validar datos
@@ -37,7 +44,7 @@ class AuthController extends Controller
             return redirect($route);
         }
 
-        Session::flash('errors', ['general' => 'Credenciales Incorrecta']);
+        Session::flash('errors', ['general' => ['Credenciales Incorrecta']]);
         Session::flash('old', $_POST);
         return redirect(route('login'));
     }
@@ -45,13 +52,6 @@ class AuthController extends Controller
 
     private function attempt($user, $password)
     {
-        $users = User::attempt($user,$password);
-        if (!isset($users)) {
-            return false;
-        }
-        if (password_verify($password, $users->password)) {
-            return $users;
-        }
-        return false;
+        return User::attempt($user,$password);
     }
 }

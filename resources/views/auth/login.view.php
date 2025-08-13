@@ -42,7 +42,6 @@
             <p class="welcome-text">
                 Inicia sesión con tu cuenta académica y da el primer paso hacia una experiencia única llena de innovación y creatividad
             </p>
-
             <div class="copyright-text">
                 © 2025 Tech Home Bolivia – Todos los derechos reservados
             </div>
@@ -53,6 +52,12 @@
             <div class="login-header">
                 <h2 class="login-title">Iniciar Sesión</h2>
                 <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
+
+                <?php if (isset($errors['general'])):
+                    foreach ($errors['general'] as $error): ?>
+                        <div class="invalid-feedback"><?= $error ?></div>
+                <?php endforeach;
+                endif; ?>
             </div>
 
             <!-- Formulario -->
@@ -62,7 +67,7 @@
                     <label class="form-label">Correo Electrónico</label>
                     <div class="input-wrapper">
                         <input type="email" class="form-input" id="email" name="email"
-                            value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
+                            value="<?= $old['email'] ?? '' ?>"
                             placeholder="Ingresa tu correo académico..." required>
                         <i class="fas fa-envelope input-icon"></i>
                         <div class="tooltip">Usa tu email registrado en la plataforma</div>
