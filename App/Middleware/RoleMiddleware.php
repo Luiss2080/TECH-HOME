@@ -44,7 +44,6 @@ class RoleMiddleware implements Middleware
 
         // Obtener el usuario actual
         $user = auth();
-        
         if (!$user) {
             Session::flash('error', 'Usuario no válido.');
             return redirect(route('login'));
@@ -54,17 +53,39 @@ class RoleMiddleware implements Middleware
         if (empty($this->allowedRoles)) {
             return $next($request);
         }
-
+        
         // Verificar si el usuario tiene uno de los roles permitidos
         if (!$this->userHasRole($user, $this->allowedRoles)) {
+            // Si es una petición API, devolver JSON
+            if ($this->isApiRequest($request)) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'No tienes permisos para acceder a este recurso.',
+                    'error' => 'insufficient_permissions',
+                    'required_roles' => $this->allowedRoles,
+                    'user_role' => $user->rol() ? $user->rol()->nombre : null
+                ], 403);
+            }
+            // Para peticiones web, mostrar la página 403
             Session::flash('error', 'No tienes permisos para acceder a esta página.');
-            
-            // Redirigir al dashboard o página principal según el rol del usuario
-            return $this->redirectBasedOnRole($user);
+            return view('errors.403', [], false, statusCode: 403);
         }
 
         // Si el usuario tiene el rol correcto, continuar
         return $next($request);
+    }
+
+    /**
+     * Verifica si la petición es una petición API
+     *
+     * @param Request $request
+     * @return bool
+     */
+    protected function isApiRequest($request)
+    {
+        return str_starts_with($request->uri(), '/api/') ||
+            $request->header('Accept') === 'application/json' ||
+            $request->header('Content-Type') === 'application/json';
     }
 
     /**
@@ -83,7 +104,7 @@ class RoleMiddleware implements Middleware
 
         // Obtener el rol del usuario
         $userRole = $user->rol();
-        
+
         if (!$userRole) {
             return false;
         }
@@ -101,7 +122,7 @@ class RoleMiddleware implements Middleware
     protected function redirectBasedOnRole($user)
     {
         $userRole = $user->rol();
-        
+
         if (!$userRole) {
             return redirect('/');
         }

@@ -375,14 +375,12 @@
                     <div class="user-controls">
 
                         <!-- ============================================
-                     BOTÓN DE NOTIFICACIONES
-                     ============================================ -->
-                        <a href="index.php?controlador=Dashboard&accion=notificaciones" class="notifications-btn" title="Notificaciones">
+                 BOTÓN DE NOTIFICACIONES
+                 ============================================ -->
+                        <a href="<?= route('notificaciones') ?>" class="notifications-btn" title="Notificaciones">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notification-count" style="display: none;">0</span>
-                        </a>
-
-                        <!-- ============================================
+                        </a> <!-- ============================================
                      TARJETA DE USUARIO Y CONTROLES
                      ============================================ -->
                         <div class="user-info">
@@ -437,10 +435,12 @@
                             <!-- ============================================
                          BOTÓN CERRAR SESIÓN MEJORADO
                          ============================================ -->
-                            <a href="/TECH-HOME/logout.php" class="logout-btn" title="Cerrar Sesión">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Cerrar Sesión
-                            </a>
+                            <form action="<?= route('logout') ?>" method="POST" class="logout-btn" title="Cerrar Sesión">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Cerrar Sesión
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -774,7 +774,7 @@
             <title>Footer - Instituto Tech Home</title>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-            <link rel="stylesheet" href<?= asset('css/footer.css') ?>">
+            <link rel="stylesheet" href="<?= asset('css/footer.css') ?>">
 
         </head>
 
@@ -824,32 +824,32 @@
                             <h6 class="footer-column-title">Sistema</h6>
                             <div class="footer-nav-links">
                                 <!-- Enlace al Dashboard principal -->
-                                <a href="../dashboard/index.php" class="footer-nav-link">
+                                <a href="<?= route('dashboard') ?>" class="footer-nav-link">
                                     <i class="fas fa-tachometer-alt"></i>
                                     Dashboard
                                 </a>
                                 <!-- Gestión de Estudiantes -->
-                                <a href="../estudiantes/index.php" class="footer-nav-link">
+                                <a href="<?= route('estudiantes') ?>" class="footer-nav-link">
                                     <i class="fas fa-user-graduate"></i>
                                     Estudiantes
                                 </a>
                                 <!-- Catálogo de Cursos -->
-                                <a href="../cursos/index.php" class="footer-nav-link">
+                                <a href="<?= route('cursos') ?>" class="footer-nav-link">
                                     <i class="fas fa-graduation-cap"></i>
                                     Cursos
                                 </a>
                                 <!-- Biblioteca Digital -->
-                                <a href="../libros/index.php" class="footer-nav-link">
+                                <a href="<?= route('libros') ?>" class="footer-nav-link">
                                     <i class="fas fa-book"></i>
                                     Biblioteca
                                 </a>
                                 <!-- Materiales Educativos -->
-                                <a href="../materiales/index.php" class="footer-nav-link">
+                                <a href="<?= route('materiales') ?>" class="footer-nav-link">
                                     <i class="fas fa-file-alt"></i>
                                     Materiales
                                 </a>
                                 <!-- Administración de Usuarios -->
-                                <a href="../usuarios/index.php" class="footer-nav-link">
+                                <a href="<?= route('usuarios') ?>" class="footer-nav-link">
                                     <i class="fas fa-users-cog"></i>
                                     Usuarios
                                 </a>
@@ -864,32 +864,32 @@
                             <h6 class="footer-column-title">Módulos</h6>
                             <div class="footer-nav-links">
                                 <!-- Aula Virtual -->
-                                <a href="../cursos/lecciones.php" class="footer-nav-link">
+                                <a href="<?= route('aulaVirtual') ?>" class="footer-nav-link">
                                     <i class="fas fa-chalkboard-teacher"></i>
                                     Aula Virtual
                                 </a>
                                 <!-- Evaluaciones -->
-                                <a href="../evaluaciones/index.php" class="footer-nav-link">
+                                <a href="<?= route('evaluaciones') ?>" class="footer-nav-link">
                                     <i class="fas fa-clipboard-check"></i>
                                     Evaluaciones
                                 </a>
                                 <!-- Progreso Académico -->
-                                <a href="../estudiantes/progreso.php" class="footer-nav-link">
+                                <a href="<?= route('progreso') ?>" class="footer-nav-link">
                                     <i class="fas fa-chart-line"></i>
                                     Progreso
                                 </a>
                                 <!-- Laboratorios -->
-                                <a href="../laboratorios/index.php" class="footer-nav-link">
+                                <a href="<?= route('laboratorios') ?>" class="footer-nav-link">
                                     <i class="fas fa-flask"></i>
                                     Laboratorios
                                 </a>
                                 <!-- Certificaciones -->
-                                <a href="../certificados/index.php" class="footer-nav-link">
+                                <a href="<?= route('certificados') ?>" class="footer-nav-link">
                                     <i class="fas fa-certificate"></i>
                                     Certificados
                                 </a>
                                 <!-- Foros y Comunidad -->
-                                <a href="../foros/index.php" class="footer-nav-link">
+                                <a href="<?= route('foros') ?>" class="footer-nav-link">
                                     <i class="fas fa-comments"></i>
                                     Foros
                                 </a>

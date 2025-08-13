@@ -9,7 +9,7 @@ use Core\Validation;
 
 class AuthController extends Controller
 {
-     public function login()
+    public function login()
     {
         return view('auth.login', ['title' => 'Bienvenido'], false);
     }
@@ -52,6 +52,11 @@ class AuthController extends Controller
 
     private function attempt($user, $password)
     {
-        return User::attempt($user,$password);
+        return User::attempt($user, $password);
+    }
+    public function logout()
+    {
+        Session::destroy();
+        return redirect(route('login'));
     }
 }

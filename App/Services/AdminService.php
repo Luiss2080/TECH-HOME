@@ -68,7 +68,7 @@ class AdminService
         }
 
         $userRole = $user->rol();
-        $rol= strtolower($userRole->nombre);
+        $rol = strtolower($userRole->nombre);
         if (!$userRole || $rol !== 'administrador') {
             $this->redirectByRole($userRole ? $userRole->nombre : 'invitado');
             exit;
@@ -83,7 +83,6 @@ class AdminService
             'vendedor' => 'vendedor.dashboard',
             'invitado' => 'home'
         ];
-
         $routeName = $routes[$role] ?? 'home';
         redirect(route($routeName));
     }

@@ -5,8 +5,11 @@ use Core\Router;
 use App\Controllers\HomeController;
 
 // ==================== RUTAS PÚBLICAS ====================
-// Estas rutas no requieren autenticación
-Router::get('/', [HomeController::class, 'index'])->name('home');
+// Ruta de inicio (redirige al dashboard si está autenticado)
+Router::get('/', [HomeController::class, 'index'])
+    ->middleware('role:administrador')
+    ->name('home');
+
 Router::get('/login', [AuthController::class, 'login'])->name('login');
 Router::post('/login', [AuthController::class, 'loginForm'])->name('login.loginForm');
 
@@ -17,9 +20,8 @@ Router::post('/logout', [AuthController::class, 'logout'])
 // ==================== RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN) ====================
 
 Router::get('/dashboard', [HomeController::class, 'index'])
-    ->name('dashboard')
-    ->middleware('auth');
-
+    ->middleware('role:administrador')
+    ->name('dashboard');
 
 Router::get('/reportes', [HomeController::class, 'reportes'])
     ->name('reportes')
@@ -92,4 +94,3 @@ Router::get('/componentes', [HomeController::class, 'componentes'])
 Router::get('/componentes/crear', [HomeController::class, 'crearComponente'])
     ->name('componentes.crear')
     ->middleware('role:administrador,docente');
-
