@@ -108,3 +108,50 @@ function redirect($url): \Core\Response
 {
     return (new \Core\Response())->redirect($url);
 }
+
+/**
+ * Formatear número con separadores de miles
+ */
+function formatearNumero($numero, $decimales = 0): string
+{
+    return number_format($numero, $decimales, '.', ',');
+}
+
+/**
+ * Formatear moneda boliviana
+ */
+function formatearMoneda($monto): string
+{
+    return 'Bs. ' . formatearNumero($monto, 2);
+}
+
+/**
+ * Formatear tiempo transcurrido en formato humano
+ */
+function tiempoTranscurrido($fecha): string
+{
+    $ahora = new DateTime();
+    $tiempo = new DateTime($fecha);
+    $diff = $ahora->diff($tiempo);
+    
+    if ($diff->y > 0) return $diff->y . ' años';
+    if ($diff->m > 0) return $diff->m . ' meses';
+    if ($diff->d > 0) return $diff->d . ' días';
+    if ($diff->h > 0) return $diff->h . ' horas';
+    if ($diff->i > 0) return $diff->i . ' minutos';
+    return 'ahora';
+}
+
+/**
+ * Formatear bytes en formato humano
+ */
+function formatearBytes($bytes, $precision = 2): string
+{
+    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+    
+    for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+        $bytes /= 1024;
+    }
+    
+    return round($bytes, $precision) . ' ' . $units[$i];
+}

@@ -47,4 +47,26 @@ class User extends Model
         }
         return false;
     }
+
+    // Scopes
+    public static function activos()
+    {
+        return self::where('estado', '=', 1);
+    }
+
+    public static function porRol($rolId)
+    {
+        return self::where('rol_id', '=', $rolId);
+    }
+
+    public static function registradosHoy()
+    {
+        return self::whereRaw('DATE(fecha_creacion) = CURRENT_DATE');
+    }
+
+    public static function recientes(int $dias = 7)
+    {
+        return self::whereRaw('fecha_creacion >= DATE_SUB(NOW(), INTERVAL ? DAY)', [$dias])
+                   ->orderBy('fecha_creacion', 'desc');
+    }
 }

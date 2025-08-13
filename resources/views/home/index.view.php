@@ -71,14 +71,14 @@ use App\Services\AdminService;
                         <i class="fas fa-user-graduate"></i>
                     </div>
                     <div class="metric-info">
-                        <div class="metric-value"><?php echo $estadisticas['estudiantes_total']; ?></div>
+                        <div class="metric-value"><?= $estadisticas['estudiantes_total']; ?></div>
                         <div class="metric-label">Estudiantes Registrados</div>
                     </div>
                 </div>
                 <div class="metric-footer">
                     <div class="metric-trend trend-positive">
                         <i class="fas fa-arrow-up"></i>
-                        <span><?php echo $estadisticas['estudiantes_activos']; ?> activos</span>
+                        <span><?= $estadisticas['estudiantes_activos']; ?> activos</span>
                     </div>
                     <a href="../../vistas/usuarios/index.php?rol=estudiante" class="metric-action">
                         <i class="fas fa-users-cog"></i>
@@ -93,14 +93,14 @@ use App\Services\AdminService;
                         <i class="fas fa-chalkboard-teacher"></i>
                     </div>
                     <div class="metric-info">
-                        <div class="metric-value"><?php echo $estadisticas['docentes_total']; ?></div>
+                        <div class="metric-value"><?= $estadisticas['docentes_total']; ?></div>
                         <div class="metric-label">Docentes Certificados</div>
                     </div>
                 </div>
                 <div class="metric-footer">
                     <div class="metric-trend trend-positive">
                         <i class="fas fa-check-circle"></i>
-                        <span><?php echo $estadisticas['docentes_activos']; ?> activos</span>
+                        <span><?= $estadisticas['docentes_activos']; ?> activos</span>
                     </div>
                     <a href="../../vistas/usuarios/index.php?rol=docente" class="metric-action">
                         <i class="fas fa-user-tie"></i>
@@ -115,14 +115,14 @@ use App\Services\AdminService;
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <div class="metric-info">
-                        <div class="metric-value"><?php echo $estadisticas['reportes_generados']; ?></div>
+                        <div class="metric-value"><?= $estadisticas['reportes_generados']; ?></div>
                         <div class="metric-label">Reportes del Mes</div>
                     </div>
                 </div>
                 <div class="metric-footer">
                     <div class="metric-trend trend-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <span><?php echo $estadisticas['reportes_pendientes']; ?> pendientes</span>
+                        <span><?= $estadisticas['reportes_pendientes']; ?> pendientes</span>
                     </div>
                     <a href="../../vistas/Reportes/index.php" class="metric-action">
                         <i class="fas fa-chart-line"></i>
@@ -138,14 +138,14 @@ use App\Services\AdminService;
                         <i class="fas fa-graduation-cap"></i>
                     </div>
                     <div class="metric-info">
-                        <div class="metric-value"><?php echo $estadisticas['cursos_total']; ?></div>
+                        <div class="metric-value"><?= $estadisticas['cursos_total']; ?></div>
                         <div class="metric-label">Cursos Disponibles</div>
                     </div>
                 </div>
                 <div class="metric-footer">
                     <div class="metric-trend trend-positive">
                         <i class="fas fa-check-circle"></i>
-                        <span><?php echo $estadisticas['cursos_publicados']; ?> publicados</span>
+                        <span><?= $estadisticas['cursos_publicados']; ?> publicados</span>
                     </div>
                     <a href="../../vistas/cursos/index.php" class="metric-action">
                         <i class="fas fa-book-reader"></i>
@@ -160,14 +160,14 @@ use App\Services\AdminService;
                         <i class="fas fa-book"></i>
                     </div>
                     <div class="metric-info">
-                        <div class="metric-value"><?php echo $estadisticas['libros_total']; ?></div>
+                        <div class="metric-value"><?= $estadisticas['libros_total']; ?></div>
                         <div class="metric-label">Libros en Biblioteca</div>
                     </div>
                 </div>
                 <div class="metric-footer">
                     <div class="metric-trend trend-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <span><?php echo $estadisticas['libros_stock_bajo']; ?> stock bajo</span>
+                        <span><?= $estadisticas['libros_stock_bajo']; ?> stock bajo</span>
                     </div>
                     <a href="../../vistas/libros/index.php" class="metric-action">
                         <i class="fas fa-book-open"></i>
@@ -182,14 +182,14 @@ use App\Services\AdminService;
                         <i class="fas fa-microchip"></i>
                     </div>
                     <div class="metric-info">
-                        <div class="metric-value"><?php echo $estadisticas['componentes_total']; ?></div>
+                        <div class="metric-value"><?= $estadisticas['componentes_total']; ?></div>
                         <div class="metric-label">Componentes Electrónicos</div>
                     </div>
                 </div>
                 <div class="metric-footer">
                     <div class="metric-trend trend-warning">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <span><?php echo $estadisticas['componentes_stock_bajo']; ?> stock bajo</span>
+                        <span><?= $estadisticas['componentes_stock_bajo']; ?> stock bajo</span>
                     </div>
                     <a href="../../vistas/componentes/index.php" class="metric-action">
                         <i class="fas fa-warehouse"></i>
@@ -211,42 +211,56 @@ use App\Services\AdminService;
                     Actividad Reciente
                 </h3>
 
-                <?php foreach ($actividades_recientes as $actividad): ?>
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: <?php echo $actividad['color']; ?>;">
-                            <i class="fas fa-<?php echo $actividad['icono']; ?>"></i>
+                <?php if (!empty($actividades_recientes)): ?>
+                    <?php foreach ($actividades_recientes as $actividad): ?>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: <?= $actividad['color'] ?? '#3b82f6'; ?>;">
+                                <i class="fas fa-<?= $actividad['icono'] ?? 'info-circle'; ?>"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title"><?= htmlspecialchars($actividad['titulo'] ?? 'Sin título'); ?></div>
+                                <div class="activity-description"><?= htmlspecialchars($actividad['descripcion'] ?? 'Sin descripción'); ?></div>
+                            </div>
+                            <div class="activity-time">Hace <?= tiempoTranscurrido($actividad['fecha'] ?? date('Y-m-d H:i:s')); ?></div>
                         </div>
-                        <div class="activity-content">
-                            <div class="activity-title"><?php echo $actividad['titulo']; ?></div>
-                            <div class="activity-description"><?php echo $actividad['descripcion']; ?></div>
-                        </div>
-                        <div class="activity-time">Hace <?php echo $actividad['tiempo']; ?></div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No hay actividad reciente</p>
                     </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
 
             <!-- Widget de Sesiones Activas -->
             <div class="widget">
                 <h3 class="widget-title">
                     <i class="fas fa-wifi"></i>
-                    Sesiones Activas (<?php echo count($sesiones_activas); ?>)
+                    Sesiones Activas (<?= count($sesiones_activas); ?>)
                 </h3>
 
-                <?php foreach ($sesiones_activas as $sesion): ?>
-                    <div class="session-item">
-                        <div class="session-user">
-                            <div class="status-indicator"></div>
-                            <div>
-                                <div class="session-name"><?php echo $sesion['usuario']; ?></div>
-                                <div class="session-role"><?php echo $sesion['rol']; ?></div>
+                <?php if (!empty($sesiones_activas)): ?>
+                    <?php foreach ($sesiones_activas as $sesion): ?>
+                        <div class="session-item">
+                            <div class="session-user">
+                                <div class="status-indicator"></div>
+                                <div>
+                                    <div class="session-name"><?= htmlspecialchars($sesion['usuario'] ?? 'Usuario desconocido'); ?></div>
+                                    <div class="session-role"><?= htmlspecialchars($sesion['rol'] ?? 'Sin rol'); ?></div>
+                                </div>
+                            </div>
+                            <div class="session-info">
+                                <div class="session-time"><?= tiempoTranscurrido($sesion['ultimo_acceso'] ?? date('Y-m-d H:i:s')); ?></div>
+                                <div class="session-device"><?= htmlspecialchars($sesion['dispositivo'] ?? 'Desconocido'); ?></div>
                             </div>
                         </div>
-                        <div class="session-info">
-                            <div class="session-time"><?php echo $sesion['tiempo']; ?></div>
-                            <div class="session-device"><?php echo $sesion['dispositivo']; ?></div>
-                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <i class="fas fa-user-times"></i>
+                        <p>No hay sesiones activas</p>
                     </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -270,7 +284,7 @@ use App\Services\AdminService;
                         </div>
                         <div class="summary-content">
                             <div class="summary-label">Promedio por venta</div>
-                            <div class="summary-value">Bs. <?php echo AdminService::formatearNumero($resumen_sistema['promedio_venta'], 2); ?></div>
+                            <div class="summary-value"><?= formatearMoneda($resumen_sistema['promedio_venta'] ?? 0); ?></div>
                             <div class="summary-description">Valor promedio de transacción</div>
                         </div>
                         <div class="summary-badge trend-positive">Promedio</div>
@@ -282,7 +296,7 @@ use App\Services\AdminService;
                         </div>
                         <div class="summary-content">
                             <div class="summary-label">Categorías activas</div>
-                            <div class="summary-value"><?php echo $resumen_sistema['categorias_activas']; ?></div>
+                            <div class="summary-value"><?php echo $resumen_sistema['categorias_activas'] ?? 0; ?></div>
                             <div class="summary-description">Robótica, Electrónica, IoT, etc.</div>
                         </div>
                         <div class="summary-badge trend-positive">Activas</div>
@@ -294,7 +308,7 @@ use App\Services\AdminService;
                         </div>
                         <div class="summary-content">
                             <div class="summary-label">Usuarios del sistema</div>
-                            <div class="summary-value"><?php echo $resumen_sistema['total_usuarios']; ?></div>
+                            <div class="summary-value"><?php echo $resumen_sistema['total_usuarios'] ?? 0; ?></div>
                             <div class="summary-description">Admin, supervisores, vendedores</div>
                         </div>
                         <div class="summary-badge trend-warning">Personal</div>
@@ -306,7 +320,7 @@ use App\Services\AdminService;
                         </div>
                         <div class="summary-content">
                             <div class="summary-label">Valor total inventario</div>
-                            <div class="summary-value">Bs. <?php echo AdminService::formatearNumero($resumen_sistema['valor_inventario'] / 1000, 0); ?>K</div>
+                            <div class="summary-value">Bs. <?= formatearNumero(($resumen_sistema['valor_inventario'] ?? 0) / 1000, 0); ?>K</div>
                             <div class="summary-description">Valor comercial del stock</div>
                         </div>
                         <div class="summary-badge trend-positive">Inventario</div>
@@ -318,10 +332,10 @@ use App\Services\AdminService;
                         </div>
                         <div class="summary-content">
                             <div class="summary-label">Tasa de conversión</div>
-                            <div class="summary-value"><?php echo $resumen_sistema['tasa_conversion']; ?>%</div>
+                            <div class="summary-value"><?php echo $resumen_sistema['tasa_conversion'] ?? 0; ?>%</div>
                             <div class="summary-description">Visitantes que realizan compras</div>
                         </div>
-                        <div class="summary-badge trend-positive"><?php echo $resumen_sistema['tasa_conversion']; ?>%</div>
+                        <div class="summary-badge trend-positive"><?php echo $resumen_sistema['tasa_conversion'] ?? 0; ?>%</div>
                     </div>
                 </div>
             </div>
@@ -335,25 +349,32 @@ use App\Services\AdminService;
                 </h3>
 
                 <div class="sales-scroll">
-                    <?php foreach ($ventas_recientes as $venta): ?>
-                        <div class="sale-item">
-                            <div class="sale-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="sale-content">
-                                <div class="sale-customer"><?php echo htmlspecialchars($venta['cliente']); ?></div>
-                                <div class="sale-product"><?php echo htmlspecialchars($venta['producto']); ?></div>
-                                <div class="sale-date">Hace <?php echo $venta['fecha']; ?></div>
-                            </div>
-                            <div class="sale-details">
-                                <div class="sale-amount"><?php echo AdminService::formatearMoneda($venta['monto']); ?></div>
-                                <div class="sale-location"><?php echo htmlspecialchars($venta['ciudad']); ?></div>
-                                <div class="sale-status <?php echo AdminService::obtenerClaseEstado($venta['estado']); ?>">
-                                    <?php echo $venta['estado']; ?>
+                    <?php if (!empty($ventas_recientes)): ?>
+                        <?php foreach ($ventas_recientes as $venta): ?>
+                            <div class="sale-item">
+                                <div class="sale-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="sale-content">
+                                    <div class="sale-customer"><?= htmlspecialchars($venta['cliente'] ?? 'Cliente desconocido'); ?></div>
+                                    <div class="sale-product"><?= htmlspecialchars($venta['producto'] ?? 'Producto desconocido'); ?></div>
+                                    <div class="sale-date">Hace <?= tiempoTranscurrido($venta['fecha'] ?? date('Y-m-d H:i:s')); ?></div>
+                                </div>
+                                <div class="sale-details">
+                                    <div class="sale-amount"><?= formatearMoneda($venta['monto'] ?? 0); ?></div>
+                                    <div class="sale-location"><?= htmlspecialchars($venta['ciudad'] ?? ''); ?></div>
+                                    <div class="sale-status <?= strtolower(str_replace(' ', '-', $venta['estado'] ?? 'pendiente')); ?>">
+                                        <?= $venta['estado'] ?? 'Pendiente'; ?>
+                                    </div>
                                 </div>
                             </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>No hay ventas recientes</p>
                         </div>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -379,25 +400,32 @@ use App\Services\AdminService;
 
         <div class="products-scroll">
             <div class="products-grid">
-                <?php foreach ($libros_recientes as $libro): ?>
-                    <div class="product-card book-card">
-                        <div class="product-image">
-                            <i class="fas fa-book"></i>
-                        </div>
-                        <div class="product-content">
-                            <div class="product-category"><?php echo htmlspecialchars($libro['categoria']); ?></div>
-                            <div class="product-title"><?php echo htmlspecialchars($libro['titulo']); ?></div>
-                            <div class="product-author">Por: <?php echo htmlspecialchars($libro['autor']); ?></div>
-                            <div class="product-price"><?php echo AdminService::formatearMoneda($libro['precio']); ?></div>
-                            <div class="product-footer">
-                                <div class="product-stock">Stock: <?php echo $libro['stock']; ?> unidades</div>
-                                <div class="product-status <?php echo AdminService::obtenerClaseEstado($libro['estado']); ?>">
-                                    <?php echo $libro['estado']; ?>
+                <?php if (!empty($libros_recientes)): ?>
+                    <?php foreach ($libros_recientes as $libro): ?>
+                        <div class="product-card book-card">
+                            <div class="product-image">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="product-content">
+                                <div class="product-category"><?= htmlspecialchars($libro['categoria'] ?? 'Sin categoría'); ?></div>
+                                <div class="product-title"><?= htmlspecialchars($libro['titulo'] ?? 'Sin título'); ?></div>
+                                <div class="product-author">Por: <?= htmlspecialchars($libro['autor'] ?? 'Autor desconocido'); ?></div>
+                                <div class="product-price"><?= formatearMoneda($libro['precio'] ?? 0); ?></div>
+                                <div class="product-footer">
+                                    <div class="product-stock">Stock: <?= $libro['stock'] ?? 0; ?> unidades</div>
+                                    <div class="product-status <?= strtolower(str_replace(' ', '-', $libro['estado'] ?? 'disponible')); ?>">
+                                        <?= $libro['estado'] ?? 'Disponible'; ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <p>No hay libros registrados recientemente</p>
                     </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -422,25 +450,32 @@ use App\Services\AdminService;
 
         <div class="products-scroll">
             <div class="products-grid">
-                <?php foreach ($componentes_recientes as $componente): ?>
-                    <div class="product-card component-card">
-                        <div class="product-image">
-                            <i class="fas fa-microchip"></i>
-                        </div>
-                        <div class="product-content">
-                            <div class="product-category"><?php echo htmlspecialchars($componente['categoria']); ?></div>
-                            <div class="product-title"><?php echo htmlspecialchars($componente['nombre']); ?></div>
-                            <div class="product-code">Código: <?php echo htmlspecialchars($componente['codigo']); ?></div>
-                            <div class="product-price"><?php echo AdminService::formatearMoneda($componente['precio']); ?></div>
-                            <div class="product-footer">
-                                <div class="product-stock">Stock: <?php echo $componente['stock']; ?> unidades</div>
-                                <div class="product-status <?php echo AdminService::obtenerClaseEstado($componente['estado']); ?>">
-                                    <?php echo $componente['estado']; ?>
+                <?php if (!empty($componentes_recientes)): ?>
+                    <?php foreach ($componentes_recientes as $componente): ?>
+                        <div class="product-card component-card">
+                            <div class="product-image">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="product-content">
+                                <div class="product-category"><?= htmlspecialchars($componente['categoria'] ?? 'Sin categoría'); ?></div>
+                                <div class="product-title"><?= htmlspecialchars($componente['nombre'] ?? 'Sin nombre'); ?></div>
+                                <div class="product-code">Código: <?= htmlspecialchars($componente['codigo'] ?? 'Sin código'); ?></div>
+                                <div class="product-price"><?= formatearMoneda($componente['precio'] ?? 0); ?></div>
+                                <div class="product-footer">
+                                    <div class="product-stock">Stock: <?= $componente['stock'] ?? 0; ?> unidades</div>
+                                    <div class="product-status <?= strtolower(str_replace(' ', '-', $componente['estado'] ?? 'disponible')); ?>">
+                                        <?= $componente['estado'] ?? 'Disponible'; ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <i class="fas fa-microchip"></i>
+                        <p>No hay componentes registrados recientemente</p>
                     </div>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
