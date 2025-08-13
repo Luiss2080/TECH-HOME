@@ -14,7 +14,10 @@ foreach (glob(BASE_ROUTE . 'App' . DIRECTORY_SEPARATOR . 'Modelo' . DIRECTORY_SE
 foreach (glob(BASE_ROUTE . 'App' . DIRECTORY_SEPARATOR . 'Controller' . DIRECTORY_SEPARATOR . '*.php') as $controllerFile) {
     require_once $controllerFile;
 }
-
+// Cargar todas las clases de directorio `App/Services`
+foreach (glob(BASE_ROUTE . 'App' . DIRECTORY_SEPARATOR . 'Services' . DIRECTORY_SEPARATOR . '*.php') as $serviceFile) {
+    require_once $serviceFile;
+}
 // Cargar clases del núcleo (Core)
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'Router.php';
 require_once BASE_ROUTE . 'Core' . DIRECTORY_SEPARATOR . 'Exceptions' . DIRECTORY_SEPARATOR . 'RouteNotFoundException.php';

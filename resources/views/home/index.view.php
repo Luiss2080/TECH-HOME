@@ -1,33 +1,6 @@
 <?php
-$estadisticas = [
-    'estudiantes_total' => 0,
-    'estudiantes_activos' => 0,
-    'docentes_total' => 0,
-    'docentes_activos' => 0,
-    'reportes_generados' => 0,
-    'reportes_pendientes' => 0,
-    'cursos_total' => 0,
-    'cursos_publicados' => 0,
-    'libros_total' => 0,
-    'libros_stock_bajo' => 0,
-    'componentes_total' => 0,
-    'componentes_stock_bajo' => 0
-];
 
-$resumen_sistema = [
-    'promedio_venta' => 0,
-    'categorias_activas' => 0,
-    'total_usuarios' => 0,
-    'valor_inventario' => 0,
-    'tasa_conversion' => 0
-];
-
-$actividades_recientes = [];
-$sesiones_activas = [];
-$ventas_recientes = [];
-$libros_recientes = [];
-$componentes_recientes = [];
-
+use App\Services\AdminService;
 ?>
 
 <div class="dashboard-content">
@@ -297,7 +270,7 @@ $componentes_recientes = [];
                         </div>
                         <div class="summary-content">
                             <div class="summary-label">Promedio por venta</div>
-                            <div class="summary-value">Bs. <?php echo ($resumen_sistema['promedio_venta']); ?></div>
+                            <div class="summary-value">Bs. <?php echo AdminService::formatearNumero($resumen_sistema['promedio_venta'], 2); ?></div>
                             <div class="summary-description">Valor promedio de transacción</div>
                         </div>
                         <div class="summary-badge trend-positive">Promedio</div>
@@ -333,7 +306,7 @@ $componentes_recientes = [];
                         </div>
                         <div class="summary-content">
                             <div class="summary-label">Valor total inventario</div>
-                            <div class="summary-value">Bs. <?php echo ($resumen_sistema['valor_inventario'] / 1000); ?>K</div>
+                            <div class="summary-value">Bs. <?php echo AdminService::formatearNumero($resumen_sistema['valor_inventario'] / 1000, 0); ?>K</div>
                             <div class="summary-description">Valor comercial del stock</div>
                         </div>
                         <div class="summary-badge trend-positive">Inventario</div>
@@ -373,9 +346,9 @@ $componentes_recientes = [];
                                 <div class="sale-date">Hace <?php echo $venta['fecha']; ?></div>
                             </div>
                             <div class="sale-details">
-                                <div class="sale-amount"><?php echo ($venta['monto']); ?></div>
+                                <div class="sale-amount"><?php echo AdminService::formatearMoneda($venta['monto']); ?></div>
                                 <div class="sale-location"><?php echo htmlspecialchars($venta['ciudad']); ?></div>
-                                <div class="sale-status <?php echo ($venta['estado']); ?>">
+                                <div class="sale-status <?php echo AdminService::obtenerClaseEstado($venta['estado']); ?>">
                                     <?php echo $venta['estado']; ?>
                                 </div>
                             </div>
@@ -415,10 +388,10 @@ $componentes_recientes = [];
                             <div class="product-category"><?php echo htmlspecialchars($libro['categoria']); ?></div>
                             <div class="product-title"><?php echo htmlspecialchars($libro['titulo']); ?></div>
                             <div class="product-author">Por: <?php echo htmlspecialchars($libro['autor']); ?></div>
-                            <div class="product-price"><?php echo ($libro['precio']); ?></div>
+                            <div class="product-price"><?php echo AdminService::formatearMoneda($libro['precio']); ?></div>
                             <div class="product-footer">
                                 <div class="product-stock">Stock: <?php echo $libro['stock']; ?> unidades</div>
-                                <div class="product-status <?php echo ($libro['estado']); ?>">
+                                <div class="product-status <?php echo AdminService::obtenerClaseEstado($libro['estado']); ?>">
                                     <?php echo $libro['estado']; ?>
                                 </div>
                             </div>
@@ -458,10 +431,10 @@ $componentes_recientes = [];
                             <div class="product-category"><?php echo htmlspecialchars($componente['categoria']); ?></div>
                             <div class="product-title"><?php echo htmlspecialchars($componente['nombre']); ?></div>
                             <div class="product-code">Código: <?php echo htmlspecialchars($componente['codigo']); ?></div>
-                            <div class="product-price"><?php echo ($componente['precio']); ?></div>
+                            <div class="product-price"><?php echo AdminService::formatearMoneda($componente['precio']); ?></div>
                             <div class="product-footer">
                                 <div class="product-stock">Stock: <?php echo $componente['stock']; ?> unidades</div>
-                                <div class="product-status <?php echo ($componente['estado']); ?>">
+                                <div class="product-status <?php echo AdminService::obtenerClaseEstado($componente['estado']); ?>">
                                     <?php echo $componente['estado']; ?>
                                 </div>
                             </div>
