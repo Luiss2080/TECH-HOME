@@ -44,6 +44,25 @@ class QueryBuilder
         return $this;
     }
 
+    public function whereRaw(string $sql, array $bindings = [])
+    {
+        $this->query->where[] = $sql;
+        $this->bindings = array_merge($this->bindings, $bindings);
+        return $this;
+    }
+
+    public function count(): int
+    {
+        $originalSelect = $this->query->select ?? '*';
+        $this->query->select = 'COUNT(*) as count';
+        $result = $this->get();
+
+        // Restore original select
+        $this->query->select = $originalSelect;
+
+        return (int) ($result[0]->count ?? 0);
+    }
+
     public function get()
     {
         if (!isset($this->query->select)) {
@@ -60,7 +79,9 @@ class QueryBuilder
             $sql .= " LIMIT {$this->query->limit}";
         }
         $results = $this->db->query($sql, $this->bindings)->fetchAll();
-        if ($this->modelClass) {
+        // verificar que los resultados no estén vacíos
+        // verificar que la consulta no este Count,Avg porque estamos mapeando a modelos
+        if ($this->modelClass && !empty($results) && !preg_match('/\b(COUNT|AVG)\b/', $sql)) {
             $results = array_map(function ($result) {
                 $model = new $this->modelClass;
                 $model->fill((array) $result);

@@ -257,6 +257,26 @@ class Model
     {
         return static::query()->whereIn($column, $values);
     }
+
+    public static function whereRaw(string $sql, array $bindings = [])
+    {
+        return static::query()->whereRaw($sql, $bindings);
+    }
+
+    public static function count()
+    {
+        return static::query()->count();
+    }
+
+    public static function orderBy(string $column, string $direction = 'ASC')
+    {
+        return static::query()->orderBy($column, $direction);
+    }
+
+    public static function limit(int $limit)
+    {
+        return static::query()->limit($limit);
+    }
     // relaciones 
 
     public function belongsTo($related, $foreignKey = null, $ownerKey = null)
