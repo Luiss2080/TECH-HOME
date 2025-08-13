@@ -59,4 +59,22 @@ class AuthController extends Controller
         Session::destroy();
         return redirect(route('login'));
     }
+    public function verify_session()
+    {
+        if (Session::has('user')) {
+            return response()->json([
+                'authenticated' => true,
+                'user' => [
+                    'id' => auth()->id,
+                    'nombre' => auth()->nombre,
+                    'email' => auth()->email,
+                    'rol' => auth()->rol() ? auth()->rol()->nombre : null
+                ]
+            ]);
+        }
+        return response()->json([
+            'authenticated' => false,
+            'error' => 'No authenticated user'
+        ], 401);
+    }
 }

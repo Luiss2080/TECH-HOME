@@ -640,7 +640,7 @@
 
                     async verifySession() {
                         try {
-                            const response = await fetch('verify_session.php', {
+                            const response = await fetch('<?= route('verify_session') ?>', {
                                 method: 'GET',
                                 cache: 'no-cache',
                                 headers: {

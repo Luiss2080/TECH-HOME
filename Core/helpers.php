@@ -155,3 +155,16 @@ function formatearBytes($bytes, $precision = 2): string
     
     return round($bytes, $precision) . ' ' . $units[$i];
 }
+
+/**
+ * Crear una respuesta HTTP (helper para JSON)
+ */
+function response()
+{
+    return new class {
+        public function json($data, $status = 200)
+        {
+            return \Core\Response::json($data, $status);
+        }
+    };
+}
