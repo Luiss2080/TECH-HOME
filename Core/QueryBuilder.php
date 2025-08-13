@@ -104,7 +104,7 @@ class QueryBuilder
     }
     private function getSqlDebug()
     {
-        $select =$this->query->select ?? '*';
+        $select = $this->query->select ?? '*';
         $sql = "SELECT {$select} FROM {$this->table}";
         if (!empty($this->query->where)) {
             $sql .= " WHERE " . implode(' AND ', $this->query->where);
