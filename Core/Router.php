@@ -91,7 +91,17 @@ class Router
         if ($route) {
             // Ejecutar middlewares
             foreach ($route->getMiddleware() as $middleware) {
-                $middlewareInstance = new $middleware;
+                // Si el middleware ya es una instancia, usarla directamente
+                if (is_object($middleware)) {
+                    $middlewareInstance = $middleware;
+                } elseif (is_string($middleware)) {
+                    // Si es un string, resolver usando el factory
+                    $middlewareInstance = \App\Middleware\MiddlewareFactory::resolve($middleware);
+                } else {
+                    // Si es un string de clase, crear una nueva instancia (compatibilidad legacy)
+                    $middlewareInstance = new $middleware;
+                }
+                
                 $response = $middlewareInstance->handle($request, function ($request) use ($route) {
                     return self::resolveAction($route->getAction(), $request, $route->getParameters());
                 });

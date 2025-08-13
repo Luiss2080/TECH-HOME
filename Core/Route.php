@@ -21,12 +21,16 @@ class Route
     /**
      * Agrega un middleware a la ruta.
      *
-     * @param string|array $middleware
+     * @param string|array|object $middleware
      * @return self
      */
     public function middleware($middleware)
     {
-        $this->middleware = array_merge($this->middleware, (array) $middleware);
+        if (is_array($middleware)) {
+            $this->middleware = array_merge($this->middleware, $middleware);
+        } else {
+            $this->middleware[] = $middleware;
+        }
         return $this;
     }
 
