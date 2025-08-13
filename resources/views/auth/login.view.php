@@ -56,7 +56,8 @@
             </div>
 
             <!-- Formulario -->
-            <form method="POST">
+            <form method="POST" action="<?= route('login.loginForm') ?>">
+                <?= CSRF() ?>
                 <div class="form-group">
                     <label class="form-label">Correo Electrónico</label>
                     <div class="input-wrapper">
