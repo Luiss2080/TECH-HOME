@@ -14,7 +14,7 @@ use App\Services\AdminService;
         <p class="section-subtitle">Accede rápidamente a las funciones principales del sistema</p>
 
         <div class="quick-actions-grid">
-            <a href="../../vistas/usuarios/crear.php" class="action-card">
+            <a href="<?= route('usuarios.crear'); ?>" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-user-plus"></i>
                 </div>
@@ -22,7 +22,7 @@ use App\Services\AdminService;
                 <p class="action-description">Registrar un nuevo usuario en el sistema</p>
             </a>
 
-            <a href="../../vistas/cursos/crear.php" class="action-card">
+            <a href="<?= route('cursos.crear'); ?>" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-plus-circle"></i>
                 </div>
@@ -30,7 +30,7 @@ use App\Services\AdminService;
                 <p class="action-description">Crear un nuevo curso en la plataforma</p>
             </a>
 
-            <a href="../../vistas/componentes/crear.php" class="action-card">
+            <a href="<?= route('componentes.crear'); ?>" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-microchip"></i>
                 </div>
@@ -38,7 +38,7 @@ use App\Services\AdminService;
                 <p class="action-description">Agregar componente al inventario</p>
             </a>
 
-            <a href="../../vistas/ventas/crear.php" class="action-card">
+            <a href="<?= route('ventas.crear'); ?>" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-shopping-cart"></i>
                 </div>
@@ -46,7 +46,7 @@ use App\Services\AdminService;
                 <p class="action-description">Procesar una nueva orden de venta</p>
             </a>
 
-            <a href="../../vistas/libros/crear.php" class="action-card">
+            <a href="<?= route('libros.crear'); ?>" class="action-card">
                 <div class="action-icon">
                     <i class="fas fa-book"></i> <!-- ÍCONO DE LIBRO AGREGADO -->
                 </div>
@@ -80,7 +80,7 @@ use App\Services\AdminService;
                         <i class="fas fa-arrow-up"></i>
                         <span><?= $estadisticas['estudiantes_activos']; ?> activos</span>
                     </div>
-                    <a href="../../vistas/usuarios/index.php?rol=estudiante" class="metric-action">
+                    <a href="<?= route('usuarios'); ?>?rol=estudiante" class="metric-action">
                         <i class="fas fa-users-cog"></i>
                         Gestionar
                     </a>
@@ -102,7 +102,7 @@ use App\Services\AdminService;
                         <i class="fas fa-check-circle"></i>
                         <span><?= $estadisticas['docentes_activos']; ?> activos</span>
                     </div>
-                    <a href="../../vistas/usuarios/index.php?rol=docente" class="metric-action">
+                    <a href="<?= route('usuarios'); ?>?rol=docente" class="metric-action">
                         <i class="fas fa-user-tie"></i>
                         Ver Docentes
                     </a>
@@ -124,7 +124,7 @@ use App\Services\AdminService;
                         <i class="fas fa-exclamation-triangle"></i>
                         <span><?= $estadisticas['reportes_pendientes']; ?> pendientes</span>
                     </div>
-                    <a href="../../vistas/Reportes/index.php" class="metric-action">
+                    <a href="<?= route('reportes'); ?>" class="metric-action">
                         <i class="fas fa-chart-line"></i>
                         Ver Reportes
                     </a>
@@ -147,7 +147,7 @@ use App\Services\AdminService;
                         <i class="fas fa-check-circle"></i>
                         <span><?= $estadisticas['cursos_publicados']; ?> publicados</span>
                     </div>
-                    <a href="../../vistas/cursos/index.php" class="metric-action">
+                    <a href="<?= route('cursos'); ?>" class="metric-action">
                         <i class="fas fa-book-reader"></i>
                         Ver Cursos
                     </a>
@@ -169,7 +169,7 @@ use App\Services\AdminService;
                         <i class="fas fa-exclamation-triangle"></i>
                         <span><?= $estadisticas['libros_stock_bajo']; ?> stock bajo</span>
                     </div>
-                    <a href="../../vistas/libros/index.php" class="metric-action">
+                    <a href="<?= route('libros'); ?>" class="metric-action">
                         <i class="fas fa-book-open"></i>
                         Ver Biblioteca
                     </a>
@@ -191,7 +191,7 @@ use App\Services\AdminService;
                         <i class="fas fa-exclamation-triangle"></i>
                         <span><?= $estadisticas['componentes_stock_bajo']; ?> stock bajo</span>
                     </div>
-                    <a href="../../vistas/componentes/index.php" class="metric-action">
+                    <a href="<?= route('componentes'); ?>" class="metric-action">
                         <i class="fas fa-warehouse"></i>
                         Ver Inventario
                     </a>
@@ -274,7 +274,7 @@ use App\Services\AdminService;
                 <h3 class="widget-title">
                     <i class="fas fa-chart-pie"></i>
                     Resumen del Sistema
-                    <a href="../../vistas/reportes/index.php" class="widget-action">Ver reportes</a>
+                    <a href="<?= route('reportes'); ?>" class="widget-action">Ver reportes</a>
                 </h3>
 
                 <div class="summary-grid">
@@ -345,7 +345,7 @@ use App\Services\AdminService;
                 <h3 class="widget-title">
                     <i class="fas fa-shopping-cart"></i>
                     Ventas Recientes
-                    <a href="../../vistas/ventas/index.php" class="widget-action">Ver todas</a>
+                    <a href="<?= route('ventas'); ?>" class="widget-action">Ver todas</a>
                 </h3>
 
                 <div class="sales-scroll">
@@ -391,7 +391,7 @@ use App\Services\AdminService;
                 <p class="section-subtitle">Últimas incorporaciones a la biblioteca digital de Tech Home Bolivia</p>
             </div>
             <div class="section-header-actions">
-                <a href="../../vistas/libros/index.php" class="section-action-header">
+                <a href="<?= route('libros'); ?>" class="section-action-header">
                     <i class="fas fa-book-open"></i>
                     Ver toda la biblioteca
                 </a>
@@ -441,7 +441,7 @@ use App\Services\AdminService;
                 <p class="section-subtitle">Últimos componentes electrónicos agregados al inventario</p>
             </div>
             <div class="section-header-actions">
-                <a href="../../vistas/componentes/index.php" class="section-action-header">
+                <a href="<?= route('componentes'); ?>" class="section-action-header">
                     <i class="fas fa-warehouse"></i>
                     Ver inventario completo
                 </a>

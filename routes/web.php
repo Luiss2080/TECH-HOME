@@ -34,6 +34,11 @@ Router::get('/aula-virtual', [HomeController::class, 'aulaVirtual'])->name('aula
 Router::get('/evaluaciones', [HomeController::class, 'evaluaciones'])->name('evaluaciones');
 // Certificados
 Router::get('/certificados', [HomeController::class, 'certificados'])->name('certificados');
+// Componentes
+Router::get('/componentes', [HomeController::class, 'componentes'])->name('componentes');
+// Ventas
+Router::get('/ventas', [HomeController::class, 'ventas'])->name('ventas');
+
 // Crear usuario
 Router::get('/usuarios/crear', [HomeController::class, 'crearUsuario'])->name('usuarios.crear');
 // Crear curso
