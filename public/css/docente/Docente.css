@@ -1,0 +1,158 @@
+  body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* SIDEBAR CON MÁXIMA PRIORIDAD */
+        .ithr-navigation-panel,
+        .tech-home-sidebar,
+        [class*="sidebar"] {
+            z-index: 2000 !important; /* Máxima prioridad sobre todos los elementos */
+            position: fixed !important;
+        }
+
+        /* AJUSTE DEL HEADER CON 50PX DE SEPARACIÓN */
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            margin-left: 330px; /* 280px del sidebar + 50px de separación */
+            margin-top: 15px;
+            margin-right: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* ÁREA DE CONTENIDO PRINCIPAL CON 50PX DE SEPARACIÓN */
+        .main-content-area {
+            margin-left: 330px; /* 280px del sidebar + 50px de separación */
+            padding: 20px;
+            min-height: auto; 
+            transition: all 0.3s ease;
+            z-index: 1;
+            position: relative;
+        }
+
+        /* CONTENEDOR DE CONTENIDO VACÍO ESTILIZADO */
+        .dashboard-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: auto; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-content h2 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .dashboard-content p {
+            color: #6b7280;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        /* ASEGURAR QUE NINGÚN ELEMENTO SE SUPERPONGA AL SIDEBAR */
+        .footer-container,
+        .main-content-area,
+        .header-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* PLACEHOLDER PARA SIDEBAR SI NO SE ENCUENTRA */
+        .sidebar-placeholder {
+            position: fixed !important;
+            top: 20px;
+            left: 20px;
+            width: 260px;
+            height: calc(100vh - 40px);
+            background: rgba(220, 38, 38, 0.1);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dc2626;
+            font-weight: bold;
+            z-index: 2000 !important;
+            border: 2px dashed #dc2626;
+        }
+
+        /* RESPONSIVE DESIGN - PARÁMETROS UNIFICADOS */
+        @media (max-width: 1024px) {
+            .header-container,
+            .main-content-area,
+            .footer-container {
+                margin-left: 20px; /* Mismo margen en móvil */
+                margin-right: 20px; /* Consistente en todos */
+            }
+
+            .header-container .tech-header,
+            .footer-container .tech-home-footer,
+            .dashboard-content {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                max-width: none; /* Usar todo el ancho disponible en móvil */
+            }
+
+            /* Forzar corrección de contenedores internos en responsive */
+            .footer-container .tech-home-footer .footer-container {
+                margin: 0 auto !important;
+                max-width: none !important;
+            }
+        }
+
+
+        /* TEMA OSCURO - COMPATIBLE CON SIDEBAR */
+        body.ithr-dark-mode .dashboard-content,
+        body.dark-theme .dashboard-content {
+            background: rgba(17, 24, 39, 0.95);
+            border-color: rgba(55, 65, 81, 0.3);
+        }
+
+        body.ithr-dark-mode .dashboard-content h2,
+        body.dark-theme .dashboard-content h2 {
+            color: #f9fafb;
+        }
+
+        body.ithr-dark-mode .dashboard-content p,
+        body.dark-theme .dashboard-content p {
+            color: #d1d5db;
+        }
+
+        body.ithr-dark-mode,
+        body.dark-theme {
+            background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        }
+
+        /* ESTILOS DE DEBUG PARA VERIFICAR ESPACIOS */
+        .debug-spacing {
+            border: 1px dashed rgba(220, 38, 38, 0.3);
+            position: relative;
+        }
+
+        .debug-spacing::before {
+            content: "50px separación";
+            position: absolute;
+            top: -20px;
+            left: -50px;
+            background: rgba(220, 38, 38, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }

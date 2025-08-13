@@ -1,0 +1,745 @@
+/* Estilos globales */
+* {
+    margin: 0; /* Elimina el margen predeterminado */
+    padding: 0; /* Elimina el relleno predeterminado */
+    box-sizing: border-box; /* Incluye el padding y el border en el ancho y alto */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente del texto */
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #1f2937 100%); /* Degradado de fondo */
+    min-height: 100vh; /* Altura mínima del 100% del viewport */
+    display: flex; /* Usa flexbox para la disposición */
+    align-items: center; /* Centra verticalmente los elementos */
+    justify-content: center; /* Centra horizontalmente los elementos */
+    overflow: hidden; /* Oculta el contenido que se desborda */
+    position: relative; /* Necesario para posicionar elementos absolutos dentro */
+}
+
+/* ============================================
+   ANIMACIÓN DE FONDO
+   ============================================ */
+.bg-animation {
+    position: absolute; /* Posicionamiento absoluto */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Oculta las formas que se salen */
+    z-index: 0; /* Se coloca detrás del contenido principal */
+}
+
+.floating-shapes {
+    position: absolute; /* Posicionamiento absoluto dentro de la animación de fondo */
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.1); /* Fondo blanco semitransparente */
+    border-radius: 50%; /* Forma circular */
+    animation: float 6s ease-in-out infinite; /* Animación de flotación */
+}
+
+.shape-1 { top: 20%; left: 10%; animation-delay: 0s; } /* Posición y retardo de la primera forma */
+.shape-2 { top: 60%; left: 80%; animation-delay: 2s; } /* Posición y retardo de la segunda forma */
+.shape-3 { top: 80%; left: 20%; animation-delay: 4s; } /* Posición y retardo de la tercera forma */
+.shape-4 { top: 10%; right: 10%; animation-delay: 1s; } /* Posición y retardo de la cuarta forma */
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); } /* Posición inicial y final */
+    50% { transform: translateY(-20px) rotate(180deg); } /* Punto medio de la animación */
+}
+
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.login-container {
+    position: relative; /* Necesario para el z-index */
+    z-index: 10; /* Se coloca por encima de la animación de fondo */
+    display: flex; /* Usa flexbox para la disposición de los paneles */
+    background: rgba(255, 255, 255, 0.95); /* Fondo blanco semitransparente */
+    border-radius: 20px; /* Bordes redondeados */
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); /* Sombra */
+    overflow: hidden; /* Oculta el contenido que se desborda de los bordes redondeados */
+    max-width: 900px; /* Ancho máximo del contenedor */
+    width: 90%; /* Ancho del 90% del contenedor padre */
+    min-height: 500px; /* Altura mínima del contenedor */
+    backdrop-filter: blur(10px); /* Aplica un efecto de desenfoque al fondo */
+    animation: containerEntry 1s ease-out; /* Animación de entrada */
+}
+
+@keyframes containerEntry {
+    0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ============================================
+   PANEL IZQUIERDO
+   ============================================ */
+.welcome-panel {
+    flex: 1; /* Ocupa todo el espacio disponible */
+    background: linear-gradient(135deg, #dc2626, #ef4444); /* Degradado de fondo */
+    padding: 3rem 2rem; /* Relleno interno */
+    display: flex; /* Usa flexbox para la disposición del contenido */
+    flex-direction: column; /* Alinea los elementos verticalmente */
+    justify-content: center; /* Centra verticalmente el contenido */
+    align-items: center; /* Centra horizontalmente el contenido */
+    text-align: center; /* Alinea el texto al centro */
+    color: white; /* Color del texto blanco */
+    position: relative; /* Necesario para los pseudo-elementos */
+    overflow: hidden; /* Oculta los efectos que se salen */
+}
+
+.welcome-panel::before {
+    content: ''; /* Contenido vacío para el pseudo-elemento */
+    position: absolute; /* Posicionamiento absoluto dentro del panel */
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); /* Degradado radial */
+    animation: rotate 20s linear infinite; /* Animación de rotación */
+}
+
+/* Patrón de puntos decorativo */
+.welcome-panel::after {
+    content: ''; /* Contenido vacío para el pseudo-elemento */
+    position: absolute; /* Posicionamiento absoluto dentro del panel */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 2px, transparent 2px),
+                      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 1px, transparent 1px),
+                      radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 1px, transparent 1px); /* Patrón de puntos radiales */
+    background-size: 40px 40px, 30px 30px, 20px 20px; /* Tamaños de los patrones */
+    animation: patternMove 15s linear infinite; /* Animación de movimiento del patrón */
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); } /* Estado inicial de la rotación */
+    to { transform: rotate(360deg); } /* Estado final de la rotación */
+}
+
+@keyframes patternMove {
+    0% { background-position: 0 0, 0 0, 0 0; } /* Posición inicial del fondo */
+    100% { background-position: 40px 40px, 30px 30px, 20px 20px; } /* Posición final del fondo */
+}
+
+/* Iconos de robots flotantes mejorados */
+.robot-icons {
+    position: absolute; /* Posicionamiento absoluto dentro del panel */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Permite que los clics pasen a través */
+}
+
+.robot-icon {
+    position: absolute; /* Posicionamiento absoluto dentro de .robot-icons */
+    color: rgba(255, 255, 255, 0.12); /* Color de los iconos */
+    animation: robotFly 15s linear infinite; /* Animación de vuelo de los robots */
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); /* Sombra brillante */
+}
+
+/* Diferentes tamaños y posiciones */
+.robot-icon:nth-child(1) { font-size: 1.8rem; top: 10%; left: -10%; animation-delay: 0s; } /* Primer icono */
+.robot-icon:nth-child(2) { font-size: 2.2rem; top: 25%; left: -10%; animation-delay: 4s; } /* Segundo icono */
+.robot-icon:nth-child(3) { font-size: 1.5rem; top: 40%; left: -10%; animation-delay: 8s; } /* Tercer icono */
+.robot-icon:nth-child(4) { font-size: 2rem; top: 55%; left: -10%; animation-delay: 12s; } /* Cuarto icono */
+.robot-icon:nth-child(5) { font-size: 1.7rem; top: 70%; left: -10%; animation-delay: 2s; } /* Quinto icono */
+.robot-icon:nth-child(6) { font-size: 2.1rem; top: 85%; left: -10%; animation-delay: 6s; } /* Sexto icono */
+.robot-icon:nth-child(7) { font-size: 1.6rem; top: 15%; left: -10%; animation-delay: 10s; } /* Séptimo icono */
+.robot-icon:nth-child(8) { font-size: 1.9rem; top: 65%; left: -10%; animation-delay: 14s; } /* Octavo icono */
+.robot-icon:nth-child(9) { font-size: 1.4rem; top: 35%; left: -10%; animation-delay: 3s; } /* Noveno icono */
+.robot-icon:nth-child(10) { font-size: 2.3rem; top: 75%; left: -10%; animation-delay: 7s; } /* Décimo icono */
+.robot-icon:nth-child(11) { font-size: 1.8rem; top: 5%; left: -10%; animation-delay: 11s; } /* Décimo primer icono */
+.robot-icon:nth-child(12) { font-size: 2rem; top: 45%; left: -10%; animation-delay: 5s; } /* Décimo segundo icono */
+.robot-icon:nth-child(13) { font-size: 1.6rem; top: 90%; left: -10%; animation-delay: 9s; } /* Décimo tercer icono */
+
+@keyframes robotFly {
+    0% { transform: translateX(0) rotate(0deg); opacity: 0; } /* Inicio de la animación */
+    10% { opacity: 0.8; } /* Fade in */
+    90% { opacity: 0.8; } /* Mantiene la opacidad */
+    100% { transform: translateX(120vw) rotate(360deg); opacity: 0; } /* Fin de la animación */
+}
+
+/* ============================================
+   ÁREA DEL LOGO
+   ============================================ */
+.logo-section {
+    position: relative; /* Necesario para el z-index */
+    z-index: 2; /* Se coloca encima del fondo del panel */
+    margin-bottom: 1.5rem; /* Margen inferior */
+    margin-top: -1rem;      /* Logo más arriba */
+    animation: logoEntry 1.5s ease-out 0.5s both; /* Animación de entrada */
+}
+
+@keyframes logoEntry {
+    0% { opacity: 0; transform: translateY(-20px) scale(0.8); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.logo-container {
+    width: 100%; /* Ancho del contenedor del logo */
+    max-width: 600px; /* Ancho máximo del contenedor del logo */
+    height: auto; /* Altura automática para mantener la proporción */
+    display: flex; /* Usa flexbox para centrar */
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra horizontalmente */
+    margin: 0 auto 0.3rem;    /* Centrado horizontal y margen inferior */
+    position: relative; /* Para posicionar elementos dentro si es necesario */
+    animation: logoGlow 3s ease-in-out infinite alternate; /* Animación de brillo */
+}
+
+@keyframes logoGlow {
+    0% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); }
+    100% { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)); }
+}
+
+.logo-img {
+    width: 105%;         /* Usa todo el ancho del contenedor */
+    height: auto;        /* Mantiene proporciones */
+    object-fit: contain; /* La imagen se ajusta dentro del contenedor manteniendo la proporción */
+}
+
+
+.logo-underline {
+    width: 100%; /* Ancho de la línea */
+    max-width: 500px; /* Ancho máximo de la línea */
+    height: 8px; /* Altura de la línea */
+    background: rgba(255, 255, 255, 0.3); /* Color de fondo de la línea */
+    margin: 0.3rem auto;      /* Centrado horizontal y margen vertical */
+    border-radius: 4px; /* Bordes redondeados */
+    position: relative; /* Necesario para el pseudo-elemento ::after */
+    overflow: hidden; /* Oculta la parte de la animación que se sale */
+}
+
+.logo-underline::after {
+    content: ''; /* Contenido vacío para el efecto de movimiento */
+    position: absolute; /* Posicionamiento absoluto dentro de la línea */
+    top: 0;
+    left: -100%; /* Inicia fuera del borde izquierdo */
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent); /* Degradado para el movimiento */
+    animation: lineMove 2.5s ease-in-out infinite; /* Animación del movimiento de la línea */
+}
+
+@keyframes lineMove {
+    0% { left: -100%; } /* Inicio del movimiento */
+    50% { left: 0%; }    /* Punto medio del movimiento */
+    100% { left: 100%; }  /* Fin del movimiento */
+}
+
+.welcome-title {
+    font-size: 2.5rem; /* Tamaño de la fuente del título de bienvenida */
+    font-weight: bold; /* Texto en negrita */
+    margin-bottom: 1rem; /* Margen inferior */
+    position: relative; /* Necesario para el z-index */
+    z-index: 2; /* Se coloca encima del fondo */
+    text-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Sombra del texto */
+    animation: titleGlow 3s ease-in-out infinite alternate; /* Animación de brillo del título */
+}
+
+@keyframes titleGlow {
+    0% { text-shadow: 0 4px 8px rgba(0,0,0,0.3); } /* Inicio del brillo */
+    100% { text-shadow: 0 4px 20px rgba(255,255,255,0.3); } /* Fin del brillo */
+}
+
+.welcome-text {
+    font-size: 1.1rem; /* Tamaño de la fuente del texto de bienvenida */
+    opacity: 0.9; /* Opacidad del texto */
+    line-height: 1.6; /* Espaciado entre líneas */
+    position: relative; /* Necesario para el z-index */
+    z-index: 2; /* Se coloca encima del fondo */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Sombra del texto */
+    margin-bottom: 2rem;      /* Espacio para el copyright */
+    animation: textEntry 2s ease-out 1s both; /* Animación de entrada */
+}
+
+@keyframes textEntry {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 0.9; transform: translateY(0); }
+}
+
+/* ============================================
+   TEXTO DE DERECHOS RESERVADOS
+   ============================================ */
+.copyright-text {
+    position: absolute; /* Posicionamiento absoluto al pie del contenedor */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    font-size: 0.75rem; /* Tamaño de la fuente */
+    opacity: 0.7; /* Opacidad del texto */
+    color: rgba(255, 255, 255, 0.8); /* Color del texto */
+    text-align: center; /* Alineación del texto al centro */
+    z-index: 2; /* Se coloca encima del fondo */
+    background: rgba(255, 255, 255, 0.1); /* Fondo semitransparente */
+    padding: 0.8rem 1rem; /* Relleno interno */
+    backdrop-filter: blur(5px); /* Efecto de desenfoque del fondo */
+    border-top: 1px solid rgba(255, 255, 255, 0.2); /* Borde superior */
+    animation: copyrightGlow 4s ease-in-out infinite alternate; /* Animación de brillo */
+}
+
+@keyframes copyrightGlow {
+    0% { box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1); } /* Inicio del brillo */
+    100% { box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2); } /* Fin del brillo */
+}
+
+/* ============================================
+   PANEL DE LOGIN
+   ============================================ */
+.login-panel {
+    flex: 1; /* Ocupa el espacio restante */
+    padding: 3rem 2rem; /* Relleno interno */
+    display: flex; /* Usa flexbox para la disposición */
+    flex-direction: column; /* Alinea los elementos verticalmente */
+    justify-content: center; /* Centra verticalmente el contenido */
+}
+
+.login-header {
+    text-align: center; /* Alinea el texto al centro */
+    margin-bottom: 2rem; /* Margen inferior */
+    animation: headerEntry 1.5s ease-out 0.3s both; /* Animación de entrada */
+}
+
+@keyframes headerEntry {
+    0% { opacity: 0; transform: translateY(-15px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.login-title {
+    color: #1f2937; /* Color del título */
+    font-size: 2rem; /* Tamaño de la fuente del título */
+    font-weight: bold; /* Texto en negrita */
+    margin-bottom: 0.5rem; /* Margen inferior */
+}
+
+.login-subtitle {
+    color: #6b7280; /* Color del subtítulo */
+    font-size: 1rem; /* Tamaño de la fuente del subtítulo */
+}
+
+/* ============================================
+   FORMULARIO CON TOOLTIPS
+   ============================================ */
+.form-group {
+    margin-bottom: 1.5rem; /* Margen inferior entre grupos de formulario */
+    position: relative; /* Necesario para posicionar el tooltip */
+    animation: formEntry 1.8s ease-out both; /* Animación de entrada */
+}
+
+.form-group:nth-child(1) { animation-delay: 0.6s; }
+.form-group:nth-child(2) { animation-delay: 0.8s; }
+
+@keyframes formEntry {
+    0% { opacity: 0; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+.form-label {
+    display: block; /* Hace que la etiqueta ocupe todo el ancho */
+    color: #374151; /* Color de la etiqueta */
+    font-weight: 600; /* Texto en negrita */
+    margin-bottom: 0.5rem; /* Margen inferior */
+    font-size: 0.9rem; /* Tamaño de la fuente */
+}
+
+.input-wrapper {
+    position: relative; /* Necesario para posicionar el icono dentro del input */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transición suave */
+}
+
+.form-input {
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    padding: 1rem 1rem 1rem 3rem; /* Relleno interno con espacio para el icono */
+    border: 2px solid #e5e7eb; /* Borde */
+    border-radius: 12px; /* Bordes redondeados */
+    font-size: 1rem; /* Tamaño de la fuente */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Transición suave para los cambios de estado */
+    background: #f9fafb; /* Color de fondo */
+}
+
+.form-input:focus {
+    outline: none; /* Quita el contorno al enfocar */
+    border-color: #dc2626; /* Cambia el color del borde al enfocar */
+    background: white; /* Cambia el fondo al enfocar */
+    transform: translateY(-2px) scale(1.01); /* Ligero desplazamiento hacia arriba al enfocar */
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.25); /* Sombra al enfocar */
+}
+
+.input-icon {
+    position: absolute; /* Posicionamiento absoluto dentro del input-wrapper */
+    left: 1rem; /* Espacio desde la izquierda */
+    top: 50%; /* Centrado verticalmente */
+    transform: translateY(-50%); /* Ajuste para centrado vertical */
+    color: #9ca3af; /* Color del icono */
+    transition: all 0.3s ease; /* Transición suave para el cambio de color */
+    font-size: 1.1rem; /* Tamaño del icono */
+}
+
+.form-input:focus + .input-icon {
+    color: #dc2626; /* Cambia el color del icono al enfocar el input */
+    transform: translateY(-50%) scale(1.1); /* Escalado al enfocar */
+}
+
+.password-toggle {
+    position: absolute; /* Posicionamiento absoluto dentro del input-wrapper */
+    right: 1rem; /* Espacio desde la derecha */
+    top: 50%; /* Centrado verticalmente */
+    transform: translateY(-50%); /* Ajuste para centrado vertical */
+    color: #9ca3af; /* Color del icono */
+    cursor: pointer; /* Cursor de mano */
+    transition: all 0.3s ease; /* Transición suave para el cambio de color */
+    font-size: 1.1rem; /* Tamaño del icono */
+}
+
+.password-toggle:hover {
+    color: #dc2626; /* Cambia el color al pasar el ratón */
+    transform: translateY(-50%) scale(1.1); /* Escalado al hacer hover */
+}
+
+/* Tooltips */
+.tooltip {
+    position: absolute; /* Posicionamiento absoluto relativo al form-group */
+    bottom: -35px; /* Posición debajo del input */
+    left: 50%; /* Centrado horizontalmente */
+    transform: translateX(-50%); /* Ajuste para centrado horizontal */
+    background: #dc2626; /* Color de fondo del tooltip */
+    color: white; /* Color del texto del tooltip */
+    padding: 0.5rem 0.8rem; /* Relleno interno */
+    border-radius: 6px; /* Bordes redondeados */
+    font-size: 0.8rem; /* Tamaño de la fuente */
+    white-space: nowrap; /* Evita el ajuste de línea */
+    opacity: 0; /* Inicialmente invisible */
+    visibility: hidden; /* Inicialmente oculto */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transición suave para la aparición */
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+    font-weight: 600; /* Texto en negrita */
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); /* Sombra del tooltip */
+}
+
+.tooltip::before {
+    content: ''; /* Triángulo del tooltip */
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #dc2626; /* Color del triángulo */
+}
+
+.form-input:focus ~ .tooltip {
+    opacity: 1; /* Se vuelve visible al enfocar el input */
+    visibility: visible;
+    bottom: -40px; /* Ajusta la posición al mostrar */
+    transform: translateX(-50%) translateY(0); /* Animación de aparición */
+}
+
+/* ============================================
+   OPCIONES ADICIONALES
+   ============================================ */
+.form-options {
+    display: flex; /* Usa flexbox para la disposición */
+    justify-content: space-between; /* Espacio entre elementos */
+    align-items: center; /* Centra verticalmente */
+    margin-bottom: 2rem; /* Margen inferior */
+    font-size: 0.9rem; /* Tamaño de la fuente */
+    animation: optionsEntry 2s ease-out 1.2s both; /* Animación de entrada */
+}
+
+@keyframes optionsEntry {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.remember-me {
+    display: flex; /* Usa flexbox para la disposición */
+    align-items: center; /* Centra verticalmente */
+    gap: 0.5rem; /* Espacio entre el checkbox y la etiqueta */
+}
+
+.checkbox {
+    width: 1rem; /* Ancho del checkbox */
+    height: 1rem; /* Alto del checkbox */
+    accent-color: #dc2626; /* Color de acento del checkbox */
+}
+
+.forgot-password {
+    color: #dc2626; /* Color del enlace */
+    text-decoration: none; /* Quita el subrayado */
+    font-weight: 600; /* Texto en negrita */
+    transition: all 0.3s ease; /* Transición suave */
+}
+
+.forgot-password:hover {
+    color: #991b1b; /* Cambia el color al pasar el ratón */
+    text-shadow: 0 2px 4px rgba(220, 38, 38, 0.3); /* Sombra al pasar el ratón */
+    transform: translateY(-1px); /* Ligero movimiento hacia arriba */
+}
+
+/* ============================================
+   BOTÓN DE LOGIN
+   ============================================ */
+.login-btn {
+    width: 100%; /* Ocupa todo el ancho */
+    padding: 1rem; /* Relleno interno */
+    background: linear-gradient(135deg, #dc2626, #ef4444); /* Degradado de fondo */
+    color: white; /* Color del texto */
+    border: none; /* Quita el borde */
+    border-radius: 12px; /* Bordes redondeados */
+    font-size: 1.1rem; /* Tamaño de la fuente */
+    font-weight: 600; /* Texto en negrita */
+    cursor: pointer; /* Cursor de mano */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Transición suave */
+    position: relative; /* Necesario para el pseudo-elemento ::before */
+    overflow: hidden; /* Oculta el efecto de deslizamiento */
+    animation: buttonEntry 2.2s ease-out 1.4s both; /* Animación de entrada */
+}
+
+@keyframes buttonEntry {
+    0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-btn:hover {
+    transform: translateY(-2px) scale(1.02); /* Ligero desplazamiento hacia arriba al pasar el ratón */
+    box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4); /* Sombra al pasar el ratón */
+}
+
+.login-btn:active {
+    transform: translateY(0) scale(1.01); /* Vuelve a la posición original al hacer clic */
+}
+
+.login-btn::before {
+    content: ''; /* Efecto de luz al pasar el ratón */
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); /* Degradado para el efecto */
+    transition: left 0.5s; /* Transición del efecto */
+}
+
+.login-btn:hover::before {
+    left: 100%; /* Desplaza el efecto al pasar el ratón */
+}
+
+/* ============================================
+   DIVISOR
+   ============================================ */
+.divider {
+    text-align: center; /* Centra el texto dentro del divisor */
+    margin: 2rem 0; /* Margen superior e inferior */
+    position: relative; /* Necesario para posicionar el pseudo-elemento */
+    animation: dividerEntry 2.4s ease-out 1.6s both; /* Animación de entrada */
+}
+
+@keyframes dividerEntry {
+    0% { opacity: 0; transform: scaleX(0); }
+    100% { opacity: 1; transform: scaleX(1); }
+}
+
+.divider::before {
+    content: ''; /* Línea del divisor */
+    position: absolute; /* Posicionamiento absoluto */
+    top: 50%; /* Centra verticalmente la línea */
+    left: 0;
+    right: 0;
+    height: 1px; /* Grosor de la línea */
+    background: linear-gradient(to right, transparent, #e5e7eb, transparent); /* Degradado para la línea */
+}
+
+.divider span {
+    background: white; /* Fondo blanco para el texto */
+    padding: 0 1rem; /* Relleno a los lados del texto */
+    color: #6b7280; /* Color del texto */
+    font-size: 0.9rem; /* Tamaño de la fuente */
+    font-family: inherit;    /* Usa la fuente del elemento padre */
+    font-style: inherit;    /* Usa el estilo del elemento padre */
+    font-weight: inherit;   /* Usa el peso del elemento padre */
+}
+
+/* ============================================
+   BOTONES DE REDES SOCIALES MEJORADOS
+   ============================================ */
+.social-buttons {
+    display: grid; /* Usa grid para la disposición de los botones */
+    grid-template-columns: 1fr 1fr; /* Dos columnas de igual ancho */
+    gap: 0.8rem; /* Espacio entre los botones */
+    margin-bottom: 2rem; /* Margen inferior */
+    animation: socialEntry 2.6s ease-out 1.8s both; /* Animación de entrada */
+}
+
+@keyframes socialEntry {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.social-btn {
+    padding: 0.8rem; /* Relleno interno */
+    border: 2px solid #e5e7eb; /* Borde */
+    border-radius: 12px; /* Bordes redondeados */
+    background: white; /* Fondo blanco */
+    cursor: pointer; /* Cursor de mano */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transición suave */
+    display: flex; /* Usa flexbox para alinear el contenido */
+    align-items: center; /* Centra verticalmente */
+    justify-content: center; /* Centra horizontalmente */
+    gap: 0.5rem; /* Espacio entre el logo y el texto */
+    font-weight: 600; /* Texto en negrita */
+    text-decoration: none; /* Quita el subrayado del enlace */
+    font-size: 0.9rem; /* Tamaño de la fuente */
+    color: #000; /* Color del texto */
+    position: relative; /* Necesario para el efecto hover */
+    overflow: hidden; /* Oculta el efecto de deslizamiento */
+    height: 50px;        /* Altura fija del contenedor */
+    box-sizing: border-box;    /* Incluye padding en el tamaño */
+}
+
+.social-btn::before {
+    content: ''; /* Efecto de deslizamiento al pasar el ratón */
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.1), transparent); /* Degradado */
+    transition: left 0.6s ease; /* Transición del efecto */
+}
+
+.social-btn:hover::before {
+    left: 100%; /* Desplaza el efecto */
+}
+
+.social-btn:hover {
+    transform: translateY(-3px) scale(1.02); /* Ligero movimiento y escala al pasar el ratón */
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15); /* Sombra al pasar el ratón */
+}
+
+/* Estructura para logos de imagen */
+.social-btn .social-logo {
+    width: 35px;
+    height: 35px;
+    object-fit: contain; /* La imagen se ajusta dentro del contenedor */
+    transition: transform 0.2s ease; /* Transición para la animación del logo */
+    flex-shrink: 0;        /* No se comprime */
+    position: relative;
+    z-index: 1;
+}
+
+.social-btn:hover .social-logo {
+    transform: scale(1.3) rotate(5deg); /* Escala y rota el logo al pasar el ratón */
+}
+
+/* Colores específicos para cada red social */
+.tiktok-btn:hover {
+    border-color: #000;
+    color: #000;
+    background: linear-gradient(135deg, #ffffff, #f8f8f8);
+}
+
+.facebook-btn:hover {
+    border-color: #1877f2;
+    color: #1877f2;
+    background: linear-gradient(135deg, #ffffff, #f0f7ff);
+}
+
+.instagram-btn:hover {
+    border-color: #e4405f;
+    color: #e4405f;
+    background: linear-gradient(135deg, #ffffff, #fff0f3);
+}
+
+.whatsapp-btn:hover {
+    border-color: #25d366;
+    color: #25d366;
+    background: linear-gradient(135deg, #ffffff, #f0fff4);
+}
+
+/* ============================================
+   REGISTRO
+   ============================================ */
+.register-link {
+    text-align: center; /* Centra el texto */
+    color: #6b7280; /* Color del texto */
+    font-size: 0.9rem; /* Tamaño de la fuente */
+    animation: registerEntry 2.8s ease-out 2s both; /* Animación de entrada */
+}
+
+@keyframes registerEntry {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.register-link a {
+    color: #dc2626; /* Color del enlace */
+    text-decoration: none; /* Quita el subrayado */
+    font-weight: 600; /* Texto en negrita */
+    transition: all 0.3s ease; /* Transición suave */
+}
+
+.register-link a:hover {
+    color: #991b1b; /* Cambia el color al pasar el ratón */
+    text-shadow: 0 2px 4px rgba(220, 38, 38, 0.3); /* Sombra al pasar el ratón */
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.alert {
+    padding: 1rem; /* Relleno interno */
+    border-radius: 12px; /* Bordes redondeados */
+    margin-bottom: 1rem; /* Margen inferior */
+    display: flex; /* Usa flexbox para la disposición */
+    align-items: center; /* Centra verticalmente */
+    gap: 0.5rem; /* Espacio entre elementos */
+    animation: slideIn 0.3s ease; /* Animación de entrada */
+}
+
+.alert-error {
+    background: #fef2f2; /* Fondo rojo claro */
+    color: #dc2626; /* Color del texto rojo */
+    border: 1px solid #fecaca; /* Borde rojo claro */
+}
+
+.alert-success {
+    background: #f0fdf4; /* Fondo verde claro */
+    color: #166534; /* Color del texto verde */
+    border: 1px solid #bbf7d0; /* Borde verde claro */
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); } /* Estado inicial */
+    to { opacity: 1; transform: translateY(0); }   /* Estado final */
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column; /* Apila los paneles verticalmente */
+        max-width: 400px; /* Ancho máximo */
+    }
+
+    .welcome-panel {
+        padding: 2rem 1rem; /* Reduce el relleno */
+    }
+
+    .welcome-title {
+        font-size: 2rem; /* Reduce el tamaño del título */
+    }
+
+    .login-panel {
+        padding: 2rem 1rem; /* Reduce el relleno */
+    }
+
+    .social-buttons {
+        grid-template-columns: 1fr; /* Una sola columna */
+    }
+}
