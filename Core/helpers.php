@@ -21,7 +21,7 @@ function CSRF()
 }
 
 // auth()
-function auth(): mixed
+function auth(): \App\Models\User|null
 {
     return \Core\Session::get('user');
 }
