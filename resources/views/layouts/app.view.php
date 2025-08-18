@@ -1,3 +1,10 @@
+<?php
+$user = auth();
+$roles = $user ? $user->roles : [];
+$isAdmin = in_array('administrador', array_column($roles, 'nombre'));
+$isDocente = in_array('docente', array_column($roles, 'nombre'));
+$isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -1059,19 +1066,19 @@
             // Preparar datos del usuario para JavaScript
             const userData = {
                 nombre: '<?= htmlspecialchars(auth() ? auth()->nombre : "") ?>',
-                apellido: '<?= htmlspecialchars(auth() ? auth()->apellido : "") ?>',        
-                roles: JSON.stringify(<?php 
-                    if (auth()) {
-                        $userRoles = auth()->roles();
-                        $roleNames = [];
-                        foreach ($userRoles as $role) {
-                            $roleNames[] = $role['nombre'];
-                        }
-                        echo json_encode($roleNames);
-                    } else {
-                        echo json_encode(['Sin rol']);
-                    }
-                ?>),
+                apellido: '<?= htmlspecialchars(auth() ? auth()->apellido : "") ?>',
+                roles: JSON.stringify(<?php
+                                        if (auth()) {
+                                            $userRoles = auth()->roles();
+                                            $roleNames = [];
+                                            foreach ($userRoles as $role) {
+                                                $roleNames[] = $role['nombre'];
+                                            }
+                                            echo json_encode($roleNames);
+                                        } else {
+                                            echo json_encode(['Sin rol']);
+                                        }
+                                        ?>),
                 email: '<?= htmlspecialchars(auth() ? auth()->email : "") ?>',
                 sessionId: '<?= session_id() ?>'
             };
