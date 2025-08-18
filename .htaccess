@@ -2,14 +2,12 @@ RewriteEngine On
 RewriteBase /TECH-HOME/
 
 
-<IfModule mod_headers.c>
-    # Permitir la cabecera Authorization
-    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-    # Configurar CORS
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
-    Header set Access-Control-Allow-Headers "X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control"
-</IfModule>
+# Manejo de errores
+ErrorDocument 404 /work/404
+
+# Bloquear acceso directo a archivos .php y redirigir a 404
+RewriteCond %{THE_REQUEST} \.php[\s?] [NC]
+RewriteRule ^ /work/404 [R=301,L]
 
 # Redirigir todas las solicitudes a index.php
 RewriteCond %{REQUEST_FILENAME} !-f
