@@ -65,8 +65,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control <?= isset($errors['nombre']) ? 'is-invalid' : '' ?>" 
-                                               id="nombre" name="nombre" value="<?= $old['nombre'] ?? '' ?>" required>
+                                        <input type="text" class="form-control <?= isset($errors['nombre']) ? 'is-invalid' : '' ?>"
+                                            id="nombre" name="nombre" value="<?= $old['nombre'] ?? '' ?>" required>
                                         <?php if (isset($errors['nombre'])): ?>
                                             <div class="invalid-feedback">
                                                 <?= is_array($errors['nombre']) ? $errors['nombre'][0] : $errors['nombre'] ?>
@@ -77,8 +77,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control <?= isset($errors['apellido']) ? 'is-invalid' : '' ?>" 
-                                               id="apellido" name="apellido" value="<?= $old['apellido'] ?? '' ?>" required>
+                                        <input type="text" class="form-control <?= isset($errors['apellido']) ? 'is-invalid' : '' ?>"
+                                            id="apellido" name="apellido" value="<?= $old['apellido'] ?? '' ?>" required>
                                         <?php if (isset($errors['apellido'])): ?>
                                             <div class="invalid-feedback">
                                                 <?= is_array($errors['apellido']) ? $errors['apellido'][0] : $errors['apellido'] ?>
@@ -92,8 +92,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control <?= isset($errors['email']) ? 'is-invalid' : '' ?>" 
-                                               id="email" name="email" value="<?= $old['email'] ?? '' ?>" required>
+                                        <input type="email" class="form-control <?= isset($errors['email']) ? 'is-invalid' : '' ?>"
+                                            id="email" name="email" value="<?= $old['email'] ?? '' ?>" required>
                                         <?php if (isset($errors['email'])): ?>
                                             <div class="invalid-feedback">
                                                 <?= is_array($errors['email']) ? $errors['email'][0] : $errors['email'] ?>
@@ -104,8 +104,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="telefono" class="form-label">Teléfono</label>
-                                        <input type="text" class="form-control <?= isset($errors['telefono']) ? 'is-invalid' : '' ?>" 
-                                               id="telefono" name="telefono" value="<?= $old['telefono'] ?? '' ?>">
+                                        <input type="text" class="form-control <?= isset($errors['telefono']) ? 'is-invalid' : '' ?>"
+                                            id="telefono" name="telefono" value="<?= $old['telefono'] ?? '' ?>">
                                         <?php if (isset($errors['telefono'])): ?>
                                             <div class="invalid-feedback">
                                                 <?= is_array($errors['telefono']) ? $errors['telefono'][0] : $errors['telefono'] ?>
@@ -119,9 +119,9 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                                        <input type="date" class="form-control <?= isset($errors['fecha_nacimiento']) ? 'is-invalid' : '' ?>" 
-                                               id="fecha_nacimiento" name="fecha_nacimiento" 
-                                               value="<?= $old['fecha_nacimiento'] ?? '' ?>">
+                                        <input type="date" class="form-control <?= isset($errors['fecha_nacimiento']) ? 'is-invalid' : '' ?>"
+                                            id="fecha_nacimiento" name="fecha_nacimiento"
+                                            value="<?= $old['fecha_nacimiento'] ?? '' ?>">
                                         <?php if (isset($errors['fecha_nacimiento'])): ?>
                                             <div class="invalid-feedback">
                                                 <?= is_array($errors['fecha_nacimiento']) ? $errors['fecha_nacimiento'][0] : $errors['fecha_nacimiento'] ?>
@@ -136,8 +136,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>" 
-                                               id="password" name="password" required>
+                                        <input type="password" class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>"
+                                            id="password" name="password" required>
                                         <div class="form-text">Mínimo 8 caracteres</div>
                                         <?php if (isset($errors['password'])): ?>
                                             <div class="invalid-feedback">
@@ -149,8 +149,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="password_confirmation" class="form-label">Confirmar Contraseña <span class="text-danger">*</span></label>
-                                        <input type="password" class="form-control <?= isset($errors['password_confirmation']) ? 'is-invalid' : '' ?>" 
-                                               id="password_confirmation" name="password_confirmation" required>
+                                        <input type="password" class="form-control <?= isset($errors['password_confirmation']) ? 'is-invalid' : '' ?>"
+                                            id="password_confirmation" name="password_confirmation" required>
                                         <?php if (isset($errors['password_confirmation'])): ?>
                                             <div class="invalid-feedback">
                                                 <?= is_array($errors['password_confirmation']) ? $errors['password_confirmation'][0] : $errors['password_confirmation'] ?>
@@ -168,10 +168,10 @@
                                         <?php foreach ($roles as $rol): ?>
                                             <div class="col-md-6 mb-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input <?= isset($errors['roles']) ? 'is-invalid' : '' ?>" type="checkbox" 
-                                                           id="role_<?= $rol['id'] ?>" name="roles[]" 
-                                                           value="<?= $rol['id'] ?>"
-                                                           <?= in_array($rol['id'], $old['roles'] ?? []) ? 'checked' : '' ?>>
+                                                    <input class="form-check-input <?= isset($errors['roles']) ? 'is-invalid' : '' ?>" type="checkbox"
+                                                        id="role_<?= $rol['id'] ?>" name="roles[]"
+                                                        value="<?= $rol['id'] ?>"
+                                                        <?= in_array($rol['id'], $old['roles'] ?? []) ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="role_<?= $rol['id'] ?>">
                                                         <strong><?= htmlspecialchars($rol['nombre']) ?></strong>
                                                         <small class="text-muted d-block"><?= htmlspecialchars($rol['descripcion']) ?></small>
@@ -230,5 +230,3 @@
         </div>
     </div>
 </div>
-
-
