@@ -1,0 +1,28 @@
+<?php
+
+// Definición de constantes
+define('BASE_PATH', __DIR__ . DIRECTORY_SEPARATOR);
+define('BASE_URL', '/TECH-HOME');
+define('API_PREFIX', '/api');
+define('DEBUG_MODE', true);
+// Configuracion de PHP
+
+ini_set('display_errors', DEBUG_MODE);
+error_reporting(E_ALL);
+date_default_timezone_set('America/La_Paz');
+
+// Cargar todas las clases del directorio Core `Core/`
+foreach (glob(BASE_PATH  . 'Core' . DIRECTORY_SEPARATOR . '*.php') as $coreFile) {
+    require_once $coreFile;
+}
+
+// Función de autocarga para clases con namespace
+spl_autoload_register(function ($className) {
+    // Convertir el namespace a ruta de archivo
+    $classPath = str_replace('\\', DIRECTORY_SEPARATOR, $className);
+    $filePath = BASE_PATH . $classPath . '.php';
+
+    if (file_exists($filePath)) {
+        require_once $filePath;
+    }
+});
