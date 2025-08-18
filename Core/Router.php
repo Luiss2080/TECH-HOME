@@ -96,12 +96,12 @@ class Router
                     $middlewareInstance = $middleware;
                 } elseif (is_string($middleware)) {
                     // Si es un string, resolver usando el factory
-                    $middlewareInstance = \App\Middleware\MiddlewareFactory::resolve($middleware);
+                    $middlewareInstance = \Core\MiddlewareFactory::resolve($middleware);
                 } else {
                     // Si es un string de clase, crear una nueva instancia (compatibilidad legacy)
                     $middlewareInstance = new $middleware;
                 }
-                
+
                 $response = $middlewareInstance->handle($request, function ($request) use ($route) {
                     return self::resolveAction($route->getAction(), $request, $route->getParameters());
                 });
@@ -121,7 +121,7 @@ class Router
             ], 404);
         }
         // Si no se encuentra la ruta, devolver un error 404
-        return view('errors.404', [], statusCode: 404);
+        return view(view: 'errors.404', statusCode: 404);
     }
     protected static function findRoute($method, $uri): Route|null
     {
@@ -195,7 +195,7 @@ class Router
      * @return string
      * @throws \Exception Si la ruta no existe.
      */
-    public static function route($name, $parameters = [])
+    public static function route(string $name, array $parameters = []): string
     {
 
 
@@ -212,12 +212,9 @@ class Router
             throw new \Exception("La ruta con nombre '$name' no existe.");
         }
         $uri = $route->getUri();
-
-        // Reemplazar parámetros en la URI
         foreach ($parameters as $key => $value) {
             $uri = str_replace("{{$key}}", $value, $uri);
         }
-
         return $uri;
     }
     /**
