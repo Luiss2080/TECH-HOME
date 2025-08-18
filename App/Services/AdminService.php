@@ -206,22 +206,6 @@ class AdminService
         return Permission::getAll();
     }
 
-    public function createPermission(array $data): bool
-    {
-        if (Permission::findByName($data['nombre'])) {
-            throw new Exception('Ya existe un permiso con ese nombre');
-        }
-
-        $permissionData = [
-            'name' => trim($data['nombre']),
-            'guard_name' => 'web'
-        ];
-
-        $permission = new Permission($permissionData);
-        $permission->save();
-        return true;
-    }
-
     public function getPermissionsForRole(int $roleId): array
     {
         return RoleHasPermissions::getPermissionsForRole($roleId);

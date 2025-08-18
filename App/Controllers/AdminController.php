@@ -245,46 +245,6 @@ class AdminController extends Controller
         }
     }
 
-    public function crearPermiso()
-    {
-        return view('admin.configuracion.permisos.crear', [
-            'title' => 'Crear Permiso - Configuración'
-        ]);
-    }
-
-    public function guardarPermiso($request)
-    {
-        try {
-            $data = $request->all();
-
-            // Validación de datos
-            $validator = new Validation();
-            $rules = [
-                'nombre' => 'required|string|min:2|max:50|unique:Permission,nombre',
-                'descripcion' => 'string|max:255'
-            ];
-
-            if (!$validator->validate($data, $rules)) {
-                // Guardar errores y datos old en flash
-                Session::flash('errors', $validator->errors());
-                Session::flash('old', $data);
-
-                return redirect(route('admin.permisos.crear'));
-            }
-
-            $this->adminService->createPermission($data);
-
-            Session::flash('success', 'Permiso creado exitosamente');
-            return redirect(route('admin.permisos'));
-        } catch (Exception $e) {
-            // En caso de error del servidor
-            Session::flash('errors', ['general' => [$e->getMessage()]]);
-            Session::flash('old', $request->all());
-
-            return redirect(route('admin.permisos.crear'));
-        }
-    }
-
     public function asignarPermisos($request, $id)
     {
         try {

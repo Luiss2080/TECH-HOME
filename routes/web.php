@@ -67,14 +67,6 @@ Router::get('/admin/configuracion/permisos', [AdminController::class, 'permisos'
     ->name('admin.permisos')
     ->middleware('role:administrador');
 
-Router::get('/admin/configuracion/permisos/crear', [AdminController::class, 'crearPermiso'])
-    ->name('admin.permisos.crear')
-    ->middleware('role:administrador');
-
-Router::post('/admin/configuracion/permisos', [AdminController::class, 'guardarPermiso'])
-    ->name('admin.permisos.store')
-    ->middleware('role:administrador');
-
 Router::get('/admin/configuracion/roles/{id}/permisos', [AdminController::class, 'asignarPermisos'])
     ->name('admin.roles.permisos')
     ->middleware('role:administrador');

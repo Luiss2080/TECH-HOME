@@ -150,13 +150,6 @@ $title = $title ?? 'Configuración - Panel de Administración';
                 <span class="quick-config-label">Crear Nuevo Rol</span>
             </a>
 
-            <a href="<?= route('admin.permisos.crear'); ?>" class="quick-config-item">
-                <div class="quick-config-icon">
-                    <i class="fas fa-key"></i>
-                </div>
-                <span class="quick-config-label">Crear Nuevo Permiso</span>
-            </a>
-
             <div class="quick-config-item" onclick="exportConfig()">
                 <div class="quick-config-icon">
                     <i class="fas fa-download"></i>

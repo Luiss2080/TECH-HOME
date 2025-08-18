@@ -10,8 +10,7 @@ class Permission extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'name',
-        'guard_name',
-        'descripcion'
+        'guard_name'
     ];
     protected $hidden = [];
     protected $timestamps = true;

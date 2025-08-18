@@ -122,11 +122,7 @@ $permisosAsignadosIds = array_column($permisosAsignados, 'id');
                                 <i class="fas fa-key"></i>
                             </div>
                             <h3>No hay permisos disponibles</h3>
-                            <p>Primero debes crear algunos permisos en el sistema</p>
-                            <a href="<?= route('admin.permisos.crear'); ?>" class="btn btn-primary">
-                                <i class="fas fa-plus"></i>
-                                Crear Primer Permiso
-                            </a>
+                            <p>Los permisos del sistema deben ser definidos mediante migraciones o seeders</p>
                         </div>
                     <?php endif; ?>
                 </form>
