@@ -27,77 +27,77 @@ Router::post('/logout', [AuthController::class, 'logout'])
 // ==================== RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN) ====================
 
 Router::get('/admin/dashboard', [AdminController::class, 'index'])
-    ->middleware('role:administrador')
+    ->middleware('role:administrador|has:admin.dashboard')
     ->name('admin.dashboard');
 
 Router::get('/admin/reportes', [AdminController::class, 'reportes'])
     ->name('reportes')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:admin.reportes');
 
 Router::get('/admin/configuracion', [AdminController::class, 'configuracion'])
     ->name('configuracion')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 // Rutas para gestión de roles y permisos
 Router::get('/admin/configuracion/roles', [AdminController::class, 'roles'])
     ->name('admin.roles')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.roles');
 
 Router::get('/admin/configuracion/roles/crear', [AdminController::class, 'crearRol'])
     ->name('admin.roles.crear')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.roles');
 
 Router::post('/admin/configuracion/roles', [AdminController::class, 'guardarRol'])
     ->name('admin.roles.store')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.roles');
 
 Router::get('/admin/configuracion/roles/{id}/editar', [AdminController::class, 'editarRol'])
     ->name('admin.roles.editar')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.roles');
 
 Router::put('/admin/configuracion/roles/{id}', [AdminController::class, 'actualizarRol'])
     ->name('admin.roles.update')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.roles');
 
 Router::delete('/admin/configuracion/roles/{id}', [AdminController::class, 'eliminarRol'])
     ->name('admin.roles.delete')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.roles');
 
 Router::get('/admin/configuracion/permisos', [AdminController::class, 'permisos'])
     ->name('admin.permisos')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.permisos');
 
 Router::get('/admin/configuracion/roles/{id}/permisos', [AdminController::class, 'asignarPermisos'])
     ->name('admin.roles.permisos')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.permisos');
 
 Router::post('/admin/configuracion/roles/{id}/permisos', [AdminController::class, 'guardarPermisosRol'])
     ->name('admin.roles.permisos.store')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:configuracion.permisos');
 
 Router::get('/admin/usuarios', [AdminController::class, 'usuarios'])
     ->name('usuarios')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:usuarios.ver');
 
 Router::get('/admin/usuarios/crear', [AdminController::class, 'crearUsuario'])
     ->name('usuarios.crear')
-    ->middleware('role:administrador|has:admin.usuarios.crear');
+    ->middleware('role:administrador|has:usuarios.crear');
 
 Router::get('/admin/ventas', [AdminController::class, 'ventas'])
     ->name('ventas')
-    ->middleware('role:administrador|has:admin.ventas.ver');
+    ->middleware('role:administrador|has:ventas.ver');
 
 Router::get('/admin/ventas/crear', [AdminController::class, 'crearVenta'])
     ->name('ventas.crear')
-    ->middleware('role:administrador|has:admin.ventas.crear');
+    ->middleware('role:administrador|has:ventas.crear');
 
 Router::get('/estudiantes/dashboard', [EstudianteController::class, 'estudiantes'])
     ->name('estudiantes')
-    ->middleware('role:estudiante');
+    ->middleware('role:estudiante|has:estudiantes.dashboard');
 
 Router::get('/cursos', [CursoController::class, 'cursos'])
     ->name('cursos')
-    ->middleware('role:docente,estudiante');
+    ->middleware('role:docente,estudiante|has:cursos.ver');
 
 Router::get('/cursos/crear', [CursoController::class, 'crearCurso'])
     ->name('cursos.crear')
@@ -105,7 +105,7 @@ Router::get('/cursos/crear', [CursoController::class, 'crearCurso'])
 
 Router::get('/libros', [LibroController::class, 'libros'])
     ->name('libros')
-    ->middleware('role:docente,estudiante');
+    ->middleware('role:docente,estudiante|has:libros.ver');
 
 Router::get('/libros/crear', [LibroController::class, 'crearLibro'])
     ->name('libros.crear')
@@ -113,24 +113,24 @@ Router::get('/libros/crear', [LibroController::class, 'crearLibro'])
 
 Router::get('/materiales', [MaterialController::class, 'materiales'])
     ->name('materiales')
-    ->middleware('role:docente,estudiante');
+    ->middleware('role:docente,estudiante|has:materiales.ver');
 
 Router::get('/laboratorios', [LaboratorioController::class, 'laboratorios'])
     ->name('laboratorios')
-    ->middleware('role:docente,estudiante');
+    ->middleware('role:docente,estudiante|has:laboratorios.ver');
 
 
 Router::get('/componentes', [ComponenteController::class, 'componentes'])
     ->name('componentes')
-    ->middleware('auth');
+    ->middleware('role:administrador,docente,estudiante,vendedor|has:componentes.ver');
 
 Router::get('/componentes/crear', [ComponenteController::class, 'crearComponente'])
     ->name('componentes.crear')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador,vendedor|has:componentes.crear');
 
 Router::get('/docente/dashboard', [DocenteController::class, 'dashboard'])
     ->name('docente.dashboard')
-    ->middleware('role:docente');
+    ->middleware('role:docente|has:docente.dashboard');
 
 // Ejemplo de ruta que solo verifica permisos específicos
 // Un estudiante monitor podría tener el permiso 'reportes.basicos.ver'
