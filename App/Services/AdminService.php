@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Permission;
 use App\Models\RoleHasPermissions;
 use Core\DB;
+use PDO;
 use Exception;
 
 class AdminService
@@ -117,16 +118,17 @@ class AdminService
 
     public function getAllRoles(): array
     {
-        return Role::getAll();
+        // Usar el modelo en lugar de consulta SQL directa
+        $roles = Role::all();
+        return array_map(function ($role) {
+            return $role->getAttributes();
+        }, $roles);
     }
 
-    public function getRoleById(int $id): Role
+    public function getRoleById(int $id): ?array
     {
         $role = Role::find($id);
-        if (!$role) {
-            throw new Exception('Rol no encontrado');
-        }
-        return $role;
+        return $role ? $role->getAttributes() : null;
     }
 
     public function createRole(array $data): bool
@@ -194,8 +196,120 @@ class AdminService
 
         // Eliminar primero los permisos del rol
         $db->query("DELETE FROM role_has_permissions WHERE role_id = ?", [$id]);
-        
+
         $role->delete();
+        return true;
+    }
+
+    // === MÉTODOS PARA GESTIÓN DE USUARIOS ===
+
+    public function getAllUsers(): array
+    {
+        // Usar el modelo User en lugar de consulta SQL directa
+        $users = User::all();
+        $usersData = [];
+
+        foreach ($users as $user) {
+            $userData = $user->getAttributes();
+            $roles = $user->roles();
+            $userData['roles_nombres'] = implode(', ', array_column($roles, 'nombre'));
+            $userData['roles_ids'] = implode(',', array_column($roles, 'id'));
+            $usersData[] = $userData;
+        }
+
+        return $usersData;
+    }
+    public function getUserById(int $id)
+    {
+        return User::find($id);
+    }
+
+    public function getUserRoles(int $userId): array
+    {
+        $user = User::find($userId);
+        return $user ? $user->roles() : [];
+    }
+
+    public function emailExists(string $email): bool
+    {
+        $user = User::where('email', '=', $email)->first();
+        return $user !== null;
+    }
+
+    public function emailExistsForOtherUser(string $email, int $userId): bool
+    {
+        $user = User::where('email', '=', $email)->where('id', '!=', $userId)->first();
+        return $user !== null;
+    }
+
+    public function createUser(array $userData, array $roleIds): int
+    {
+        // Crear nuevo usuario usando el modelo
+        $user = new User([
+            'nombre' => $userData['nombre'],
+            'apellido' => $userData['apellido'],
+            'email' => $userData['email'],
+            'password' => $userData['password'],
+            'telefono' => $userData['telefono'],
+            'fecha_nacimiento' => $userData['fecha_nacimiento'],
+            'estado' => $userData['estado'] ?? 1
+        ]);
+
+        $user->save();
+        $userId = $user->getKey();
+
+        // Asignar roles usando el método del modelo
+        foreach ($roleIds as $roleId) {
+            $user->assignRole((int)$roleId);
+        }
+
+        return $userId;
+    }
+
+    public function updateUser(int $id, array $userData, array $roleIds): bool
+    {
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception('Usuario no encontrado');
+        }
+
+        // Actualizar datos del usuario
+        foreach ($userData as $field => $value) {
+            if ($value !== null && in_array($field, $user->getFillable())) {
+                $user->$field = $value;
+            }
+        }
+
+        $user->save();
+
+        // Sincronizar roles
+        $user->syncRoles($roleIds);
+
+        return true;
+    }
+
+    public function deleteUser(int $id): bool
+    {
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception('Usuario no encontrado');
+        }
+
+        // El modelo debería manejar las relaciones en cascada
+        return $user->delete();
+    }
+
+    public function changeUserStatus(int $id, string $status): bool
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return false;
+        }
+
+        // Convertir string a integer para la base de datos
+        $user->estado = $status === 'activo' ? 1 : 0;
+        $user->save();
+
         return true;
     }
 
@@ -203,33 +317,29 @@ class AdminService
 
     public function getAllPermissions(): array
     {
-        return Permission::getAll();
+        // Usar el modelo en lugar de consulta SQL directa
+        $permissions = Permission::all();
+        return array_map(function ($permission) {
+            return $permission->getAttributes();
+        }, $permissions);
     }
 
     public function getPermissionsForRole(int $roleId): array
     {
-        return RoleHasPermissions::getPermissionsForRole($roleId);
+        // Usar el modelo Role para obtener permisos
+        $role = Role::find($roleId);
+        return $role ? $role->permissions() : [];
     }
 
     public function syncRolePermissions(int $roleId, array $permissionIds): bool
     {
-        // Verificar que el rol existe
+        // Verificar que el rol existe usando el modelo
         $role = Role::find($roleId);
         if (!$role) {
             throw new Exception('Rol no encontrado');
         }
 
-        // Eliminar permisos actuales del rol
-        $db = DB::getInstance();
-        $db->query("DELETE FROM role_has_permissions WHERE role_id = ?", [$roleId]);
-
-        // Asignar nuevos permisos
-        if (!empty($permissionIds)) {
-            foreach ($permissionIds as $permissionId) {
-                RoleHasPermissions::assignPermissionToRole($roleId, (int)$permissionId);
-            }
-        }
-
-        return true;
+        // Usar el modelo RoleHasPermissions para sincronizar
+        return RoleHasPermissions::syncPermissionsForRole($roleId, $permissionIds);
     }
 }

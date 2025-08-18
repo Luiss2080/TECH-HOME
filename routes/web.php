@@ -83,6 +83,26 @@ Router::get('/admin/usuarios/crear', [AdminController::class, 'crearUsuario'])
     ->name('usuarios.crear')
     ->middleware('role:administrador|has:usuarios.crear');
 
+Router::post('/admin/usuarios', [AdminController::class, 'guardarUsuario'])
+    ->name('usuarios.store')
+    ->middleware('role:administrador|has:usuarios.crear');
+
+Router::get('/admin/usuarios/{id}/editar', [AdminController::class, 'editarUsuario'])
+    ->name('usuarios.editar')
+    ->middleware('role:administrador|has:usuarios.editar');
+
+Router::put('/admin/usuarios/{id}', [AdminController::class, 'actualizarUsuario'])
+    ->name('usuarios.update')
+    ->middleware('role:administrador|has:usuarios.editar');
+
+Router::delete('/admin/usuarios/{id}', [AdminController::class, 'eliminarUsuario'])
+    ->name('usuarios.delete')
+    ->middleware('role:administrador|has:usuarios.eliminar');
+
+Router::post('/admin/usuarios/{id}/estado', [AdminController::class, 'cambiarEstadoUsuario'])
+    ->name('usuarios.estado')
+    ->middleware('role:administrador|has:usuarios.editar');
+
 Router::get('/admin/ventas', [AdminController::class, 'ventas'])
     ->name('ventas')
     ->middleware('role:administrador|has:ventas.ver');

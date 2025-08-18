@@ -101,6 +101,20 @@ function old($key, $default = '')
     return $oldData[$key] ?? $default;
 }
 
+function session($key = null, $default = null)
+{
+    if ($key === null) {
+        return $_SESSION;
+    }
+    
+    // Si es una clave flash
+    if (\Core\Session::hasFlash($key)) {
+        return \Core\Session::flashGet($key);
+    }
+    
+    return $_SESSION[$key] ?? $default;
+}
+
 function clearFlash()
 {
     unset($_SESSION['_flash']);

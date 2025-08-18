@@ -98,6 +98,27 @@ class Request
     {
         return $this->___data;
     }
+
+    public function except(array $keys = [])
+    {
+        $data = $this->all();
+        foreach ($keys as $key) {
+            unset($data[$key]);
+        }
+        return $data;
+    }
+
+    public function only(array $keys = [])
+    {
+        $data = [];
+        foreach ($keys as $key) {
+            if (isset($this->___data[$key])) {
+                $data[$key] = $this->___data[$key];
+            }
+        }
+        return $data;
+    }
+
     public function __get($name)
     {
         return $this->___data[$name] ?? null;

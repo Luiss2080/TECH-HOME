@@ -90,18 +90,246 @@ class AdminController extends Controller
         ]);
     }
 
+    // === MÉTODOS PARA GESTIÓN DE USUARIOS ===
+
     public function usuarios()
     {
-        return view('admin.usuarios', [
-            'title' => 'Gestión de Usuarios - Panel de Administración'
-        ]);
+        try {
+            $usuarios = $this->adminService->getAllUsers();
+            return view('admin.usuarios.index', [
+                'title' => 'Gestión de Usuarios - Panel de Administración',
+                'usuarios' => $usuarios
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar usuarios: ' . $e->getMessage());
+            return view('admin.usuarios.index', [
+                'title' => 'Gestión de Usuarios - Panel de Administración',
+                'usuarios' => []
+            ]);
+        }
     }
 
     public function crearUsuario()
     {
-        return view('admin.usuarios.crear', [
-            'title' => 'Crear Usuario - Panel de Administración'
-        ]);
+        try {
+            $roles = $this->adminService->getAllRoles();
+            return view('admin.usuarios.crear', [
+                'title' => 'Crear Usuario - Panel de Administración',
+                'roles' => $roles
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar formulario: ' . $e->getMessage());
+            return redirect(route('usuarios'));
+        }
+    }
+
+    public function guardarUsuario(Request $request)
+    {
+        try {
+            // Validaciones
+            $rules = [
+                'nombre' => 'required|min:2|max:100',
+                'apellido' => 'required|min:2|max:100',
+                'email' => 'required|email|max:255',
+                'password' => 'required|min:8|max:255',
+                'password_confirmation' => 'required|same:password',
+                'telefono' => 'nullable|max:20',
+                'fecha_nacimiento' => 'nullable|date',
+                'roles' => 'required|array|min:1'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('error', 'Datos inválidos: ' . implode(', ', $validator->getErrors()));
+                Session::flash('old', $request->except(['password', 'password_confirmation']));
+                return redirect(route('usuarios.crear'));
+            }
+
+            // Verificar que el email no esté en uso
+            if ($this->adminService->emailExists($request->input('email'))) {
+                Session::flash('error', 'El email ya está en uso por otro usuario.');
+                Session::flash('old', $request->except(['password', 'password_confirmation']));
+                return redirect(route('usuarios.crear'));
+            }
+
+            // Crear usuario
+            $userData = [
+                'nombre' => $request->input('nombre'),
+                'apellido' => $request->input('apellido'),
+                'email' => $request->input('email'),
+                'password' => password_hash($request->input('password'), PASSWORD_DEFAULT),
+                'telefono' => $request->input('telefono'),
+                'fecha_nacimiento' => $request->input('fecha_nacimiento'),
+                'estado' => 1 // 1 = activo por defecto
+            ];
+
+            $userId = $this->adminService->createUser($userData, $request->input('roles'));
+
+            Session::flash('success', 'Usuario creado exitosamente.');
+            return redirect(route('usuarios'));
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al crear usuario: ' . $e->getMessage());
+            Session::flash('old', $request->except(['password', 'password_confirmation']));
+            return redirect(route('usuarios.crear'));
+        }
+    }
+
+    public function editarUsuario(Request $request, $id)
+    {
+        try {
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
+            }
+
+            $roles = $this->adminService->getAllRoles();
+            $usuarioRoles = $this->adminService->getUserRoles($id);
+
+            return view('admin.usuarios.editar', [
+                'title' => 'Editar Usuario - Panel de Administración',
+                'usuario' => $usuario,
+                'roles' => $roles,
+                'usuarioRoles' => array_column($usuarioRoles, 'id')
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar usuario: ' . $e->getMessage());
+            return redirect(route('usuarios'));
+        }
+    }
+
+    public function actualizarUsuario(Request $request, $id)
+    {
+        try {
+            // Verificar que el usuario existe
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
+            }
+
+            // Validaciones
+            $rules = [
+                'nombre' => 'required|min:2|max:100',
+                'apellido' => 'required|min:2|max:100',
+                'email' => 'required|email|max:255',
+                'telefono' => 'nullable|max:20',
+                'fecha_nacimiento' => 'nullable|date',
+                'roles' => 'required|array|min:1',
+                'estado' => 'required|in:activo,inactivo'
+            ];
+
+            // Si se proporciona password, validarlo
+            if ($request->input('password')) {
+                $rules['password'] = 'min:8|max:255';
+                $rules['password_confirmation'] = 'same:password';
+            }
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->getErrors());
+                Session::flash('old', $request->all());
+                return redirect(route('usuarios.editar', ['id' => $id]));
+            }            // Verificar que el email no esté en uso por otro usuario
+            if ($this->adminService->emailExistsForOtherUser($request->input('email'), $id)) {
+                Session::flash('error', 'El email ya está en uso por otro usuario.');
+                Session::flash('old', $request->except(['password', 'password_confirmation']));
+                return redirect(route('usuarios.editar', ['id' => $id]));
+            }
+
+            // Actualizar usuario
+            $userData = [
+                'nombre' => $request->input('nombre'),
+                'apellido' => $request->input('apellido'),
+                'email' => $request->input('email'),
+                'telefono' => $request->input('telefono'),
+                'fecha_nacimiento' => $request->input('fecha_nacimiento'),
+                'estado' => $request->input('estado') === 'activo' ? 1 : 0
+            ];
+
+            // Si se proporciona nueva contraseña
+            if ($request->input('password')) {
+                $userData['password'] = password_hash($request->input('password'), PASSWORD_DEFAULT);
+            }
+            $this->adminService->updateUser($id, $userData, $request->input('roles'));
+
+            Session::flash('success', 'Usuario actualizado exitosamente.');
+            return redirect(route('usuarios'));
+        } catch (Exception $e) {
+            throw $e;
+            Session::flash('error', 'Error al actualizar usuario: ' . $e->getMessage());
+            Session::flash('old', $request->except(['password', 'password_confirmation']));
+            return redirect(route('usuarios.editar', ['id' => $id]));
+        }
+    }
+
+    public function eliminarUsuario($id)
+    {
+        try {
+            // Verificar que el usuario existe
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no encontrado.'
+                ], 404);
+            }
+
+            // No permitir eliminar al usuario actual
+            if ($id == auth()->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No puedes eliminar tu propia cuenta.'
+                ], 400);
+            }
+
+            // Eliminar usuario
+            $this->adminService->deleteUser($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario eliminado exitosamente.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar usuario: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function cambiarEstadoUsuario(Request $request, $id)
+    {
+        try {
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuario no encontrado.'
+                ], 404);
+            }
+
+            $nuevoEstado = $request->input('estado');
+            if (!in_array($nuevoEstado, ['activo', 'inactivo'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Estado inválido.'
+                ], 400);
+            }
+
+            $this->adminService->changeUserStatus($id, $nuevoEstado);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado del usuario actualizado.',
+                'nuevo_estado' => $nuevoEstado
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cambiar estado: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function ventas()

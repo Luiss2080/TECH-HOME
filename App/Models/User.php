@@ -23,7 +23,7 @@ class User extends Model
     protected $hidden = [
         'password'
     ];
-    protected $timestamps = true;
+    protected $timestamps = false; // No usamos timestamps automáticos
     protected $softDeletes = false;
 
     // ==========================================
@@ -118,7 +118,7 @@ class User extends Model
     {
         $permissionId = is_numeric($permission) ? $permission : $this->getPermissionIdByName($permission);
         if (!$permissionId) return false;
-
+        
         // Verificar permiso directo
         if (ModelHasPermissions::modelHasPermission('App\\Models\\User', $this->id, $permissionId)) {
             return true;

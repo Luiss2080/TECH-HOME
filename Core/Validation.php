@@ -66,17 +66,39 @@ class Validation
 
     private function validateMin(string $field, $value, $minLength)
     {
-        if ($value !== null && strlen($value) < $minLength) {
-            $camp = $field;
-            $this->addError($field, "El campo $camp debe tener al menos $minLength caracteres.");
+        if ($value !== null) {
+            // Si es un array, validar el número de elementos
+            if (is_array($value)) {
+                if (count($value) < $minLength) {
+                    $camp = $field;
+                    $this->addError($field, "El campo $camp debe tener al menos $minLength elemento(s).");
+                }
+            } else {
+                // Si es string, validar la longitud
+                if (strlen($value) < $minLength) {
+                    $camp = $field;
+                    $this->addError($field, "El campo $camp debe tener al menos $minLength caracteres.");
+                }
+            }
         }
     }
 
     private function validateMax(string $field, $value, $maxLength)
     {
-        if ($value !== null && strlen($value) > $maxLength) {
-            $camp = $field;
-            $this->addError($field, "El campo $camp no debe superar los $maxLength caracteres.");
+        if ($value !== null) {
+            // Si es un array, validar el número de elementos
+            if (is_array($value)) {
+                if (count($value) > $maxLength) {
+                    $camp = $field;
+                    $this->addError($field, "El campo $camp no debe superar los $maxLength elemento(s).");
+                }
+            } else {
+                // Si es string, validar la longitud
+                if (strlen($value) > $maxLength) {
+                    $camp = $field;
+                    $this->addError($field, "El campo $camp no debe superar los $maxLength caracteres.");
+                }
+            }
         }
     }
 
