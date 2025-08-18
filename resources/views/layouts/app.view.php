@@ -377,7 +377,7 @@
                         <!-- ============================================
                  BOTÓN DE NOTIFICACIONES
                  ============================================ -->
-                        <a href="<?= route('notificaciones') ?>" class="notifications-btn" title="Notificaciones">
+                        <a href="#" class="notifications-btn" title="Notificaciones">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notification-count" style="display: none;">0</span>
                         </a> <!-- ============================================
