@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Controllers;
+namespace Core;
 
 use Core\Session;
+use Core\Request;
 
 class Controller
 {
@@ -10,11 +11,11 @@ class Controller
     public function __construct()
     {
         Session::startSession();
-        if ('GET' !== $_SERVER['REQUEST_METHOD']) {
+        if ('GET' !== request()->method()) {
             // Validar CSRF Token
-            if (!csrf_verify($_POST['_token'] ?? '')) {
+            if (!csrf_verify(request()->input('_token', ''))) {
                 Session::flash('errors', ['general' => 'Token CSRF inválido']);
-                Session::flash('old', $_POST);
+                Session::flash('old', request()->all());
                 redirect(route('login'));
             }
         }
