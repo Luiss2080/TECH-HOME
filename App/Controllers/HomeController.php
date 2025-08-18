@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Services\AdminService;
+use Core\Controller;
 
 class HomeController extends Controller
 {

@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Services\AdminService;
-use App\Controllers\Controller;
+use Core\Controller;
 use Exception;
 
 class AdminController extends Controller
