@@ -37,7 +37,13 @@ class Validation
 
     public function getErrors(): array
     {
-        // Aplanar el array de errores para compatibilidad
+        // Devolver errores organizados por campo para acceso directo en vistas
+        return $this->errors;
+    }
+
+    public function getFlatErrors(): array
+    {
+        // Aplanar el array de errores cuando se necesite una lista simple
         $flatErrors = [];
         foreach ($this->errors as $field => $fieldErrors) {
             foreach ($fieldErrors as $error) {
@@ -50,7 +56,15 @@ class Validation
     // 📌 Métodos de validación
     private function validateRequired(string $field, $value)
     {
-        if (empty($value)) {
+        $isEmpty = false;
+        
+        if ($value === null || $value === '') {
+            $isEmpty = true;
+        } elseif (is_array($value) && empty($value)) {
+            $isEmpty = true;
+        }
+        
+        if ($isEmpty) {
             $camp = $field;
             $this->addError($field, "El campo $camp es obligatorio.");
         }
@@ -132,7 +146,7 @@ class Validation
     }
     private function validateArray(string $field, $value)
     {
-        if (!is_array($value)) {
+        if ($value !== null && !is_array($value)) {
             $camp = $field;
             $this->addError($field, "El campo $camp debe ser un arreglo.");
         }

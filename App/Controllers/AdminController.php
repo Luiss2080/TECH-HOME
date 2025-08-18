@@ -140,7 +140,7 @@ class AdminController extends Controller
 
             $validator = new Validation();
             if (!$validator->validate($request->all(), $rules)) {
-                Session::flash('error', 'Datos inválidos: ' . implode(', ', $validator->getErrors()));
+                Session::flash('errors', $validator->errors());
                 Session::flash('old', $request->except(['password', 'password_confirmation']));
                 return redirect(route('usuarios.crear'));
             }
@@ -151,7 +151,6 @@ class AdminController extends Controller
                 Session::flash('old', $request->except(['password', 'password_confirmation']));
                 return redirect(route('usuarios.crear'));
             }
-
             // Crear usuario
             $userData = [
                 'nombre' => $request->input('nombre'),
@@ -168,6 +167,8 @@ class AdminController extends Controller
             Session::flash('success', 'Usuario creado exitosamente.');
             return redirect(route('usuarios'));
         } catch (Exception $e) {
+            throw $e;
+
             Session::flash('error', 'Error al crear usuario: ' . $e->getMessage());
             Session::flash('old', $request->except(['password', 'password_confirmation']));
             return redirect(route('usuarios.crear'));
@@ -256,7 +257,6 @@ class AdminController extends Controller
             Session::flash('success', 'Usuario actualizado exitosamente.');
             return redirect(route('usuarios'));
         } catch (Exception $e) {
-            throw $e;
             Session::flash('error', 'Error al actualizar usuario: ' . $e->getMessage());
             Session::flash('old', $request->except(['password', 'password_confirmation']));
             return redirect(route('usuarios.editar', ['id' => $id]));
