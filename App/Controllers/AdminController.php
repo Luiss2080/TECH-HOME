@@ -16,9 +16,10 @@ class AdminController extends Controller
         $this->adminService = new AdminService();
     }
 
-    public function dashboard()
+    public function index()
     {
         try {
+            // Obtener datos del dashboard usando el servicio
             $data = $this->adminService->showDashboard();
             return view('admin.dashboard', $data);
         } catch (Exception $e) {
@@ -72,5 +73,47 @@ class AdminController extends Controller
             ]);
         }
         exit;
+    }
+
+    public function reportes()
+    {
+        return view('admin.reportes', [
+            'title' => 'Reportes - Panel de Administración'
+        ]);
+    }
+
+    public function configuracion()
+    {
+        return view('admin.configuracion', [
+            'title' => 'Configuración - Panel de Administración'
+        ]);
+    }
+
+    public function usuarios()
+    {
+        return view('admin.usuarios', [
+            'title' => 'Gestión de Usuarios - Panel de Administración'
+        ]);
+    }
+
+    public function crearUsuario()
+    {
+        return view('admin.usuarios.crear', [
+            'title' => 'Crear Usuario - Panel de Administración'
+        ]);
+    }
+
+    public function ventas()
+    {
+        return view('admin.ventas', [
+            'title' => 'Gestión de Ventas - Panel de Administración'
+        ]);
+    }
+
+    public function crearVenta()
+    {
+        return view('admin.ventas.crear', [
+            'title' => 'Crear Venta - Panel de Administración'
+        ]);
     }
 }

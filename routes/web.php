@@ -1,13 +1,19 @@
 <?php
 
+use App\Controllers\AdminController;
 use App\Controllers\AuthController;
+use App\Controllers\EstudianteController;
+use App\Controllers\CursoController;
+use App\Controllers\LibroController;
+use App\Controllers\MaterialController;
+use App\Controllers\LaboratorioController;
+use App\Controllers\ComponenteController;
 use Core\Router;
 use App\Controllers\HomeController;
 
 // ==================== RUTAS PÚBLICAS ====================
 // Ruta de inicio (redirige al dashboard si está autenticado)
 Router::get('/', [HomeController::class, 'index'])
-    ->middleware('role:administrador')
     ->name('home');
 
 Router::get('/login', [AuthController::class, 'login'])->name('login');
@@ -19,78 +25,67 @@ Router::post('/logout', [AuthController::class, 'logout'])
 
 // ==================== RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN) ====================
 
-Router::get('/dashboard', [HomeController::class, 'index'])
+Router::get('/admin/dashboard', [AdminController::class, 'index'])
     ->middleware('role:administrador')
     ->name('dashboard');
 
-Router::get('/reportes', [HomeController::class, 'reportes'])
+Router::get('/admin/reportes', [AdminController::class, 'reportes'])
     ->name('reportes')
     ->middleware('role:administrador');
 
-Router::get('/configuracion', [HomeController::class, 'configuracion'])
+Router::get('/admin/configuracion', [AdminController::class, 'configuracion'])
     ->name('configuracion')
     ->middleware('role:administrador');
 
-Router::get('/usuarios', [HomeController::class, 'usuarios'])
+Router::get('/admin/usuarios', [AdminController::class, 'usuarios'])
     ->name('usuarios')
     ->middleware('role:administrador');
 
-Router::get('/usuarios/crear', [HomeController::class, 'crearUsuario'])
+Router::get('/admin/usuarios/crear', [AdminController::class, 'crearUsuario'])
     ->name('usuarios.crear')
     ->middleware('role:administrador');
 
-Router::get('/ventas', [HomeController::class, 'ventas'])
+Router::get('/admin/ventas', [AdminController::class, 'ventas'])
     ->name('ventas')
     ->middleware('role:administrador');
 
-Router::get('/ventas/crear', [HomeController::class, 'crearVenta'])
+Router::get('/admin/ventas/crear', [AdminController::class, 'crearVenta'])
     ->name('ventas.crear')
     ->middleware('role:administrador');
 
-Router::get('/estudiantes', [HomeController::class, 'estudiantes'])
+Router::get('/estudiantes/dashboard', [EstudianteController::class, 'estudiantes'])
     ->name('estudiantes')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:estudiante');
 
-Router::get('/cursos', [HomeController::class, 'cursos'])
+Router::get('/cursos', [CursoController::class, 'cursos'])
     ->name('cursos')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:docente,estudiante');
 
-Router::get('/cursos/crear', [HomeController::class, 'crearCurso'])
+Router::get('/cursos/crear', [CursoController::class, 'crearCurso'])
     ->name('cursos.crear')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:docente');
 
-Router::get('/libros', [HomeController::class, 'libros'])
+Router::get('/libros', [LibroController::class, 'libros'])
     ->name('libros')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:docente,estudiante');
 
-Router::get('/libros/crear', [HomeController::class, 'crearLibro'])
+Router::get('/libros/crear', [LibroController::class, 'crearLibro'])
     ->name('libros.crear')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:docente');
 
-Router::get('/materiales', [HomeController::class, 'materiales'])
+Router::get('/materiales', [MaterialController::class, 'materiales'])
     ->name('materiales')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:docente,estudiante');
 
-Router::get('/laboratorios', [HomeController::class, 'laboratorios'])
+Router::get('/laboratorios', [LaboratorioController::class, 'laboratorios'])
     ->name('laboratorios')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:docente,estudiante');
 
-Router::get('/aula-virtual', [HomeController::class, 'aulaVirtual'])
-    ->name('aulaVirtual')
-    ->middleware('role:administrador,docente');
 
-Router::get('/evaluaciones', [HomeController::class, 'evaluaciones'])
-    ->name('evaluaciones')
-    ->middleware('role:administrador,docente');
-
-Router::get('/certificados', [HomeController::class, 'certificados'])
-    ->name('certificados')
-    ->middleware('role:administrador,docente');
-
-Router::get('/componentes', [HomeController::class, 'componentes'])
+Router::get('/componentes', [ComponenteController::class, 'componentes'])
     ->name('componentes')
-    ->middleware('role:administrador,docente');
+    ->middleware('auth');
 
-Router::get('/componentes/crear', [HomeController::class, 'crearComponente'])
+Router::get('/componentes/crear', [ComponenteController::class, 'crearComponente'])
     ->name('componentes.crear')
-    ->middleware('role:administrador,docente');
+    ->middleware('role:administrador');
