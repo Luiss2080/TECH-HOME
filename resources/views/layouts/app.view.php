@@ -68,7 +68,7 @@
                     <h6 class="ithr-nav-group-title">Panel Principal</h6>
                     <ul class="ithr-nav-list">
                         <li class="ithr-nav-item ithr-active">
-                            <a href="<?= route('dashboard') ?>" class="ithr-nav-link">
+                            <a href="<?= route(Dashboard()) ?>" class="ithr-nav-link">
                                 <i class="fas fa-tachometer-alt ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Dashboard</span>
                                 <div class="ithr-nav-indicator"></div>
@@ -801,7 +801,7 @@
                             <h6 class="footer-column-title">Sistema</h6>
                             <div class="footer-nav-links">
                                 <!-- Enlace al Dashboard principal -->
-                                <a href="<?= route('dashboard') ?>" class="footer-nav-link">
+                                <a href="<?= route(Dashboard()) ?>" class="footer-nav-link">
                                     <i class="fas fa-tachometer-alt"></i>
                                     Dashboard
                                 </a>

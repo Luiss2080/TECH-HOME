@@ -67,6 +67,21 @@ class User extends Model
     public static function recientes(int $dias = 7)
     {
         return self::whereRaw('fecha_creacion >= DATE_SUB(NOW(), INTERVAL ? DAY)', [$dias])
-                   ->orderBy('fecha_creacion', 'desc');
+            ->orderBy('fecha_creacion', 'desc');
+    }
+    public static function Dashboard()
+    {
+        $role = strtolower(auth()->rol()->nombre);
+
+        switch ($role) {
+            case 'administrador':
+                return 'admin.dashboard';
+            case 'estudiante':
+                return 'estudiante.dashboard';
+            case 'docente':
+                return 'docente.dashboard';
+            default:
+                return 'home';
+        }
     }
 }

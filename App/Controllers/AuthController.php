@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+
 use Core\Controller;
 use App\Models\User;
 use Core\Request;
@@ -36,7 +37,7 @@ class AuthController extends Controller
 
         if ($user) {
             Session::set('user', $user);
-            $route = route('home');
+            $route = route(Dashboard());
             if (Session::has('back')) {
                 $route = Session::get('back');
                 Session::remove('back');

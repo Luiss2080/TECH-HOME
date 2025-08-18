@@ -249,3 +249,7 @@ function request(): \Core\Request
 {
     return \Core\Request::getInstance();
 }
+function Dashboard()
+{
+    return \App\Models\User::Dashboard();
+}

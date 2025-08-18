@@ -8,6 +8,7 @@ use App\Controllers\LibroController;
 use App\Controllers\MaterialController;
 use App\Controllers\LaboratorioController;
 use App\Controllers\ComponenteController;
+use App\Controllers\DocenteController;
 use Core\Router;
 use App\Controllers\HomeController;
 
@@ -27,7 +28,7 @@ Router::post('/logout', [AuthController::class, 'logout'])
 
 Router::get('/admin/dashboard', [AdminController::class, 'index'])
     ->middleware('role:administrador')
-    ->name('dashboard');
+    ->name('admin.dashboard');
 
 Router::get('/admin/reportes', [AdminController::class, 'reportes'])
     ->name('reportes')
@@ -89,3 +90,7 @@ Router::get('/componentes', [ComponenteController::class, 'componentes'])
 Router::get('/componentes/crear', [ComponenteController::class, 'crearComponente'])
     ->name('componentes.crear')
     ->middleware('role:administrador');
+
+Router::get('/docente/dashboard', [DocenteController::class, 'dashboard'])
+    ->name('docente.dashboard')
+    ->middleware('role:docente');
