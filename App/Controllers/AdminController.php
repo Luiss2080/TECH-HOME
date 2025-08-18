@@ -116,4 +116,162 @@ class AdminController extends Controller
             'title' => 'Crear Venta - Panel de Administración'
         ]);
     }
+
+    // === MÉTODOS PARA GESTIÓN DE ROLES ===
+
+    public function roles()
+    {
+        try {
+            $roles = $this->adminService->getAllRoles();
+            return view('admin.configuracion.roles.index', [
+                'title' => 'Gestión de Roles - Configuración',
+                'roles' => $roles
+            ]);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function crearRol()
+    {
+        return view('admin.configuracion.roles.crear', [
+            'title' => 'Crear Rol - Configuración'
+        ]);
+    }
+
+    public function guardarRol($request)
+    {
+        try {
+            $data = $request->all();
+            $this->adminService->createRole($data);
+            
+            // Redireccionar con mensaje de éxito
+            header('Location: ' . route('admin.roles') . '?success=Rol creado exitosamente');
+            exit;
+        } catch (Exception $e) {
+            return view('admin.configuracion.roles.crear', [
+                'title' => 'Crear Rol - Configuración',
+                'error' => $e->getMessage(),
+                'old_data' => $request->all()
+            ]);
+        }
+    }
+
+    public function editarRol($request, $id)
+    {
+        try {
+            $role = $this->adminService->getRoleById($id);
+            return view('admin.configuracion.roles.editar', [
+                'title' => 'Editar Rol - Configuración',
+                'role' => $role
+            ]);
+        } catch (Exception $e) {
+            return view('errors.404', ['message' => 'Rol no encontrado']);
+        }
+    }
+
+    public function actualizarRol($request, $id)
+    {
+        try {
+            $data = $request->all();
+            $this->adminService->updateRole($id, $data);
+            
+            header('Location: ' . route('admin.roles') . '?success=Rol actualizado exitosamente');
+            exit;
+        } catch (Exception $e) {
+            $role = $this->adminService->getRoleById($id);
+            return view('admin.configuracion.roles.editar', [
+                'title' => 'Editar Rol - Configuración',
+                'role' => $role,
+                'error' => $e->getMessage(),
+                'old_data' => $request->all()
+            ]);
+        }
+    }
+
+    public function eliminarRol($request, $id)
+    {
+        try {
+            $this->adminService->deleteRole($id);
+            
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Rol eliminado exitosamente']);
+            exit;
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            exit;
+        }
+    }
+
+    // === MÉTODOS PARA GESTIÓN DE PERMISOS ===
+
+    public function permisos()
+    {
+        try {
+            $permisos = $this->adminService->getAllPermissions();
+            return view('admin.configuracion.permisos.index', [
+                'title' => 'Gestión de Permisos - Configuración',
+                'permisos' => $permisos
+            ]);
+        } catch (Exception $e) {
+            return view('errors.500', ['message' => $e->getMessage()]);
+        }
+    }
+
+    public function crearPermiso()
+    {
+        return view('admin.configuracion.permisos.crear', [
+            'title' => 'Crear Permiso - Configuración'
+        ]);
+    }
+
+    public function guardarPermiso($request)
+    {
+        try {
+            $data = $request->all();
+            $this->adminService->createPermission($data);
+            
+            header('Location: ' . route('admin.permisos') . '?success=Permiso creado exitosamente');
+            exit;
+        } catch (Exception $e) {
+            return view('admin.configuracion.permisos.crear', [
+                'title' => 'Crear Permiso - Configuración',
+                'error' => $e->getMessage(),
+                'old_data' => $request->all()
+            ]);
+        }
+    }
+
+    public function asignarPermisos($request, $id)
+    {
+        try {
+            $role = $this->adminService->getRoleById($id);
+            $permisos = $this->adminService->getAllPermissions();
+            $permisosAsignados = $this->adminService->getPermissionsForRole($id);
+            
+            return view('admin.configuracion.roles.permisos', [
+                'title' => 'Asignar Permisos - Configuración',
+                'role' => $role,
+                'permisos' => $permisos,
+                'permisosAsignados' => $permisosAsignados
+            ]);
+        } catch (Exception $e) {
+            return view('errors.404', ['message' => 'Rol no encontrado']);
+        }
+    }
+
+    public function guardarPermisosRol($request, $id)
+    {
+        try {
+            $permisos = $request->input('permisos', []);
+            $this->adminService->syncRolePermissions($id, $permisos);
+            
+            header('Location: ' . route('admin.roles') . '?success=Permisos asignados exitosamente');
+            exit;
+        } catch (Exception $e) {
+            return $this->asignarPermisos($request, $id);
+        }
+    }
 }

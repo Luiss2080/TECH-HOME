@@ -1,6 +1,7 @@
 <?php
 $user = auth();
 $roles = $user ? $user->roles : [];
+$isAuth = $user ? true : false;
 $isAdmin = in_array('administrador', array_column($roles, 'nombre'));
 $isDocente = in_array('docente', array_column($roles, 'nombre'));
 $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
@@ -71,31 +72,32 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
              NAVEGACIÓN PRINCIPAL
              ============================================================================ -->
             <nav class="ithr-main-navigation">
-                <div class="ithr-nav-group">
-                    <h6 class="ithr-nav-group-title">Panel Principal</h6>
-                    <ul class="ithr-nav-list">
-                        <li class="ithr-nav-item ithr-active">
-                            <a href="<?= route(Dashboard()) ?>" class="ithr-nav-link">
-                                <i class="fas fa-tachometer-alt ithr-nav-icon"></i>
-                                <span class="ithr-nav-text">Dashboard</span>
-                                <div class="ithr-nav-indicator"></div>
-                            </a>
-                        </li>
-                        <li class="ithr-nav-item">
-                            <a href="<?= route('reportes') ?>" class="ithr-nav-link">
-                                <i class="fas fa-chart-bar ithr-nav-icon"></i>
-                                <span class="ithr-nav-text">Reportes</span>
-                            </a>
-                        </li>
-                        <li class="ithr-nav-item">
-                            <a href="<?= route('configuracion') ?>" class="ithr-nav-link">
-                                <i class="fas fa-cog ithr-nav-icon"></i>
-                                <span class="ithr-nav-text">Configuración</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
+                <?php if ($isAuth): ?>
+                    <div class="ithr-nav-group">
+                        <h6 class="ithr-nav-group-title">Panel Principal</h6>
+                        <ul class="ithr-nav-list">
+                            <li class="ithr-nav-item ithr-active">
+                                <a href="<?= route(Dashboard()) ?>" class="ithr-nav-link">
+                                    <i class="fas fa-tachometer-alt ithr-nav-icon"></i>
+                                    <span class="ithr-nav-text">Dashboard</span>
+                                    <div class="ithr-nav-indicator"></div>
+                                </a>
+                            </li>
+                            <li class="ithr-nav-item">
+                                <a href="<?= route('reportes') ?>" class="ithr-nav-link">
+                                    <i class="fas fa-chart-bar ithr-nav-icon"></i>
+                                    <span class="ithr-nav-text">Reportes</span>
+                                </a>
+                            </li>
+                            <li class="ithr-nav-item">
+                                <a href="<?= route('configuracion') ?>" class="ithr-nav-link">
+                                    <i class="fas fa-cog ithr-nav-icon"></i>
+                                    <span class="ithr-nav-text">Configuración</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                <?php endif; ?>
                 <div class="ithr-nav-group">
                     <h6 class="ithr-nav-group-title">Gestión Académica</h6>
                     <ul class="ithr-nav-list">
@@ -361,47 +363,51 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                         <!-- ============================================
                  BOTÓN DE NOTIFICACIONES
                  ============================================ -->
-                        <a href="#" class="notifications-btn" title="Notificaciones">
-                            <i class="fas fa-bell"></i>
-                            <span class="notification-badge" id="notification-count" style="display: none;">0</span>
-                        </a> <!-- ============================================
+                        <?php if ($isAuth): ?>
+                            <a href="#" class="notifications-btn" title="Notificaciones">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge" id="notification-count" style="display: none;">0</span>
+                            </a>
+                        <?php endif; ?>
+                        <!-- ============================================
                      TARJETA DE USUARIO Y CONTROLES
                      ============================================ -->
                         <div class="user-info">
+                            <?php if ($isAuth): ?>
 
-                            <!-- ============================================
+                                <!-- ============================================
                          AVATAR DEL USUARIO
                          ============================================ -->
-                            <div class="user-avatar" id="user-avatar">
-                                <?php
-                                // Mostrar avatar o iniciales del usuario
-                                if (!empty($_SESSION['usuario_avatar'])) {
-                                    echo '<img src="' . htmlspecialchars($_SESSION['usuario_avatar']) . '" alt="Avatar">';
-                                } else {
-                                    // Mostrar iniciales si no hay avatar
-                                    $nombre = $_SESSION['usuario_nombre'] ?? 'U';
-                                    $apellido = $_SESSION['usuario_apellido'] ?? 'S';
-                                    $iniciales = strtoupper(substr($nombre, 0, 1) . substr($apellido, 0, 1));
-                                    echo $iniciales;
-                                }
-                                ?>
-                            </div>
+                                <div class="user-avatar" id="user-avatar">
+                                    <?php
+                                    // Mostrar avatar o iniciales del usuario
+                                    if (!empty($_SESSION['usuario_avatar'])) {
+                                        echo '<img src="' . htmlspecialchars($_SESSION['usuario_avatar']) . '" alt="Avatar">';
+                                    } else {
+                                        // Mostrar iniciales si no hay avatar
+                                        $nombre = $_SESSION['usuario_nombre'] ?? 'U';
+                                        $apellido = $_SESSION['usuario_apellido'] ?? 'S';
+                                        $iniciales = strtoupper(substr($nombre, 0, 1) . substr($apellido, 0, 1));
+                                        echo $iniciales;
+                                    }
+                                    ?>
+                                </div>
 
-                            <!-- ============================================
+                                <!-- ============================================
                          DATOS DEL USUARIO (DESDE SESIÓN PHP)
                          ============================================ -->
-                            <div class="user-details">
-                                <h4 id="user-name">
-                                    <?php echo htmlspecialchars(($_SESSION['usuario_nombre'] ?? '') . ' ' . ($_SESSION['usuario_apellido'] ?? '')); ?>
-                                </h4>
-                                <span class="user-role" id="user-role">
-                                    <?php echo htmlspecialchars($_SESSION['usuario_rol'] ?? 'Usuario'); ?>
-                                </span>
-                                <span class="user-email" id="user-email">
-                                    <?php echo htmlspecialchars($_SESSION['usuario_email'] ?? ''); ?>
-                                </span>
-                            </div>
-
+                                <div class="user-details">
+                                    <h4 id="user-name">
+                                        <?php echo htmlspecialchars(($_SESSION['usuario_nombre'] ?? '') . ' ' . ($_SESSION['usuario_apellido'] ?? '')); ?>
+                                    </h4>
+                                    <span class="user-role" id="user-role">
+                                        <?php echo htmlspecialchars($_SESSION['usuario_rol'] ?? 'Usuario'); ?>
+                                    </span>
+                                    <span class="user-email" id="user-email">
+                                        <?php echo htmlspecialchars($_SESSION['usuario_email'] ?? ''); ?>
+                                    </span>
+                                </div>
+                            <?php endif; ?>
                             <!-- ============================================
                          INFORMACIÓN DE FECHA Y HORA
                          ============================================ -->
@@ -419,12 +425,23 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                             <!-- ============================================
                          BOTÓN CERRAR SESIÓN MEJORADO
                          ============================================ -->
-                            <form action="<?= route('logout') ?>" method="POST" class="logout-btn" title="Cerrar Sesión">
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    Cerrar Sesión
-                                </button>
-                            </form>
+                            <?php if ($isAuth): ?>
+
+                                <form action="<?= route('logout') ?>" method="POST" class="logout-btn" title="Cerrar Sesión">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        Cerrar Sesión
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <form action="<?= route('login') ?>" method="GET" class="login-btn" title="Iniciar Sesión">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        Iniciar Sesión
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+
                         </div>
                     </div>
                 </div>
@@ -803,42 +820,44 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                         <!-- Línea divisoria vertical -->
                         <div class="footer-divider"></div>
 
-                        <!-- Columna 2: Enlaces de Navegación del Sistema -->
-                        <div class="footer-column">
-                            <h6 class="footer-column-title">Sistema</h6>
-                            <div class="footer-nav-links">
-                                <!-- Enlace al Dashboard principal -->
-                                <a href="<?= route(Dashboard()) ?>" class="footer-nav-link">
-                                    <i class="fas fa-tachometer-alt"></i>
-                                    Dashboard
-                                </a>
-                                <!-- Gestión de Estudiantes -->
-                                <a href="<?= route('estudiantes') ?>" class="footer-nav-link">
-                                    <i class="fas fa-user-graduate"></i>
-                                    Estudiantes
-                                </a>
-                                <!-- Catálogo de Cursos -->
-                                <a href="<?= route('cursos') ?>" class="footer-nav-link">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    Cursos
-                                </a>
-                                <!-- Biblioteca Digital -->
-                                <a href="<?= route('libros') ?>" class="footer-nav-link">
-                                    <i class="fas fa-book"></i>
-                                    Biblioteca
-                                </a>
-                                <!-- Materiales Educativos -->
-                                <a href="<?= route('materiales') ?>" class="footer-nav-link">
-                                    <i class="fas fa-file-alt"></i>
-                                    Materiales
-                                </a>
-                                <!-- Administración de Usuarios -->
-                                <a href="<?= route('usuarios') ?>" class="footer-nav-link">
-                                    <i class="fas fa-users-cog"></i>
-                                    Usuarios
-                                </a>
+                        <?php if ($isAuth): ?>
+                            <!-- Columna 2: Enlaces de Navegación del Sistema -->
+                            <div class="footer-column">
+                                <h6 class="footer-column-title">Sistema</h6>
+                                <div class="footer-nav-links">
+                                    <!-- Enlace al Dashboard principal -->
+                                    <a href="<?= route(Dashboard()) ?>" class="footer-nav-link">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        Dashboard
+                                    </a>
+                                    <!-- Gestión de Estudiantes -->
+                                    <a href="<?= route('estudiantes') ?>" class="footer-nav-link">
+                                        <i class="fas fa-user-graduate"></i>
+                                        Estudiantes
+                                    </a>
+                                    <!-- Catálogo de Cursos -->
+                                    <a href="<?= route('cursos') ?>" class="footer-nav-link">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        Cursos
+                                    </a>
+                                    <!-- Biblioteca Digital -->
+                                    <a href="<?= route('libros') ?>" class="footer-nav-link">
+                                        <i class="fas fa-book"></i>
+                                        Biblioteca
+                                    </a>
+                                    <!-- Materiales Educativos -->
+                                    <a href="<?= route('materiales') ?>" class="footer-nav-link">
+                                        <i class="fas fa-file-alt"></i>
+                                        Materiales
+                                    </a>
+                                    <!-- Administración de Usuarios -->
+                                    <a href="<?= route('usuarios') ?>" class="footer-nav-link">
+                                        <i class="fas fa-users-cog"></i>
+                                        Usuarios
+                                    </a>
+                                </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
 
 
                         <!-- Línea divisoria vertical -->

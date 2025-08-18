@@ -73,4 +73,20 @@ class Permission extends Model
     {
         return self::where('name', '=', $name);
     }
+
+    /**
+     * Obtener todos los permisos ordenados por nombre
+     */
+    public static function getAll()
+    {
+        return self::orderBy('name')->get();
+    }
+
+    /**
+     * Obtener permiso por nombre
+     */
+    public static function findByName($name)
+    {
+        return self::where('name', '=', $name)->first();
+    }
 }

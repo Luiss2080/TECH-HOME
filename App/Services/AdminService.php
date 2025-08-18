@@ -4,6 +4,10 @@ namespace App\Services;
 
 use App\Models\DashboardStats;
 use App\Models\User;
+use App\Models\Role;
+use App\Models\Permission;
+use App\Models\RoleHasPermissions;
+use Core\DB;
 use Exception;
 
 class AdminService
@@ -107,5 +111,145 @@ class AdminService
         ];
 
         return $classes[$status] ?? 'secondary';
+    }
+
+    // === MÉTODOS PARA GESTIÓN DE ROLES ===
+
+    public function getAllRoles(): array
+    {
+        return Role::getAll();
+    }
+
+    public function getRoleById(int $id): Role
+    {
+        $role = Role::find($id);
+        if (!$role) {
+            throw new Exception('Rol no encontrado');
+        }
+        return $role;
+    }
+
+    public function createRole(array $data): bool
+    {
+        // Validar que el nombre del rol no exista
+        if (Role::findByName($data['nombre'])) {
+            throw new Exception('Ya existe un rol con ese nombre');
+        }
+
+        $roleData = [
+            'nombre' => trim($data['nombre']),
+            'descripcion' => trim($data['descripcion'] ?? ''),
+            'guard_name' => 'web'
+        ];
+
+        $role = new Role($roleData);
+        $role->save();
+        return true;
+    }
+
+    public function updateRole(int $id, array $data): bool
+    {
+        $role = Role::find($id);
+        if (!$role) {
+            throw new Exception('Rol no encontrado');
+        }
+
+        // Verificar que no sea un rol protegido
+        if (in_array($role->nombre, ['administrador', 'docente', 'estudiante'])) {
+            throw new Exception('No se puede modificar este rol del sistema');
+        }
+
+        // Validar que el nuevo nombre no exista (si cambió)
+        if ($role->nombre !== trim($data['nombre'])) {
+            if (Role::findByName($data['nombre'])) {
+                throw new Exception('Ya existe un rol con ese nombre');
+            }
+        }
+
+        $role->fill([
+            'nombre' => trim($data['nombre']),
+            'descripcion' => trim($data['descripcion'] ?? '')
+        ]);
+
+        $role->save();
+        return true;
+    }
+
+    public function deleteRole(int $id): bool
+    {
+        $role = Role::find($id);
+        if (!$role) {
+            throw new Exception('Rol no encontrado');
+        }
+
+        // Verificar que no sea un rol protegido
+        if (in_array($role->nombre, ['administrador', 'docente', 'estudiante'])) {
+            throw new Exception('No se puede eliminar este rol del sistema');
+        }
+
+        // Verificar que no tenga usuarios asignados
+        $db = DB::getInstance();
+        $usersCount = $db->query("SELECT COUNT(*) as count FROM model_has_roles WHERE role_id = ?", [$id])->fetch();
+        if ($usersCount['count'] > 0) {
+            throw new Exception('No se puede eliminar el rol porque tiene usuarios asignados');
+        }
+
+        // Eliminar primero los permisos del rol
+        $db->query("DELETE FROM role_has_permissions WHERE role_id = ?", [$id]);
+        
+        $role->delete();
+        return true;
+    }
+
+    // === MÉTODOS PARA GESTIÓN DE PERMISOS ===
+
+    public function getAllPermissions(): array
+    {
+        return Permission::getAll();
+    }
+
+    public function createPermission(array $data): bool
+    {
+        // Validar que el nombre del permiso no exista
+        if (Permission::findByName($data['nombre'])) {
+            throw new Exception('Ya existe un permiso con ese nombre');
+        }
+
+        $permissionData = [
+            'name' => trim($data['nombre']),
+            'descripcion' => trim($data['descripcion'] ?? ''),
+            'guard_name' => 'web'
+        ];
+
+        $permission = new Permission($permissionData);
+        $permission->save();
+        return true;
+    }
+
+    public function getPermissionsForRole(int $roleId): array
+    {
+        return RoleHasPermissions::getPermissionsForRole($roleId);
+    }
+
+    public function syncRolePermissions(int $roleId, array $permissionIds): bool
+    {
+        // Verificar que el rol existe
+        $role = Role::find($roleId);
+        if (!$role) {
+            throw new Exception('Rol no encontrado');
+        }
+
+        // Eliminar permisos actuales del rol
+        $db = DB::getInstance();
+        $db->query("DELETE FROM role_has_permissions WHERE role_id = ?", [$roleId]);
+
+        // Asignar nuevos permisos
+        if (!empty($permissionIds)) {
+            foreach ($permissionIds as $permissionId) {
+                RoleHasPermissions::assignPermissionToRole($roleId, (int)$permissionId);
+            }
+        }
+
+        return true;
     }
 }

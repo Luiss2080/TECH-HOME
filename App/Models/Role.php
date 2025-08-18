@@ -11,11 +11,10 @@ class Role extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
-        'estado',
-        'fecha_creacion'
+        'guard_name'
     ];
     protected $hidden = [];
-    protected $timestamps = false;
+    protected $timestamps = true;
     protected $softDeletes = false;
 
     // Relación: usuarios que tienen este rol (sistema antiguo - para compatibilidad)
@@ -45,9 +44,13 @@ class Role extends Model
         $query = "SELECT u.* FROM usuarios u 
                   INNER JOIN model_has_roles mhr ON u.id = mhr.model_id 
                   WHERE mhr.role_id = ? AND mhr.model_type = ?";
-        
+
         $result = $db->query($query, [$this->id, 'App\\Models\\User']);
-        return $result ? $result->fetchAll(\PDO::FETCH_ASSOC) : [];
+        $result = $result ? $result->fetchAll(\PDO::FETCH_ASSOC) : [];
+        foreach ($result as &$user) {
+            $user = new User($user);
+        }
+        return $result;
     }
 
     /**
@@ -57,7 +60,7 @@ class Role extends Model
     {
         $permissionId = is_numeric($permission) ? $permission : $this->getPermissionIdByName($permission);
         if (!$permissionId) return false;
-        
+
         return RoleHasPermissions::roleHasPermission($this->id, $permissionId);
     }
 
@@ -67,11 +70,11 @@ class Role extends Model
     public function givePermissionTo($permission)
     {
         $permissionId = is_numeric($permission) ? $permission : $this->getPermissionIdByName($permission);
-        
+
         if (!$permissionId) {
             throw new \Exception("Permiso no encontrado: {$permission}");
         }
-        
+
         RoleHasPermissions::assignPermissionToRole($this->id, $permissionId);
         return $this;
     }
@@ -82,11 +85,11 @@ class Role extends Model
     public function revokePermissionTo($permission)
     {
         $permissionId = is_numeric($permission) ? $permission : $this->getPermissionIdByName($permission);
-        
+
         if (!$permissionId) {
             return $this;
         }
-        
+
         RoleHasPermissions::removePermissionFromRole($this->id, $permissionId);
         return $this;
     }
@@ -99,7 +102,7 @@ class Role extends Model
         if (!is_array($permissions)) {
             $permissions = [$permissions];
         }
-        
+
         // Convertir nombres de permisos a IDs si es necesario
         $permissionIds = [];
         foreach ($permissions as $permission) {
@@ -108,7 +111,7 @@ class Role extends Model
                 $permissionIds[] = $permissionId;
             }
         }
-        
+
         RoleHasPermissions::syncPermissionsForRole($this->id, $permissionIds);
         return $this;
     }
@@ -125,18 +128,26 @@ class Role extends Model
         $db = \Core\DB::getInstance();
         $query = "SELECT id FROM permissions WHERE name = ? LIMIT 1";
         $result = $db->query($query, [$permissionName]);
-        
+
         if ($result) {
             $row = $result->fetch(\PDO::FETCH_ASSOC);
             return $row ? $row['id'] : null;
         }
-        
+
         return null;
     }
 
     // ==========================================
     // SCOPES Y MÉTODOS ESTÁTICOS
     // ==========================================
+
+    /**
+     * Obtener todos los roles ordenados por nombre
+     */
+    public static function getAll()
+    {
+        return self::orderBy('nombre')->get();
+    }
 
     /**
      * Obtener rol por nombre
@@ -151,21 +162,6 @@ class Role extends Model
      */
     public static function activos()
     {
-        return self::where('estado', '=', 1);
-    }
-
-    /**
-     * Crear rol con permisos
-     */
-    public static function create($attributes, $permissions = [])
-    {
-        $role = new self($attributes);
-        $role->save();
-        
-        if (!empty($permissions)) {
-            $role->syncPermissions($permissions);
-        }
-        
-        return $role;
+        return self::where('estado', '=', 1)->get();
     }
 }

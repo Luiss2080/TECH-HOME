@@ -38,6 +38,51 @@ Router::get('/admin/configuracion', [AdminController::class, 'configuracion'])
     ->name('configuracion')
     ->middleware('role:administrador');
 
+// Rutas para gestión de roles y permisos
+Router::get('/admin/configuracion/roles', [AdminController::class, 'roles'])
+    ->name('admin.roles')
+    ->middleware('role:administrador');
+
+Router::get('/admin/configuracion/roles/crear', [AdminController::class, 'crearRol'])
+    ->name('admin.roles.crear')
+    ->middleware('role:administrador');
+
+Router::post('/admin/configuracion/roles', [AdminController::class, 'guardarRol'])
+    ->name('admin.roles.store')
+    ->middleware('role:administrador');
+
+Router::get('/admin/configuracion/roles/{id}/editar', [AdminController::class, 'editarRol'])
+    ->name('admin.roles.editar')
+    ->middleware('role:administrador');
+
+Router::put('/admin/configuracion/roles/{id}', [AdminController::class, 'actualizarRol'])
+    ->name('admin.roles.update')
+    ->middleware('role:administrador');
+
+Router::delete('/admin/configuracion/roles/{id}', [AdminController::class, 'eliminarRol'])
+    ->name('admin.roles.delete')
+    ->middleware('role:administrador');
+
+Router::get('/admin/configuracion/permisos', [AdminController::class, 'permisos'])
+    ->name('admin.permisos')
+    ->middleware('role:administrador');
+
+Router::get('/admin/configuracion/permisos/crear', [AdminController::class, 'crearPermiso'])
+    ->name('admin.permisos.crear')
+    ->middleware('role:administrador');
+
+Router::post('/admin/configuracion/permisos', [AdminController::class, 'guardarPermiso'])
+    ->name('admin.permisos.store')
+    ->middleware('role:administrador');
+
+Router::get('/admin/configuracion/roles/{id}/permisos', [AdminController::class, 'asignarPermisos'])
+    ->name('admin.roles.permisos')
+    ->middleware('role:administrador');
+
+Router::post('/admin/configuracion/roles/{id}/permisos', [AdminController::class, 'guardarPermisosRol'])
+    ->name('admin.roles.permisos.store')
+    ->middleware('role:administrador');
+
 Router::get('/admin/usuarios', [AdminController::class, 'usuarios'])
     ->name('usuarios')
     ->middleware('role:administrador');

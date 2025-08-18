@@ -335,7 +335,9 @@ class User extends Model
     public static function Dashboard()
     {
         $user = auth();
-
+        if (!$user) {
+            return 'home';
+        }
         // Usar el nuevo sistema de roles
         $roles = $user->roles();
         if (empty($roles)) {
