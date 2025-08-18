@@ -81,15 +81,15 @@ Router::get('/admin/usuarios', [AdminController::class, 'usuarios'])
 
 Router::get('/admin/usuarios/crear', [AdminController::class, 'crearUsuario'])
     ->name('usuarios.crear')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:admin.usuarios.crear');
 
 Router::get('/admin/ventas', [AdminController::class, 'ventas'])
     ->name('ventas')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:admin.ventas.ver');
 
 Router::get('/admin/ventas/crear', [AdminController::class, 'crearVenta'])
     ->name('ventas.crear')
-    ->middleware('role:administrador');
+    ->middleware('role:administrador|has:admin.ventas.crear');
 
 Router::get('/estudiantes/dashboard', [EstudianteController::class, 'estudiantes'])
     ->name('estudiantes')
@@ -101,7 +101,7 @@ Router::get('/cursos', [CursoController::class, 'cursos'])
 
 Router::get('/cursos/crear', [CursoController::class, 'crearCurso'])
     ->name('cursos.crear')
-    ->middleware('role:docente');
+    ->middleware('role:docente|has:cursos.crear');
 
 Router::get('/libros', [LibroController::class, 'libros'])
     ->name('libros')
@@ -109,7 +109,7 @@ Router::get('/libros', [LibroController::class, 'libros'])
 
 Router::get('/libros/crear', [LibroController::class, 'crearLibro'])
     ->name('libros.crear')
-    ->middleware('role:docente');
+    ->middleware('role:docente|has:libros.crear');
 
 Router::get('/materiales', [MaterialController::class, 'materiales'])
     ->name('materiales')
@@ -131,3 +131,10 @@ Router::get('/componentes/crear', [ComponenteController::class, 'crearComponente
 Router::get('/docente/dashboard', [DocenteController::class, 'dashboard'])
     ->name('docente.dashboard')
     ->middleware('role:docente');
+
+// Ejemplo de ruta que solo verifica permisos específicos
+// Un estudiante monitor podría tener el permiso 'reportes.basicos.ver'
+// sin necesidad de ser docente o administrador
+Router::get('/reportes/basicos', [AdminController::class, 'reportesBasicos'])
+    ->name('reportes.basicos')
+    ->middleware('has:reportes.basicos.ver');

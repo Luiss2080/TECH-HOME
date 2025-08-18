@@ -15,6 +15,7 @@ class MiddlewareFactory
     protected static $middlewares = [
         'auth' => AuthMiddleware::class,
         'role' => RoleMiddleware::class,
+        'has' => RoleMiddleware::class, // has usa la misma clase que role
     ];
 
     /**
@@ -35,6 +36,8 @@ class MiddlewareFactory
      * - 'auth' -> AuthMiddleware
      * - 'role:administrador,docente' -> RoleMiddleware con roles
      * - 'role:administrador|docente' -> RoleMiddleware con roles
+     * - 'role:administrador|has:admin.ventas.crear' -> RoleMiddleware con roles Y permisos
+     * - 'has:admin.ventas.crear,admin.usuarios.ver' -> RoleMiddleware solo con permisos
      *
      * @param string $middlewareString
      * @return object
@@ -90,6 +93,10 @@ class MiddlewareFactory
             case 'role':
                 return self::createRoleMiddleware($parameters);
 
+            case 'has':
+                // Crear RoleMiddleware solo con permisos
+                return self::createPermissionMiddleware($parameters);
+
             case 'auth':
                 // Auth no necesita parámetros, pero si los hay, los ignoramos
                 return new $middlewareClass();
@@ -103,24 +110,65 @@ class MiddlewareFactory
 
     /**
      * Crea una instancia de RoleMiddleware con roles específicos
+     * Soporta sintaxis combinada: 'administrador|has:admin.ventas.crear'
      *
      * @param string $parameters
      * @return RoleMiddleware
      */
     protected static function createRoleMiddleware($parameters)
     {
-        // Soportar tanto comas como pipes como separadores
-        $roles = preg_split('/[,|]/', $parameters);
+        $roles = [];
+        $permissions = [];
 
-        // Limpiar espacios en blanco
-        $roles = array_map('trim', $roles);
+        // Verificar si contiene 'has:' para permisos
+        if (strpos($parameters, 'has:') !== false) {
+            // Dividir en roles y permisos
+            $parts = preg_split('/\|has:/', $parameters);
+            
+            // La primera parte son roles (si existe)
+            if (!empty(trim($parts[0]))) {
+                $roles = preg_split('/[,|]/', $parts[0]);
+                $roles = array_map('trim', $roles);
+                $roles = array_filter($roles, function ($role) {
+                    return !empty($role);
+                });
+            }
+            
+            // La segunda parte son permisos
+            if (isset($parts[1])) {
+                $permissions = preg_split('/[,|]/', $parts[1]);
+                $permissions = array_map('trim', $permissions);
+                $permissions = array_filter($permissions, function ($permission) {
+                    return !empty($permission);
+                });
+            }
+        } else {
+            // Solo roles
+            $roles = preg_split('/[,|]/', $parameters);
+            $roles = array_map('trim', $roles);
+            $roles = array_filter($roles, function ($role) {
+                return !empty($role);
+            });
+        }
 
-        // Filtrar elementos vacíos
-        $roles = array_filter($roles, function ($role) {
-            return !empty($role);
+        return new RoleMiddleware($roles, $permissions);
+    }
+
+    /**
+     * Crea una instancia de RoleMiddleware solo con permisos
+     *
+     * @param string $parameters
+     * @return RoleMiddleware
+     */
+    protected static function createPermissionMiddleware($parameters)
+    {
+        $permissions = preg_split('/[,|]/', $parameters);
+        $permissions = array_map('trim', $permissions);
+        $permissions = array_filter($permissions, function ($permission) {
+            return !empty($permission);
         });
 
-        return new RoleMiddleware($roles);
+        return new RoleMiddleware([], $permissions);
     }
 
     /**
