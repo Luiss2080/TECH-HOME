@@ -140,29 +140,6 @@
                     </ul>
                 </div>
 
-                <div class="ithr-nav-group">
-                    <h6 class="ithr-nav-group-title">Módulos</h6>
-                    <ul class="ithr-nav-list">
-                        <li class="ithr-nav-item">
-                            <a href="<?= route('aulaVirtual') ?>" class="ithr-nav-link">
-                                <i class="fas fa-chalkboard-teacher ithr-nav-icon"></i>
-                                <span class="ithr-nav-text">Aula Virtual</span>
-                            </a>
-                        </li>
-                        <li class="ithr-nav-item">
-                            <a href="<?= route('evaluaciones') ?>" class="ithr-nav-link">
-                                <i class="fas fa-clipboard-check ithr-nav-icon"></i>
-                                <span class="ithr-nav-text">Evaluaciones</span>
-                            </a>
-                        </li>
-                        <li class="ithr-nav-item">
-                            <a href="<?= route('certificados') ?>" class="ithr-nav-link">
-                                <i class="fas fa-certificate ithr-nav-icon"></i>
-                                <span class="ithr-nav-text">Certificados</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </nav>
 
             <!-- ============================================================================
@@ -856,45 +833,6 @@
                             </div>
                         </div>
 
-                        <!-- Línea divisoria vertical -->
-                        <div class="footer-divider"></div>
-
-                        <!-- Columna 3: Módulos Académicos del Sistema -->
-                        <div class="footer-column">
-                            <h6 class="footer-column-title">Módulos</h6>
-                            <div class="footer-nav-links">
-                                <!-- Aula Virtual -->
-                                <a href="<?= route('aulaVirtual') ?>" class="footer-nav-link">
-                                    <i class="fas fa-chalkboard-teacher"></i>
-                                    Aula Virtual
-                                </a>
-                                <!-- Evaluaciones -->
-                                <a href="<?= route('evaluaciones') ?>" class="footer-nav-link">
-                                    <i class="fas fa-clipboard-check"></i>
-                                    Evaluaciones
-                                </a>
-                                <!-- Progreso Académico -->
-                                <a href="<?= route('progreso') ?>" class="footer-nav-link">
-                                    <i class="fas fa-chart-line"></i>
-                                    Progreso
-                                </a>
-                                <!-- Laboratorios -->
-                                <a href="<?= route('laboratorios') ?>" class="footer-nav-link">
-                                    <i class="fas fa-flask"></i>
-                                    Laboratorios
-                                </a>
-                                <!-- Certificaciones -->
-                                <a href="<?= route('certificados') ?>" class="footer-nav-link">
-                                    <i class="fas fa-certificate"></i>
-                                    Certificados
-                                </a>
-                                <!-- Foros y Comunidad -->
-                                <a href="<?= route('foros') ?>" class="footer-nav-link">
-                                    <i class="fas fa-comments"></i>
-                                    Foros
-                                </a>
-                            </div>
-                        </div>
 
                         <!-- Línea divisoria vertical -->
                         <div class="footer-divider"></div>
