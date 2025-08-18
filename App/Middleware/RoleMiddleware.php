@@ -16,7 +16,7 @@ class RoleMiddleware implements Middleware
      * @var array
      */
     protected $allowedRoles = [];
-
+    protected $superAdminRole = 'administrador';
     /**
      * Constructor que recibe los roles permitidos
      *
@@ -53,11 +53,10 @@ class RoleMiddleware implements Middleware
         if (empty($this->allowedRoles)) {
             return $next($request);
         }
-        
+
         // Verificar si el usuario tiene uno de los roles permitidos
-        if (!$this->userHasRole($user, $this->allowedRoles)) {
-            // Si es una petición API, devolver JSON
-            if ($this->isApiRequest($request)) {
+        if (!$this->isSuperAdmin($user) && !$this->userHasRole($user, $this->allowedRoles)) {
+            if (request()->isApiRequest()) {
                 return Response::json([
                     'success' => false,
                     'message' => 'No tienes permisos para acceder a este recurso.',
@@ -68,25 +67,13 @@ class RoleMiddleware implements Middleware
             }
             // Para peticiones web, mostrar la página 403
             Session::flash('error', 'No tienes permisos para acceder a esta página.');
-            return view('errors.403', [], false, statusCode: 403);
+            return view(view: 'errors.403', statusCode: 403);
         }
 
         // Si el usuario tiene el rol correcto, continuar
         return $next($request);
     }
 
-    /**
-     * Verifica si la petición es una petición API
-     *
-     * @param Request $request
-     * @return bool
-     */
-    protected function isApiRequest($request)
-    {
-        return str_starts_with($request->uri(), '/api/') ||
-            $request->header('Accept') === 'application/json' ||
-            $request->header('Content-Type') === 'application/json';
-    }
 
     /**
      * Verifica si el usuario tiene uno de los roles permitidos
@@ -103,7 +90,7 @@ class RoleMiddleware implements Middleware
         }
 
         // Obtener el rol del usuario
-        $userRole = $user->rol();
+        $userRole = $user->rol() ?? null;
 
         if (!$userRole) {
             return false;
@@ -113,41 +100,9 @@ class RoleMiddleware implements Middleware
         return in_array(strtolower($userRole->nombre), array_map('strtolower', $allowedRoles));
     }
 
-    /**
-     * Redirige basado en el rol del usuario
-     *
-     * @param User $user
-     * @return Response
-     */
-    protected function redirectBasedOnRole($user)
+
+    protected function isSuperAdmin($user)
     {
-        $userRole = $user->rol();
-
-        if (!$userRole) {
-            return redirect('/');
-        }
-
-        // Redirigir según el rol
-        switch (strtolower($userRole->nombre)) {
-            case 'administrador':
-                return redirect(route('dashboard'));
-            case 'docente':
-                return redirect(route('dashboard')); // O ruta específica para docentes
-            case 'estudiante':
-                return redirect(route('dashboard')); // O ruta específica para estudiantes
-            default:
-                return redirect('/');
-        }
-    }
-
-    /**
-     * Método estático para crear instancias con roles específicos
-     *
-     * @param string|array $roles
-     * @return static
-     */
-    public static function roles($roles)
-    {
-        return new static($roles);
+        return strtolower($user->rol()->nombre) === strtolower($this->superAdminRole);
     }
 }

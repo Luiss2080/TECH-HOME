@@ -11,15 +11,15 @@ class Request
     {
         // Inicializar el array de datos
         $this->___data = [];
-        
+
         // Obtener datos según el método HTTP
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-        
+
         switch (strtoupper($method)) {
             case 'GET':
                 $this->___data = $_GET;
                 break;
-                
+
             case 'POST':
             case 'PUT':
             case 'PATCH':
@@ -44,7 +44,7 @@ class Request
                     }
                 }
                 break;
-                
+
             default:
                 $this->___data = $_GET;
                 break;
@@ -99,5 +99,16 @@ class Request
     public function getHeaders()
     {
         return getallheaders();
+    }
+    public function header($name, $default = null)
+    {
+        $headers = $this->getHeaders();
+        return $headers[$name] ?? $default;
+    }
+    public function isApiRequest()
+    {
+        return str_starts_with($this->uri(), '/api/') ||
+            $this->header('Accept') === 'application/json' ||
+            $this->header('Content-Type') === 'application/json';
     }
 }
