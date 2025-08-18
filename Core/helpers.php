@@ -1,5 +1,62 @@
 <?php
 
+
+function asset($path)
+{
+    $baseUrl = getBaseUrl() . BASE_URL . '/public/';
+    // Elimina la barra inicial si existe en el path
+    $path = ltrim($path, '/');
+
+    // Retorna la ruta completa al recurso
+    return $baseUrl . $path;
+}
+
+function loadEnv($path)
+{
+    // Verificar si el archivo .env existe
+    if (!file_exists($path)) {
+        throw new Exception("El archivo .env no existe en la ruta: $path");
+    }
+
+    // Leer el archivo línea por línea
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    // Array para almacenar las variables de entorno
+    $env = [];
+
+    foreach ($lines as $line) {
+        // Ignorar comentarios (líneas que comienzan con #)
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+
+        // Separar la clave y el valor
+        list($key, $value) = explode('=', $line, 2);
+
+        // Limpiar la clave y el valor
+        $key = trim($key);
+        $value = trim($value);
+
+        // Almacenar en el array de entorno
+        $env[$key] = $value;
+    }
+
+    return $env;
+}
+function currentUrl(): string
+{
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    $uri = $_SERVER['REQUEST_URI'];
+    return $protocol . $host . $uri;
+}
+function getBaseUrl(): string
+{
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    return $protocol . $host;
+}
+
 // Generar CSRF Token
 function csrf_token()
 {
@@ -68,7 +125,7 @@ function view($view, $data = [], $layout = 'layouts/app', $statusCode = 200): \C
 
     // Convertir la ruta de la vista a un path de archivo
     $viewPath = str_replace('.', DIRECTORY_SEPARATOR, $view);
-    $path = BASE_ROUTE . 'resources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . $viewPath . '.view.php';
+    $path = BASE_PATH . 'resources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . $viewPath . '.view.php';
 
     // Verificar si la vista existe
     if (!file_exists($path)) {
@@ -89,7 +146,7 @@ function view($view, $data = [], $layout = 'layouts/app', $statusCode = 200): \C
     }
 
     // Si se especifica un layout, usarlo
-    $layoutPath = BASE_ROUTE . 'resources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . str_replace('.', DIRECTORY_SEPARATOR, $layout) . '.view.php';
+    $layoutPath = BASE_PATH . 'resources' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . str_replace('.', DIRECTORY_SEPARATOR, $layout) . '.view.php';
 
     // Verificar si el layout existe
     if (file_exists($layoutPath)) {
@@ -133,7 +190,7 @@ function tiempoTranscurrido($fecha): string
     $ahora = new DateTime();
     $tiempo = new DateTime($fecha);
     $diff = $ahora->diff($tiempo);
-    
+
     if ($diff->y > 0) return $diff->y . ' años';
     if ($diff->m > 0) return $diff->m . ' meses';
     if ($diff->d > 0) return $diff->d . ' días';
@@ -148,11 +205,11 @@ function tiempoTranscurrido($fecha): string
 function formatearBytes($bytes, $precision = 2): string
 {
     $units = array('B', 'KB', 'MB', 'GB', 'TB');
-    
+
     for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
         $bytes /= 1024;
     }
-    
+
     return round($bytes, $precision) . ' ' . $units[$i];
 }
 
@@ -167,4 +224,28 @@ function response()
             return \Core\Response::json($data, $status);
         }
     };
+}
+/**
+ * Retorna la ruta de string
+ */
+function route(string $name, array $parameters = []): string
+{
+    return \Core\Router::route($name, $parameters);
+}
+/**
+ * Dump y Die 
+ * @param mixed $value
+ * @return never
+ */
+function dd(...$value)
+{
+    // código respuesta HTTP 400
+    http_response_code(400);
+    echo "<pre>", print_r($value, true), "</pre>";
+    //echo json_encode($value);
+    die();
+}
+function request(): \Core\Request
+{
+    return \Core\Request::getInstance();
 }
