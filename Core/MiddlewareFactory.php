@@ -1,6 +1,9 @@
 <?php
 
-namespace App\Middleware;
+namespace Core;
+
+use App\Middleware\AuthMiddleware;
+use App\Middleware\RoleMiddleware;
 
 class MiddlewareFactory
 {
@@ -86,11 +89,11 @@ class MiddlewareFactory
         switch ($name) {
             case 'role':
                 return self::createRoleMiddleware($parameters);
-            
+
             case 'auth':
                 // Auth no necesita parámetros, pero si los hay, los ignoramos
                 return new $middlewareClass();
-            
+
             default:
                 // Para middleware personalizados, pasar parámetros como array
                 $paramArray = self::parseParameters($parameters);
@@ -108,12 +111,12 @@ class MiddlewareFactory
     {
         // Soportar tanto comas como pipes como separadores
         $roles = preg_split('/[,|]/', $parameters);
-        
+
         // Limpiar espacios en blanco
         $roles = array_map('trim', $roles);
-        
+
         // Filtrar elementos vacíos
-        $roles = array_filter($roles, function($role) {
+        $roles = array_filter($roles, function ($role) {
             return !empty($role);
         });
 
@@ -143,7 +146,7 @@ class MiddlewareFactory
     }
 
     // ==================== MÉTODOS LEGACY (COMPATIBILIDAD) ====================
-    
+
     /**
      * Crea una instancia de middleware con parámetros (método legacy)
      *
