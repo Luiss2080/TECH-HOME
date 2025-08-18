@@ -13,8 +13,14 @@ let isAnimating = false;
 function initAdminDashboard(userData) {
     usuarioData = userData;
     
+    // Parsear roles si vienen como JSON string
+    if (typeof usuarioData.roles === 'string') {
+        usuarioData.roles = JSON.parse(usuarioData.roles);
+    }
+    
     console.log('🚀 Dashboard Administrador cargado');
     console.log('👤 Usuario:', usuarioData);
+    console.log('🎭 Roles del usuario:', usuarioData.roles);
     
     // Configuraciones esenciales
     setupLayout();
@@ -22,6 +28,7 @@ function initAdminDashboard(userData) {
     setupEventListeners();
     initEffects();
     setupIntersectionObserver();
+    displayUserRoles(); // Nueva función para mostrar roles
     
     console.log('✅ Dashboard inicializado correctamente');
 }
@@ -116,6 +123,64 @@ function handleResponsiveLayout() {
 }
 
 /**
+ * Mostrar roles del usuario en el dashboard
+ */
+function displayUserRoles() {
+    // Buscar elemento donde mostrar los roles
+    const roleContainer = document.querySelector('#user-roles-container, .user-roles, [data-roles]');
+    
+    if (roleContainer && usuarioData.roles && usuarioData.roles.length > 0) {
+        // Crear lista de roles
+        const rolesList = usuarioData.roles.map(role => 
+            `<span class="role-badge">${role}</span>`
+        ).join('');
+        
+        roleContainer.innerHTML = `
+            <div class="roles-display">
+                <strong>Roles:</strong>
+                <div class="roles-list">${rolesList}</div>
+            </div>
+        `;
+        
+        // Agregar estilos inline para los badges
+        const style = document.createElement('style');
+        style.textContent = `
+            .role-badge {
+                display: inline-block;
+                background: linear-gradient(135deg, #dc2626, #991b1b);
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+                margin: 2px 4px 2px 0;
+                box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+                transition: all 0.3s ease;
+            }
+            .role-badge:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+            }
+            .roles-display {
+                margin: 10px 0;
+            }
+            .roles-list {
+                margin-top: 8px;
+            }
+        `;
+        
+        if (!document.querySelector('#role-badges-styles')) {
+            style.id = 'role-badges-styles';
+            document.head.appendChild(style);
+        }
+        
+        console.log('✅ Roles del usuario mostrados correctamente');
+    } else {
+        console.log('❌ No se encontró contenedor para roles o el usuario no tiene roles');
+    }
+}
+
+/**
  * Configurar componentes del header y sidebar
  */
 function setupComponents() {
@@ -125,7 +190,7 @@ function setupComponents() {
             window.TechHeader.updateUserInfo({
                 nombre: usuarioData.nombre || '',
                 apellido: usuarioData.apellido || '',
-                rol: usuarioData.rol || '',
+                rol: usuarioData.roles ? usuarioData.roles.join(', ') : 'Sin rol',
                 email: usuarioData.email || ''
             });
         }

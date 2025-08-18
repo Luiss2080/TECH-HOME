@@ -1059,8 +1059,19 @@
             // Preparar datos del usuario para JavaScript
             const userData = {
                 nombre: '<?= htmlspecialchars(auth() ? auth()->nombre : "") ?>',
-                apellido: '<?= htmlspecialchars(auth() ? auth()->apellido : "") ?>',
-                rol: '<?= htmlspecialchars(auth() && auth()->rol() ? auth()->rol()->nombre : "") ?>',
+                apellido: '<?= htmlspecialchars(auth() ? auth()->apellido : "") ?>',        
+                roles: JSON.stringify(<?php 
+                    if (auth()) {
+                        $userRoles = auth()->roles();
+                        $roleNames = [];
+                        foreach ($userRoles as $role) {
+                            $roleNames[] = $role['nombre'];
+                        }
+                        echo json_encode($roleNames);
+                    } else {
+                        echo json_encode(['Sin rol']);
+                    }
+                ?>),
                 email: '<?= htmlspecialchars(auth() ? auth()->email : "") ?>',
                 sessionId: '<?= session_id() ?>'
             };

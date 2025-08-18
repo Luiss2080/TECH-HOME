@@ -62,14 +62,17 @@ class AuthController extends Controller
     }
     public function verify_session()
     {
-        if (Session::has('user')) {
+        $user = auth();
+        if ($user) {
+            $roles = $user->roles();
+            $firstRole = !empty($roles) ? $roles[0]['nombre'] : null;
             return response()->json([
                 'authenticated' => true,
                 'user' => [
-                    'id' => auth()->id,
-                    'nombre' => auth()->nombre,
-                    'email' => auth()->email,
-                    'rol' => auth()->rol() ? auth()->rol()->nombre : null
+                    'id' => $user->id,
+                    'nombre' => $user->nombre,
+                    'email' => $user->email,
+                    'rol' => $firstRole
                 ]
             ]);
         }

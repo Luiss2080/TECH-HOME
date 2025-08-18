@@ -16,7 +16,7 @@ class RoleMiddleware implements Middleware
      * @var array
      */
     protected $allowedRoles = [];
-    protected $superAdminRole = 'administrador';
+    protected $superAdminRole = 'Administrador';
     /**
      * Constructor que recibe los roles permitidos
      *
@@ -62,7 +62,7 @@ class RoleMiddleware implements Middleware
                     'message' => 'No tienes permisos para acceder a este recurso.',
                     'error' => 'insufficient_permissions',
                     'required_roles' => $this->allowedRoles,
-                    'user_role' => $user->rol() ? $user->rol()->nombre : null
+                    'user_roles' => array_column($user->roles(), 'nombre')
                 ], 403);
             }
             // Para peticiones web, mostrar la página 403
@@ -84,25 +84,18 @@ class RoleMiddleware implements Middleware
      */
     protected function userHasRole($user, $allowedRoles)
     {
-        // Si el user no tiene rol, denegar acceso
-        if (!$user->rol_id) {
-            return false;
-        }
-
-        // Obtener el rol del usuario
-        $userRole = $user->rol() ?? null;
-
-        if (!$userRole) {
-            return false;
-        }
-
-        // Verificar si el nombre del rol está en los roles permitidos
-        return in_array(strtolower($userRole->nombre), array_map('strtolower', $allowedRoles));
+        // Usar el nuevo sistema de roles
+        return $user->hasAnyRole($allowedRoles);
     }
 
-
+    /**
+     * Verifica si el usuario es super admin
+     *
+     * @param User $user
+     * @return bool
+     */
     protected function isSuperAdmin($user)
     {
-        return strtolower($user->rol()->nombre) === strtolower($this->superAdminRole);
+        return $user->hasRole($this->superAdminRole);
     }
 }

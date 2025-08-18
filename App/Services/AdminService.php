@@ -10,7 +10,6 @@ class AdminService
 {
     public function showDashboard(): array
     {
-        $this->verifyPermissions();
         return [
             'estadisticas' => DashboardStats::getGeneralStats(),
             'actividades_recientes' => DashboardStats::getRecentActivities(5),
@@ -25,7 +24,6 @@ class AdminService
 
     public function getStatsForAjax(string $type = 'general'): array
     {
-        $this->verifyPermissions();
 
         switch ($type) {
             case 'general':
@@ -47,7 +45,6 @@ class AdminService
 
     public function updateMetrics(): array
     {
-        $this->verifyPermissions();
 
         if (strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') !== 'xmlhttprequest') {
             throw new Exception('Solo se permiten peticiones AJAX');
@@ -59,21 +56,6 @@ class AdminService
         ];
     }
 
-    private function verifyPermissions(): void
-    {
-        $user = auth();
-        if (!$user) {
-            redirect(route('login'));
-            exit;
-        }
-
-        $userRole = $user->rol();
-        $rol = strtolower($userRole->nombre);
-        if (!$userRole || $rol !== 'administrador') {
-            $this->redirectByRole($userRole ? $userRole->nombre : 'invitado');
-            exit;
-        }
-    }
 
     private function redirectByRole(string $role): void
     {
@@ -90,14 +72,14 @@ class AdminService
     private function getCurrentUserData(): array
     {
         $user = auth();
-        $role = $user->rol();
+        $roles = $user->roles();
 
         return [
             'id' => $user->id,
             'nombre' => $user->nombre,
             'apellido' => $user->apellido,
             'email' => $user->email,
-            'rol' => $role ? $role->nombre : 'Sin rol'
+            'roles' => $roles ? array_column($roles, 'nombre') : ['Sin rol']
         ];
     }
 
