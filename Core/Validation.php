@@ -35,6 +35,18 @@ class Validation
         return $this->errors;
     }
 
+    public function getErrors(): array
+    {
+        // Aplanar el array de errores para compatibilidad
+        $flatErrors = [];
+        foreach ($this->errors as $field => $fieldErrors) {
+            foreach ($fieldErrors as $error) {
+                $flatErrors[] = $error;
+            }
+        }
+        return $flatErrors;
+    }
+
     // 📌 Métodos de validación
     private function validateRequired(string $field, $value)
     {
@@ -46,7 +58,7 @@ class Validation
 
     private function validateEmail(string $field, $value)
     {
-        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        if ($value !== null && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
             $camp = $field;
             $this->addError($field, "El campo $camp debe ser un correo válido.");
         }
@@ -54,7 +66,7 @@ class Validation
 
     private function validateMin(string $field, $value, $minLength)
     {
-        if (strlen($value) < $minLength) {
+        if ($value !== null && strlen($value) < $minLength) {
             $camp = $field;
             $this->addError($field, "El campo $camp debe tener al menos $minLength caracteres.");
         }
@@ -62,7 +74,7 @@ class Validation
 
     private function validateMax(string $field, $value, $maxLength)
     {
-        if (strlen($value) > $maxLength) {
+        if ($value !== null && strlen($value) > $maxLength) {
             $camp = $field;
             $this->addError($field, "El campo $camp no debe superar los $maxLength caracteres.");
         }
@@ -151,6 +163,30 @@ class Validation
             $this->addError($field, "El campo $camp no es válido.");
         }
     }
+
+    private function validateSame(string $field, $value, string $otherField)
+    {
+        if ($value !== ($this->data[$otherField] ?? null)) {
+            $camp = $field;
+            $this->addError($field, "El campo $camp debe coincidir con $otherField.");
+        }
+    }
+
+    private function validateDate(string $field, $value)
+    {
+        if ($value !== null && $value !== '' && !strtotime($value)) {
+            $camp = $field;
+            $this->addError($field, "El campo $camp debe ser una fecha válida.");
+        }
+    }
+
+    private function validateNullable(string $field, $value)
+    {
+        // Esta validación permite valores nulos/vacíos
+        // No hace nada, solo existe para compatibilidad
+        return true;
+    }
+
     private function addError(string $field, string $message)
     {
         $this->errors[$field][] = $message;
