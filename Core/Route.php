@@ -63,7 +63,7 @@ class Route
      */
     public function getUri()
     {
-        return $this->uri;
+        return BASE_URL . $this->uri;
     }
 
     /**
