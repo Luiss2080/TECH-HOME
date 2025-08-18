@@ -149,13 +149,13 @@ class AdminController extends Controller
                 'nombre' => 'required|string|min:2|max:50',
                 'descripcion' => 'string|max:255'
             ];
-            
+
             if (!$validator->validate($data, $rules)) {
                 Session::flash('errors', $validator->errors());
                 Session::flash('old', $data);
                 return redirect(route('admin.roles.crear'));
             }
-            
+
             $this->adminService->createRole($data);
             Session::flash('success', 'Rol creado exitosamente');
             return redirect(route('admin.roles'));
@@ -183,22 +183,22 @@ class AdminController extends Controller
     {
         try {
             $data = $request->all();
-            
+
             // Validación de datos
             $validator = new Validation();
             $rules = [
                 'nombre' => 'required|string|min:2|max:50',
                 'descripcion' => 'string|max:255'
             ];
-            
+
             if (!$validator->validate($data, $rules)) {
                 // Guardar errores y datos old en flash
                 Session::flash('errors', $validator->errors());
                 Session::flash('old', $data);
-                
+
                 return redirect(route('admin.roles.editar', ['id' => $id]));
             }
-            
+
             $this->adminService->updateRole($id, $data);
 
             // Usar flash message en lugar de $_GET
@@ -209,7 +209,7 @@ class AdminController extends Controller
             // En caso de error del servidor
             Session::flash('errors', ['general' => [$e->getMessage()]]);
             Session::flash('old', $request->all());
-            
+
             return redirect(route('admin.roles.editar', ['id' => $id]));
         }
     }
@@ -256,22 +256,22 @@ class AdminController extends Controller
     {
         try {
             $data = $request->all();
-            
+
             // Validación de datos
             $validator = new Validation();
             $rules = [
                 'nombre' => 'required|string|min:2|max:50|unique:Permission,nombre',
                 'descripcion' => 'string|max:255'
             ];
-            
+
             if (!$validator->validate($data, $rules)) {
                 // Guardar errores y datos old en flash
                 Session::flash('errors', $validator->errors());
                 Session::flash('old', $data);
-                
+
                 return redirect(route('admin.permisos.crear'));
             }
-            
+
             $this->adminService->createPermission($data);
 
             Session::flash('success', 'Permiso creado exitosamente');
@@ -280,7 +280,7 @@ class AdminController extends Controller
             // En caso de error del servidor
             Session::flash('errors', ['general' => [$e->getMessage()]]);
             Session::flash('old', $request->all());
-            
+
             return redirect(route('admin.permisos.crear'));
         }
     }

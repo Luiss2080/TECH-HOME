@@ -8,7 +8,7 @@ $permisos = $permisos ?? [];
 $permisosAsignados = $permisosAsignados ?? [];
 
 // Crear array de IDs de permisos asignados para fácil verificación
-$permisosAsignadosIds = array_column($permisosAsignados, 'permission_id');
+$permisosAsignadosIds = array_column($permisosAsignados, 'id');
 ?>
 
 <div class="dashboard-content">
