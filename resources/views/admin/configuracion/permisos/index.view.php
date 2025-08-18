@@ -23,19 +23,19 @@ $permisos = $permisos ?? [];
     </div>
 
     <!-- Mensajes de éxito/error -->
-    <?php if (isset($_GET['success'])): ?>
+    <?php if (flashGet('success')): ?>
         <div class="alert alert-success alert-dismissible">
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             <i class="fas fa-check-circle"></i>
-            <?= htmlspecialchars($_GET['success']) ?>
+            <?= htmlspecialchars(flashGet('success')) ?>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_GET['error'])): ?>
+    <?php if (flashGet('error')): ?>
         <div class="alert alert-danger alert-dismissible">
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             <i class="fas fa-exclamation-triangle"></i>
-            <?= htmlspecialchars($_GET['error']) ?>
+            <?= htmlspecialchars(flashGet('error')) ?>
         </div>
     <?php endif; ?>
 

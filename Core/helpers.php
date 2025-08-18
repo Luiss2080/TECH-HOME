@@ -94,6 +94,13 @@ function flashGet($key)
     }
     return \Core\Session::flashGet($key);
 }
+
+function old($key, $default = '')
+{
+    $oldData = flashGet('old') ?? [];
+    return $oldData[$key] ?? $default;
+}
+
 function clearFlash()
 {
     unset($_SESSION['_flash']);

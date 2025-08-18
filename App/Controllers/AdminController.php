@@ -4,6 +4,9 @@ namespace App\Controllers;
 
 use App\Services\AdminService;
 use Core\Controller;
+use Core\Request;
+use Core\Session;
+use Core\Validation;
 use Exception;
 
 class AdminController extends Controller
@@ -30,36 +33,34 @@ class AdminController extends Controller
     public function ajaxStats()
     {
         try {
-            header('Content-Type: application/json');
-            
             $type = $_GET['tipo'] ?? 'general';
             $data = $this->adminService->getStatsForAjax($type);
-            
-            echo json_encode([
+
+            return response()->json([
                 'success' => true,
                 'data' => $data
             ]);
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode([
+            return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ]);
+            ], 500);
         }
-        exit;
     }
+
+
 
     public function refreshMetrics()
     {
         try {
             header('Content-Type: application/json');
-            
+
             if (strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') !== 'xmlhttprequest') {
                 throw new Exception('Solo se permiten peticiones AJAX');
             }
-            
+
             $stats = $this->adminService->showDashboard();
-            
+
             echo json_encode([
                 'success' => true,
                 'estadisticas' => $stats['estadisticas'],
@@ -139,25 +140,33 @@ class AdminController extends Controller
         ]);
     }
 
-    public function guardarRol($request)
+    public function guardarRol(Request $request)
     {
         try {
             $data = $request->all();
-            $this->adminService->createRole($data);
+            $validator = new Validation();
+            $rules = [
+                'nombre' => 'required|string|min:2|max:50',
+                'descripcion' => 'string|max:255'
+            ];
             
-            // Redireccionar con mensaje de éxito
-            header('Location: ' . route('admin.roles') . '?success=Rol creado exitosamente');
-            exit;
+            if (!$validator->validate($data, $rules)) {
+                Session::flash('errors', $validator->errors());
+                Session::flash('old', $data);
+                return redirect(route('admin.roles.crear'));
+            }
+            
+            $this->adminService->createRole($data);
+            Session::flash('success', 'Rol creado exitosamente');
+            return redirect(route('admin.roles'));
         } catch (Exception $e) {
-            return view('admin.configuracion.roles.crear', [
-                'title' => 'Crear Rol - Configuración',
-                'error' => $e->getMessage(),
-                'old_data' => $request->all()
-            ]);
+            Session::flash('errors', ['general' => [$e->getMessage()]]);
+            Session::flash('old', $request->all());
+            return redirect(route('admin.roles.crear'));
         }
     }
 
-    public function editarRol($request, $id)
+    public function editarRol(Request $request, $id)
     {
         try {
             $role = $this->adminService->getRoleById($id);
@@ -166,7 +175,7 @@ class AdminController extends Controller
                 'role' => $role
             ]);
         } catch (Exception $e) {
-            return view('errors.404', ['message' => 'Rol no encontrado']);
+            throw $e;
         }
     }
 
@@ -174,18 +183,34 @@ class AdminController extends Controller
     {
         try {
             $data = $request->all();
-            $this->adminService->updateRole($id, $data);
             
-            header('Location: ' . route('admin.roles') . '?success=Rol actualizado exitosamente');
-            exit;
+            // Validación de datos
+            $validator = new Validation();
+            $rules = [
+                'nombre' => 'required|string|min:2|max:50',
+                'descripcion' => 'string|max:255'
+            ];
+            
+            if (!$validator->validate($data, $rules)) {
+                // Guardar errores y datos old en flash
+                Session::flash('errors', $validator->errors());
+                Session::flash('old', $data);
+                
+                return redirect(route('admin.roles.editar', ['id' => $id]));
+            }
+            
+            $this->adminService->updateRole($id, $data);
+
+            // Usar flash message en lugar de $_GET
+            Session::flash('success', 'Rol actualizado exitosamente');
+
+            return redirect(route('admin.roles'));
         } catch (Exception $e) {
-            $role = $this->adminService->getRoleById($id);
-            return view('admin.configuracion.roles.editar', [
-                'title' => 'Editar Rol - Configuración',
-                'role' => $role,
-                'error' => $e->getMessage(),
-                'old_data' => $request->all()
-            ]);
+            // En caso de error del servidor
+            Session::flash('errors', ['general' => [$e->getMessage()]]);
+            Session::flash('old', $request->all());
+            
+            return redirect(route('admin.roles.editar', ['id' => $id]));
         }
     }
 
@@ -193,7 +218,7 @@ class AdminController extends Controller
     {
         try {
             $this->adminService->deleteRole($id);
-            
+
             header('Content-Type: application/json');
             echo json_encode(['success' => true, 'message' => 'Rol eliminado exitosamente']);
             exit;
@@ -231,16 +256,32 @@ class AdminController extends Controller
     {
         try {
             $data = $request->all();
-            $this->adminService->createPermission($data);
             
-            header('Location: ' . route('admin.permisos') . '?success=Permiso creado exitosamente');
-            exit;
+            // Validación de datos
+            $validator = new Validation();
+            $rules = [
+                'nombre' => 'required|string|min:2|max:50|unique:Permission,nombre',
+                'descripcion' => 'string|max:255'
+            ];
+            
+            if (!$validator->validate($data, $rules)) {
+                // Guardar errores y datos old en flash
+                Session::flash('errors', $validator->errors());
+                Session::flash('old', $data);
+                
+                return redirect(route('admin.permisos.crear'));
+            }
+            
+            $this->adminService->createPermission($data);
+
+            Session::flash('success', 'Permiso creado exitosamente');
+            return redirect(route('admin.permisos'));
         } catch (Exception $e) {
-            return view('admin.configuracion.permisos.crear', [
-                'title' => 'Crear Permiso - Configuración',
-                'error' => $e->getMessage(),
-                'old_data' => $request->all()
-            ]);
+            // En caso de error del servidor
+            Session::flash('errors', ['general' => [$e->getMessage()]]);
+            Session::flash('old', $request->all());
+            
+            return redirect(route('admin.permisos.crear'));
         }
     }
 
@@ -250,7 +291,7 @@ class AdminController extends Controller
             $role = $this->adminService->getRoleById($id);
             $permisos = $this->adminService->getAllPermissions();
             $permisosAsignados = $this->adminService->getPermissionsForRole($id);
-            
+
             return view('admin.configuracion.roles.permisos', [
                 'title' => 'Asignar Permisos - Configuración',
                 'role' => $role,
@@ -267,9 +308,9 @@ class AdminController extends Controller
         try {
             $permisos = $request->input('permisos', []);
             $this->adminService->syncRolePermissions($id, $permisos);
-            
-            header('Location: ' . route('admin.roles') . '?success=Permisos asignados exitosamente');
-            exit;
+
+            Session::flash('success', 'Permisos asignados exitosamente');
+            return redirect(route('admin.roles'));
         } catch (Exception $e) {
             return $this->asignarPermisos($request, $id);
         }

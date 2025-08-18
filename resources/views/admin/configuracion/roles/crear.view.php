@@ -1,7 +1,6 @@
 <?php
 $title = $title ?? 'Crear Rol - Configuración';
-$error = $error ?? null;
-$old_data = $old_data ?? [];
+$errors = flashGet('errors') ?? [];
 ?>
 
 <div class="dashboard-content">
@@ -23,12 +22,19 @@ $old_data = $old_data ?? [];
         </div>
     </div>
 
-    <!-- Mostrar error si existe -->
-    <?php if ($error): ?>
+    <!-- Mostrar errores de validación -->
+    <?php if (!empty($errors)): ?>
         <div class="alert alert-danger alert-dismissible">
             <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
             <i class="fas fa-exclamation-triangle"></i>
-            <?= htmlspecialchars($error) ?>
+            <strong>Errores de validación:</strong>
+            <ul class="mb-0 mt-2">
+                <?php foreach ($errors as $field => $fieldErrors): ?>
+                    <?php foreach ($fieldErrors as $error): ?>
+                        <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+            </ul>
         </div>
     <?php endif; ?>
 
@@ -48,15 +54,21 @@ $old_data = $old_data ?? [];
                             Nombre del Rol
                         </label>
                         <input type="text" 
-                               class="form-control" 
+                               class="form-control <?= isset($errors['nombre']) ? 'is-invalid' : '' ?>" 
                                id="nombre" 
                                name="nombre" 
-                               value="<?= htmlspecialchars($old_data['nombre'] ?? '') ?>"
+                               value="<?= htmlspecialchars(old('nombre')) ?>"
                                placeholder="Ej: supervisor, vendedor, moderador..."
                                required>
-                        <div class="invalid-feedback">
-                            Por favor, ingresa el nombre del rol.
-                        </div>
+                        <?php if (isset($errors['nombre'])): ?>
+                            <div class="invalid-feedback d-block">
+                                <?= htmlspecialchars($errors['nombre'][0]) ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="invalid-feedback">
+                                Por favor, ingresa el nombre del rol.
+                            </div>
+                        <?php endif; ?>
                         <div class="form-text">
                             El nombre debe ser único y descriptivo. Se recomienda usar minúsculas y sin espacios.
                         </div>
@@ -67,11 +79,16 @@ $old_data = $old_data ?? [];
                             <i class="fas fa-align-left"></i>
                             Descripción
                         </label>
-                        <textarea class="form-control" 
+                        <textarea class="form-control <?= isset($errors['descripcion']) ? 'is-invalid' : '' ?>" 
                                   id="descripcion" 
                                   name="descripcion" 
                                   rows="4" 
-                                  placeholder="Describe las funciones y responsabilidades de este rol..."><?= htmlspecialchars($old_data['descripcion'] ?? '') ?></textarea>
+                                  placeholder="Describe las funciones y responsabilidades de este rol..."><?= htmlspecialchars(old('descripcion')) ?></textarea>
+                        <?php if (isset($errors['descripcion'])): ?>
+                            <div class="invalid-feedback d-block">
+                                <?= htmlspecialchars($errors['descripcion'][0]) ?>
+                            </div>
+                        <?php endif; ?>
                         <div class="form-text">
                             Opcional. Proporciona una descripción clara de las funciones del rol.
                         </div>

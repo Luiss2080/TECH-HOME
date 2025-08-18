@@ -131,7 +131,6 @@ class AdminService
 
     public function createRole(array $data): bool
     {
-        // Validar que el nombre del rol no exista
         if (Role::findByName($data['nombre'])) {
             throw new Exception('Ya existe un rol con ese nombre');
         }
@@ -139,7 +138,7 @@ class AdminService
         $roleData = [
             'nombre' => trim($data['nombre']),
             'descripcion' => trim($data['descripcion'] ?? ''),
-            'guard_name' => 'web'
+            'estado' => 1
         ];
 
         $role = new Role($roleData);
@@ -154,12 +153,10 @@ class AdminService
             throw new Exception('Rol no encontrado');
         }
 
-        // Verificar que no sea un rol protegido
         if (in_array($role->nombre, ['administrador', 'docente', 'estudiante'])) {
             throw new Exception('No se puede modificar este rol del sistema');
         }
 
-        // Validar que el nuevo nombre no exista (si cambió)
         if ($role->nombre !== trim($data['nombre'])) {
             if (Role::findByName($data['nombre'])) {
                 throw new Exception('Ya existe un rol con ese nombre');
@@ -168,7 +165,8 @@ class AdminService
 
         $role->fill([
             'nombre' => trim($data['nombre']),
-            'descripcion' => trim($data['descripcion'] ?? '')
+            'descripcion' => trim($data['descripcion'] ?? ''),
+            'estado' => $data['estado'] ?? 1
         ]);
 
         $role->save();
@@ -210,14 +208,12 @@ class AdminService
 
     public function createPermission(array $data): bool
     {
-        // Validar que el nombre del permiso no exista
         if (Permission::findByName($data['nombre'])) {
             throw new Exception('Ya existe un permiso con ese nombre');
         }
 
         $permissionData = [
             'name' => trim($data['nombre']),
-            'descripcion' => trim($data['descripcion'] ?? ''),
             'guard_name' => 'web'
         ];
 

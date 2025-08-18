@@ -11,46 +11,37 @@ class Role extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
-        'guard_name'
+        'estado'
     ];
     protected $hidden = [];
-    protected $timestamps = true;
+    protected $timestamps = false;
     protected $softDeletes = false;
 
-    // Relación: usuarios que tienen este rol (sistema antiguo - para compatibilidad)
-    public function usuarios()
-    {
-        return $this->hasMany(User::class, 'rol_id', 'id');
-    }
-
-    // ==========================================
-    // MÉTODOS PARA EL NUEVO SISTEMA DE PERMISOS
-    // ==========================================
-
-    /**
-     * Obtener todos los permisos asignados a este rol
-     */
     public function permissions()
     {
-        return RoleHasPermissions::getPermissionsForRole($this->id);
+        $permissions = RoleHasPermissions::getPermissionsForRole($this->id);
+        return is_array($permissions) ? $permissions : [];
     }
 
-    /**
-     * Obtener todos los usuarios que tienen este rol (nuevo sistema)
-     */
     public function users()
     {
-        $db = \Core\DB::getInstance();
-        $query = "SELECT u.* FROM usuarios u 
-                  INNER JOIN model_has_roles mhr ON u.id = mhr.model_id 
-                  WHERE mhr.role_id = ? AND mhr.model_type = ?";
+        try {
+            $db = \Core\DB::getInstance();
+            $query = "SELECT u.* FROM usuarios u 
+                      INNER JOIN model_has_roles mhr ON u.id = mhr.model_id 
+                      WHERE mhr.role_id = ? AND mhr.model_type = ?";
 
-        $result = $db->query($query, [$this->id, 'App\\Models\\User']);
-        $result = $result ? $result->fetchAll(\PDO::FETCH_ASSOC) : [];
-        foreach ($result as &$user) {
-            $user = new User($user);
+            $result = $db->query($query, [$this->id, 'App\\Models\\User']);
+            $result = $result ? $result->fetchAll(\PDO::FETCH_ASSOC) : [];
+            
+            $users = [];
+            foreach ($result as $userData) {
+                $users[] = new User($userData);
+            }
+            return $users;
+        } catch (\Exception $e) {
+            return [];
         }
-        return $result;
     }
 
     /**
@@ -103,7 +94,6 @@ class Role extends Model
             $permissions = [$permissions];
         }
 
-        // Convertir nombres de permisos a IDs si es necesario
         $permissionIds = [];
         foreach ($permissions as $permission) {
             $permissionId = is_numeric($permission) ? $permission : $this->getPermissionIdByName($permission);
@@ -115,10 +105,6 @@ class Role extends Model
         RoleHasPermissions::syncPermissionsForRole($this->id, $permissionIds);
         return $this;
     }
-
-    // ==========================================
-    // MÉTODOS AUXILIARES PRIVADOS
-    // ==========================================
 
     /**
      * Obtener ID del permiso por nombre
@@ -136,10 +122,6 @@ class Role extends Model
 
         return null;
     }
-
-    // ==========================================
-    // SCOPES Y MÉTODOS ESTÁTICOS
-    // ==========================================
 
     /**
      * Obtener todos los roles ordenados por nombre

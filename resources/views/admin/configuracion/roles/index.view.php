@@ -23,19 +23,19 @@ $roles = $roles ?? [];
     </div>
 
     <!-- Mensajes de éxito/error -->
-    <?php if (isset($_GET['success'])): ?>
+    <?php if (flashGet('success')): ?>
         <div class="alert alert-success alert-dismissible">
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             <i class="fas fa-check-circle"></i>
-            <?= htmlspecialchars($_GET['success']) ?>
+            <?= htmlspecialchars(flashGet('success')) ?>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($_GET['error'])): ?>
+    <?php if (flashGet('error')): ?>
         <div class="alert alert-danger alert-dismissible">
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             <i class="fas fa-exclamation-triangle"></i>
-            <?= htmlspecialchars($_GET['error']) ?>
+            <?= htmlspecialchars(flashGet('error')) ?>
         </div>
     <?php endif; ?>
 
@@ -71,17 +71,38 @@ $roles = $roles ?? [];
                                 <td>
                                     <span class="users-count" data-role-id="<?= $role->id ?>">
                                         <i class="fas fa-users"></i>
-                                        <span class="count"><?= count($role->users()) ?></span>
+                                        <span class="count">
+                                            <?php
+                                            try {
+                                                $users = $role->users();
+                                                echo is_array($users) ? count($users) : 0;
+                                            } catch (Exception $e) {
+                                                echo '0';
+                                            }
+                                            ?>
+                                        </span>
                                     </span>
                                 </td>
                                 <td>
                                     <span class="permissions-count" data-role-id="<?= $role->id ?>">
                                         <i class="fas fa-key"></i>
-                                        <span class="count"><?php count($role->permissions()) ?></span>
+                                        <span class="count">
+                                            <?php
+                                            try {
+                                                $permissions = $role->permissions();
+                                                echo is_array($permissions) ? count($permissions) : 0;
+                                            } catch (Exception $e) {
+                                                echo '0';
+                                            }
+                                            ?>
+                                        </span>
                                     </span>
                                 </td>
                                 <td class="text-muted">
-                                    <?= date('d/m/Y H:i', strtotime($role->created_at ?? $role->fecha_creacion ?? 'now')) ?>
+                                    <?php 
+                                    $fecha = $role->fecha_creacion ?? date('Y-m-d H:i:s');
+                                    echo date('d/m/Y H:i', strtotime($fecha));
+                                    ?>
                                 </td>
                                 <td>
                                     <div class="action-buttons">

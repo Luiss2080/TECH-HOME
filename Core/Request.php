@@ -50,6 +50,7 @@ class Request
                 break;
         }
     }
+
     public static function getInstance(): Request
     {
         if (self::$instance === null) {
@@ -57,12 +58,17 @@ class Request
         }
         return self::$instance;
     }
+
     /**
-     * Retorna el método de la solicitud
+     * Retorna el método HTTP real o simulado via _method
      * @return string
      */
     public function method()
     {
+        // Si hay un campo _method en la petición POST, usarlo
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($this->___data['_method'])) {
+            return strtoupper($this->___data['_method']);
+        }
         return $_SERVER['REQUEST_METHOD'];
     }
     /**
