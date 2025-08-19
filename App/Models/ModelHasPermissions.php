@@ -87,4 +87,41 @@ class ModelHasPermissions extends Model
         
         return $row['count'] > 0;
     }
+
+    // Método estático para sincronizar permisos de un modelo (elimina los anteriores y asigna los nuevos)
+    public static function syncPermissionsForModel($modelType, $modelId, array $permissionIds)
+    {
+        $db = \Core\DB::getInstance();
+        $connection = $db->getConnection();
+        
+        try {
+            // Iniciar transacción
+            $connection->beginTransaction();
+            
+            // Eliminar todos los permisos actuales del modelo
+            $db->query(
+                "DELETE FROM model_has_permissions WHERE model_type = ? AND model_id = ?",
+                [$modelType, $modelId]
+            );
+            
+            // Insertar los nuevos permisos
+            if (!empty($permissionIds)) {
+                foreach ($permissionIds as $permissionId) {
+                    $db->query(
+                        "INSERT INTO model_has_permissions (permission_id, model_type, model_id) VALUES (?, ?, ?)",
+                        [$permissionId, $modelType, $modelId]
+                    );
+                }
+            }
+            
+            // Confirmar la transacción
+            $connection->commit();
+            return true;
+            
+        } catch (\Exception $e) {
+            // Revertir la transacción en caso de error
+            $connection->rollback();
+            throw $e;
+        }
+    }
 }

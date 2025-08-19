@@ -128,6 +128,13 @@
                                                     </a>
                                                 <?php endif; ?>
 
+                                                <?php if (auth()->can('admin.usuarios.permisos')): ?>
+                                                    <a href="<?= route('usuarios.permisos', ['id' => $usuario['id']]) ?>"
+                                                        class="btn btn-sm btn-outline-warning" title="Editar Permisos">
+                                                        <i class="fas fa-key"></i>
+                                                    </a>
+                                                <?php endif; ?>
+
                                                 <?php if (auth()->can('admin.usuarios.editar')): ?>
                                                     <button class="btn btn-sm btn-outline-<?= $usuario['estado'] == 1 ? 'warning' : 'success' ?>"
                                                         onclick="cambiarEstado(<?= $usuario['id'] ?>, '<?= $usuario['estado'] == 1 ? 'inactivo' : 'activo' ?>')"

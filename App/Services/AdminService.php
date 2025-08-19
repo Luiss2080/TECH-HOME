@@ -299,6 +299,38 @@ class AdminService
         return true;
     }
 
+    public function getUserPermissions(int $userId): array
+    {
+        $user = User::find($userId);
+        if (!$user) {
+            throw new Exception('Usuario no encontrado');
+        }
+
+        // Obtener permisos directos del usuario
+        $db = DB::getInstance();
+        $directPermissions = $db->query("
+            SELECT p.id, p.name, p.guard_name 
+            FROM permissions p
+            INNER JOIN model_has_permissions mhp ON p.id = mhp.permission_id
+            WHERE mhp.model_type = 'User' AND mhp.model_id = ?
+        ", [$userId])->fetchAll();
+
+        return $directPermissions;
+    }
+
+    public function updateUserPermissions(int $id, array $permissionIds): bool
+    {
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception('Usuario no encontrado');
+        }
+
+        // Sincronizar permisos (elimina permisos anteriores y asigna los nuevos)
+        $user->syncPermissions($permissionIds);
+
+        return true;
+    }
+
     public function deleteUser(int $id): bool
     {
         $user = User::find($id);

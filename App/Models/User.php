@@ -202,6 +202,27 @@ class User extends Model
     }
 
     /**
+     * Sincronizar permisos directos del usuario (elimina los anteriores y asigna los nuevos)
+     */
+    public function syncPermissions($permissions)
+    {
+        if (!is_array($permissions)) {
+            $permissions = [$permissions];
+        }
+
+        // Convertir nombres de permisos a IDs si es necesario
+        $permissionIds = [];
+        foreach ($permissions as $permission) {
+            $permissionId = is_numeric($permission) ? $permission : $this->getPermissionIdByName($permission);
+            if ($permissionId) {
+                $permissionIds[] = $permissionId;
+            }
+        }
+        ModelHasPermissions::syncPermissionsForModel('App\\Models\\User', $this->id, $permissionIds);
+        return $this;
+    }
+
+    /**
      * Dar permiso directo al usuario
      */
     public function givePermissionTo($permission)

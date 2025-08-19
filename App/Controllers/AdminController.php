@@ -370,6 +370,71 @@ class AdminController extends Controller
         }
     }
 
+    public function editarPermisosUsuario(Request $request, $id)
+    {
+        try {
+            // Verificar que el usuario existe
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
+            }
+
+            // Obtener todos los permisos disponibles
+            $permisos = $this->adminService->getAllPermissions();
+            
+            // Obtener permisos actuales del usuario
+            $permisosUsuario = $this->adminService->getUserPermissions($id);
+            
+            return view('admin.usuarios.permisos', [
+                'title' => 'Editar Permisos de Usuario',
+                'usuario' => $usuario,
+                'permisos' => $permisos,
+                'permisosUsuario' => $permisosUsuario
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar permisos: ' . $e->getMessage());
+            return redirect(route('usuarios'));
+        }
+    }
+
+    public function actualizarPermisosUsuario(Request $request, $id)
+    {
+        try {
+            // Verificar que el usuario existe
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
+            }
+
+            // Validaciones usando la clase Validation
+            $rules = [
+                'permisos' => 'array' // Los permisos pueden ser un array vacío
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->getErrors());
+                return redirect(route('usuarios.permisos', ['id' => $id]));
+            }
+
+            // Obtener permisos del request
+            $permisos = $request->input('permisos', []);
+
+            // Actualizar permisos del usuario
+            $this->adminService->updateUserPermissions($id, $permisos);
+
+            Session::flash('success', 'Permisos actualizados exitosamente.');
+            return redirect(route('usuarios'));
+            
+        } catch (Exception $e) {
+            throw $e;
+            Session::flash('error', 'Error al actualizar permisos: ' . $e->getMessage());
+            return redirect(route('usuarios.permisos', ['id' => $id]));
+        }
+    }
+
     public function cambiarEstadoUsuario(Request $request, $id)
     {
         try {

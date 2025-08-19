@@ -108,6 +108,15 @@ Router::put('/admin/usuarios/{id}/roles', [AdminController::class, 'actualizarRo
     ->name('usuarios.roles.update')
     ->middleware('role:administrador|has:admin.usuarios.roles');
 
+// Rutas para editar permisos de usuarios
+Router::get('/admin/usuarios/{id}/permisos', [AdminController::class, 'editarPermisosUsuario'])
+    ->name('usuarios.permisos')
+    ->middleware('role:administrador|has:admin.usuarios.permisos');
+
+Router::put('/admin/usuarios/{id}/permisos', [AdminController::class, 'actualizarPermisosUsuario'])
+    ->name('usuarios.permisos.update')
+    ->middleware('role:administrador|has:admin.usuarios.permisos');
+
 Router::post('/admin/usuarios/{id}/estado', [AdminController::class, 'cambiarEstadoUsuario'])
     ->name('usuarios.estado')
     ->middleware('role:administrador|has:admin.usuarios.editar');
