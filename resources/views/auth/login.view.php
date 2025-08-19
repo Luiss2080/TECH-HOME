@@ -100,7 +100,7 @@
                         <input type="checkbox" class="checkbox" id="remember">
                         <span>Recordarme</span>
                     </label>
-                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                    <a href="<?= route('password.forgot') ?>" class="forgot-password">¿Olvidaste tu contraseña?</a>
                 </div>
 
                 <button type="submit" class="login-btn">

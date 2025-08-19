@@ -10,6 +10,10 @@ function asset($path)
     // Retorna la ruta completa al recurso
     return $baseUrl . $path;
 }
+function url($path = '')
+{
+    return getBaseUrl() . BASE_URL . '/public/' . ltrim($path, '/');
+}
 
 function loadEnv($path)
 {

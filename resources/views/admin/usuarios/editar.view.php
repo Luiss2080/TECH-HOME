@@ -144,12 +144,12 @@
                                 <?php foreach ($roles as $rol): ?>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox"
-                                            id="role_<?= $rol['id'] ?>" name="roles[]"
-                                            value="<?= $rol['id'] ?>"
-                                            <?= in_array($rol['id'], old('roles', $usuarioRoles)) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="role_<?= $rol['id'] ?>">
-                                            <?= htmlspecialchars($rol['nombre']) ?>
-                                            <small class="text-muted d-block"><?= htmlspecialchars($rol['descripcion']) ?></small>
+                                            id="role_<?= $rol->id ?>" name="roles[]"
+                                            value="<?= $rol->id ?>"
+                                            <?= in_array($rol->id, old('roles', $usuarioRoles)) ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="role_<?= $rol->id ?>">
+                                            <?= htmlspecialchars($rol->nombre) ?>
+                                            <small class="text-muted d-block"><?= htmlspecialchars($rol->descripcion) ?></small>
                                         </label>
                                     </div>
                                 <?php endforeach; ?>
@@ -179,38 +179,38 @@
                     </div>
                 </div>
             </div>
-        </form>
+            </form>
         </div>
 
-<script>
-    // Validación del formulario
-    document.getElementById('form-usuario').addEventListener('submit', function(e) {
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('password_confirmation').value;
+        <script>
+            // Validación del formulario
+            document.getElementById('form-usuario').addEventListener('submit', function(e) {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('password_confirmation').value;
 
-        // Solo validar contraseñas si se proporciona una nueva
-        if (password || confirmPassword) {
-            if (password !== confirmPassword) {
-                e.preventDefault();
-                alert('Las contraseñas no coinciden');
-                return false;
-            }
+                // Solo validar contraseñas si se proporciona una nueva
+                if (password || confirmPassword) {
+                    if (password !== confirmPassword) {
+                        e.preventDefault();
+                        alert('Las contraseñas no coinciden');
+                        return false;
+                    }
 
-            if (password.length < 8) {
-                e.preventDefault();
-                alert('La contraseña debe tener al menos 8 caracteres');
-                return false;
-            }
-        }
+                    if (password.length < 8) {
+                        e.preventDefault();
+                        alert('La contraseña debe tener al menos 8 caracteres');
+                        return false;
+                    }
+                }
 
-        // Verificar que al menos un rol esté seleccionado
-        const rolesSeleccionados = document.querySelectorAll('input[name="roles[]"]:checked');
-        if (rolesSeleccionados.length === 0) {
-            e.preventDefault();
-            alert('Debe seleccionar al menos un rol');
-            return false;
-        }
-    });
-</script>
+                // Verificar que al menos un rol esté seleccionado
+                const rolesSeleccionados = document.querySelectorAll('input[name="roles[]"]:checked');
+                if (rolesSeleccionados.length === 0) {
+                    e.preventDefault();
+                    alert('Debe seleccionar al menos un rol');
+                    return false;
+                }
+            });
+        </script>
 
-</div>
+    </div>

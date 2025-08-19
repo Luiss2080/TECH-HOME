@@ -20,6 +20,12 @@ Router::get('/', [HomeController::class, 'index'])
 Router::get('/login', [AuthController::class, 'login'])->name('login');
 Router::post('/login', [AuthController::class, 'loginForm'])->name('login.loginForm');
 
+// Rutas para recuperación de contraseña
+Router::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.forgot');
+Router::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+Router::get('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+Router::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
+
 Router::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
