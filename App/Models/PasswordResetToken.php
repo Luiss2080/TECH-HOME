@@ -81,7 +81,8 @@ class PasswordResetToken extends Model
         }
         
         $resetToken->used = 1;
-        return $resetToken->save();
+        $result = $resetToken->save();
+        return $result !== false;
     }
 
     /**

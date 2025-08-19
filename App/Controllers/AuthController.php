@@ -198,13 +198,12 @@ class AuthController extends Controller
 
         try {
             // Actualizar contraseña del usuario
-            $users = User::where('email', $email);
-            if (empty($users)) {
+            $user = User::where('email', $email)->first();
+            if (empty($user)) {
                 Session::flash('error', 'Usuario no encontrado.');
                 return redirect(route('login'));
             }
 
-            $user = $users[0];
             $user->password = password_hash($password, PASSWORD_DEFAULT);
             $user->save();
 
