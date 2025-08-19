@@ -86,7 +86,7 @@ $errors = flashGet('errors') ?? [];
         </div>
         <div class="card-body">
             <form method="POST" action="<?= route('usuarios.permisos.update', ['id' => $usuario->id]); ?>">
-                <?= csrf_token() ?>
+                <?= CSRF() ?>
                 <input type="hidden" name="_method" value="PUT">
                 
                 <!-- Grid de permisos -->
@@ -106,7 +106,7 @@ $errors = flashGet('errors') ?? [];
                     // Array de permisos actuales del usuario para facilitar la verificación
                     $permisosActuales = [];
                     foreach ($permisosUsuario as $permiso) {
-                        $permisosActuales[] = $permiso->id;
+                        $permisosActuales[] = $permiso['id'];
                     }
                     ?>
                     

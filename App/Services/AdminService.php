@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\DashboardStats;
+use App\Models\ModelHasPermissions;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
@@ -306,16 +307,8 @@ class AdminService
             throw new Exception('Usuario no encontrado');
         }
 
-        // Obtener permisos directos del usuario
-        $db = DB::getInstance();
-        $directPermissions = $db->query("
-            SELECT p.id, p.name, p.guard_name 
-            FROM permissions p
-            INNER JOIN model_has_permissions mhp ON p.id = mhp.permission_id
-            WHERE mhp.model_type = 'User' AND mhp.model_id = ?
-        ", [$userId])->fetchAll();
-
-        return $directPermissions;
+        // Obtener permisos directos del usuario usando el mismo método que el modelo User
+        return ModelHasPermissions::getPermissionsForModel('App\\Models\\User', $userId);
     }
 
     public function updateUserPermissions(int $id, array $permissionIds): bool
