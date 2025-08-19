@@ -19,7 +19,22 @@ try {
     echo "📧 Destinatario: $testEmail\n";
     echo "🔐 Token: $resetToken\n";
     echo "🚀 Servicio: " . ($_ENV['MAIL_SERVICE_CLASS'] ?? 'SimpleMailService') . "\n";
-    echo "⏳ Enviando...\n\n";
+    
+    // Verificar configuración antes del test
+    echo "\n🔧 CONFIGURACIÓN:\n";
+    echo "   Host: " . ($_ENV['MAIL_HOST'] ?? 'NO CONFIGURADO') . "\n";
+    echo "   Puerto: " . ($_ENV['MAIL_PORT'] ?? 'NO CONFIGURADO') . "\n";
+    echo "   Usuario: " . ($_ENV['MAIL_USERNAME'] ?? 'NO CONFIGURADO') . "\n";
+    echo "   Password: " . (!empty($_ENV['MAIL_PASSWORD']) ? '✅ Configurado' : '❌ VACÍO') . "\n";
+    echo "   From: " . ($_ENV['MAIL_FROM_ADDRESS'] ?? 'NO CONFIGURADO') . "\n";
+    
+    if (empty($_ENV['MAIL_PASSWORD'])) {
+        echo "\n❌ ERROR: MAIL_PASSWORD está vacío en el archivo .env\n";
+        echo "   Por favor configura la contraseña del servidor SMTP\n";
+        exit(1);
+    }
+    
+    echo "\n⏳ Enviando...\n";
 
     $startTime = microtime(true);
     
@@ -37,10 +52,12 @@ try {
     } else {
         echo "❌ Error enviando email\n";
         echo "⏱️  Tiempo: {$duration}ms\n";
+        echo "💡 Revisa los logs de PHP para más detalles\n";
     }
 
 } catch (Exception $e) {
     echo "❌ ERROR: " . $e->getMessage() . "\n";
+    echo "🔍 Archivo: " . $e->getFile() . ":" . $e->getLine() . "\n";
 }
 
 echo "\n========================================\n";

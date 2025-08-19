@@ -60,7 +60,27 @@ abstract class BaseEmailService implements MailServiceInterface
                 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
                 .header { background: #007bff; color: white; padding: 20px; text-align: center; }
                 .content { background: #f8f9fa; padding: 30px; border-radius: 5px; margin: 20px 0; }
-                .button { display: inline-block; background: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+                .button { 
+                    display: inline-block; 
+                    background: #007bff; 
+                    color: white !important; 
+                    padding: 15px 30px; 
+                    text-decoration: none !important; 
+                    border-radius: 8px; 
+                    margin: 20px 0; 
+                    font-weight: bold;
+                    font-size: 16px;
+                    border: none;
+                    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+                }
+                .button:hover { 
+                    background: #0056b3; 
+                    color: white !important;
+                    text-decoration: none !important;
+                    box-shadow: 0 4px 8px rgba(0,123,255,0.4);
+                }
+                a { color: #007bff; }
+                a.button { color: white !important; }
                 .footer { text-align: center; color: #666; font-size: 12px; padding: 20px; }
                 .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0; color: #856404; }
             </style>
@@ -78,7 +98,7 @@ abstract class BaseEmailService implements MailServiceInterface
                     <p>Haz clic en el siguiente botón para crear una nueva contraseña:</p>
                     
                     <div style='text-align: center;'>
-                        <a href='$resetUrl' class='button'>Restablecer Contraseña</a>
+                        <a href='$resetUrl' class='button' style='color: white !important; text-decoration: none !important;'>Restablecer Contraseña</a>
                     </div>
                     
                     <div class='warning'>
