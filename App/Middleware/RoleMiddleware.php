@@ -100,7 +100,6 @@ class RoleMiddleware implements Middleware
         if (!empty($this->allowedRoles) && $this->userHasRole($user, $this->allowedRoles)) {
             return true;
         }
-
         // Verificar permisos
         if (!empty($this->allowedPermissions) && $this->userHasPermission($user, $this->allowedPermissions)) {
             return true;

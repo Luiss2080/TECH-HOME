@@ -41,75 +41,75 @@ Router::get('/admin/configuracion', [AdminController::class, 'configuracion'])
 // Rutas para gestión de roles y permisos
 Router::get('/admin/configuracion/roles', [AdminController::class, 'roles'])
     ->name('admin.roles')
-    ->middleware('role:administrador|has:configuracion.roles');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::get('/admin/configuracion/roles/crear', [AdminController::class, 'crearRol'])
     ->name('admin.roles.crear')
-    ->middleware('role:administrador|has:configuracion.roles');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::post('/admin/configuracion/roles', [AdminController::class, 'guardarRol'])
     ->name('admin.roles.store')
-    ->middleware('role:administrador|has:configuracion.roles');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::get('/admin/configuracion/roles/{id}/editar', [AdminController::class, 'editarRol'])
     ->name('admin.roles.editar')
-    ->middleware('role:administrador|has:configuracion.roles');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::put('/admin/configuracion/roles/{id}', [AdminController::class, 'actualizarRol'])
     ->name('admin.roles.update')
-    ->middleware('role:administrador|has:configuracion.roles');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::delete('/admin/configuracion/roles/{id}', [AdminController::class, 'eliminarRol'])
     ->name('admin.roles.delete')
-    ->middleware('role:administrador|has:configuracion.roles');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::get('/admin/configuracion/permisos', [AdminController::class, 'permisos'])
     ->name('admin.permisos')
-    ->middleware('role:administrador|has:configuracion.permisos');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::get('/admin/configuracion/roles/{id}/permisos', [AdminController::class, 'asignarPermisos'])
     ->name('admin.roles.permisos')
-    ->middleware('role:administrador|has:configuracion.permisos');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::post('/admin/configuracion/roles/{id}/permisos', [AdminController::class, 'guardarPermisosRol'])
     ->name('admin.roles.permisos.store')
-    ->middleware('role:administrador|has:configuracion.permisos');
+    ->middleware('role:administrador|has:admin.configuracion');
 
 Router::get('/admin/usuarios', [AdminController::class, 'usuarios'])
     ->name('usuarios')
-    ->middleware('role:administrador|has:usuarios.ver');
+    ->middleware('role:administrador|has:admin.usuarios.ver');
 
 Router::get('/admin/usuarios/crear', [AdminController::class, 'crearUsuario'])
     ->name('usuarios.crear')
-    ->middleware('role:administrador|has:usuarios.crear');
+    ->middleware('role:administrador|has:admin.usuarios.crear');
 
 Router::post('/admin/usuarios', [AdminController::class, 'guardarUsuario'])
     ->name('usuarios.store')
-    ->middleware('role:administrador|has:usuarios.crear');
+    ->middleware('role:administrador|has:admin.usuarios.crear');
 
 Router::get('/admin/usuarios/{id}/editar', [AdminController::class, 'editarUsuario'])
     ->name('usuarios.editar')
-    ->middleware('role:administrador|has:usuarios.editar');
+    ->middleware('role:administrador|has:admin.usuarios.editar');
 
 Router::put('/admin/usuarios/{id}', [AdminController::class, 'actualizarUsuario'])
     ->name('usuarios.update')
-    ->middleware('role:administrador|has:usuarios.editar');
+    ->middleware('role:administrador|has:admin.usuarios.editar');
 
 Router::delete('/admin/usuarios/{id}', [AdminController::class, 'eliminarUsuario'])
     ->name('usuarios.delete')
-    ->middleware('role:administrador|has:usuarios.eliminar');
+    ->middleware('role:administrador|has:admin.usuarios.eliminar');
 
 Router::post('/admin/usuarios/{id}/estado', [AdminController::class, 'cambiarEstadoUsuario'])
     ->name('usuarios.estado')
-    ->middleware('role:administrador|has:usuarios.editar');
+    ->middleware('role:administrador|has:admin.usuarios.editar');
 
 Router::get('/admin/ventas', [AdminController::class, 'ventas'])
     ->name('ventas')
-    ->middleware('role:administrador|has:ventas.ver');
+    ->middleware('role:administrador|has:admin.ventas.ver');
 
 Router::get('/admin/ventas/crear', [AdminController::class, 'crearVenta'])
     ->name('ventas.crear')
-    ->middleware('role:administrador|has:ventas.crear');
+    ->middleware('role:administrador|has:admin.ventas.crear');
 
 Router::get('/estudiantes/dashboard', [EstudianteController::class, 'estudiantes'])
     ->name('estudiantes')
@@ -153,8 +153,8 @@ Router::get('/docente/dashboard', [DocenteController::class, 'dashboard'])
     ->middleware('role:docente|has:docente.dashboard');
 
 // Ejemplo de ruta que solo verifica permisos específicos
-// Un estudiante monitor podría tener el permiso 'reportes.basicos.ver'
+// Un estudiante monitor podría tener el permiso 'admin.reportes'
 // sin necesidad de ser docente o administrador
 Router::get('/reportes/basicos', [AdminController::class, 'reportesBasicos'])
     ->name('reportes.basicos')
-    ->middleware('has:reportes.basicos.ver');
+    ->middleware('has:admin.reportes');

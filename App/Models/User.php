@@ -118,7 +118,6 @@ class User extends Model
     {
         $permissionId = is_numeric($permission) ? $permission : $this->getPermissionIdByName($permission);
         if (!$permissionId) return false;
-        
         // Verificar permiso directo
         if (ModelHasPermissions::modelHasPermission('App\\Models\\User', $this->id, $permissionId)) {
             return true;
@@ -283,16 +282,8 @@ class User extends Model
      */
     private function getPermissionIdByName($permissionName)
     {
-        $db = \Core\DB::getInstance();
-        $query = "SELECT id FROM permissions WHERE name = ? LIMIT 1";
-        $result = $db->query($query, [$permissionName]);
-
-        if ($result) {
-            $row = $result->fetch(\PDO::FETCH_ASSOC);
-            return $row ? $row['id'] : null;
-        }
-
-        return null;
+        $permission = Permission::where('name', '=', $permissionName)->first();
+        return $permission ? $permission->id : null;
     }
 
     /**
