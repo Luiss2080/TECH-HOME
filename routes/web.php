@@ -99,6 +99,15 @@ Router::delete('/admin/usuarios/{id}', [AdminController::class, 'eliminarUsuario
     ->name('usuarios.delete')
     ->middleware('role:administrador|has:admin.usuarios.eliminar');
 
+// Ruta para editar roles de usuarios
+Router::get('/admin/usuarios/{id}/roles', [AdminController::class, 'editarRolesUsuario'])
+    ->name('usuarios.roles')
+    ->middleware('role:administrador|has:admin.usuarios.roles');
+
+Router::put('/admin/usuarios/{id}/roles', [AdminController::class, 'actualizarRolesUsuario'])
+    ->name('usuarios.roles.update')
+    ->middleware('role:administrador|has:admin.usuarios.roles');
+
 Router::post('/admin/usuarios/{id}/estado', [AdminController::class, 'cambiarEstadoUsuario'])
     ->name('usuarios.estado')
     ->middleware('role:administrador|has:admin.usuarios.editar');

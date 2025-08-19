@@ -121,6 +121,13 @@
                                                     </a>
                                                 <?php endif; ?>
 
+                                                <?php if (auth()->can('admin.usuarios.roles')): ?>
+                                                    <a href="<?= route('usuarios.roles', ['id' => $usuario['id']]) ?>"
+                                                        class="btn btn-sm btn-outline-info" title="Editar Roles">
+                                                        <i class="fas fa-user-cog"></i>
+                                                    </a>
+                                                <?php endif; ?>
+
                                                 <?php if (auth()->can('admin.usuarios.editar')): ?>
                                                     <button class="btn btn-sm btn-outline-<?= $usuario['estado'] == 1 ? 'warning' : 'success' ?>"
                                                         onclick="cambiarEstado(<?= $usuario['id'] ?>, '<?= $usuario['estado'] == 1 ? 'inactivo' : 'activo' ?>')"

@@ -284,6 +284,21 @@ class AdminService
         return true;
     }
 
+    /**
+     * Actualizar solo los roles de un usuario
+     */
+    public function updateUserRoles(int $id, array $roleIds): bool
+    {
+        $user = User::find($id);
+        if (!$user) {
+            throw new Exception('Usuario no encontrado');
+        }
+        // Sincronizar roles (elimina roles anteriores y asigna los nuevos)
+        $user->syncRoles($roleIds);
+
+        return true;
+    }
+
     public function deleteUser(int $id): bool
     {
         $user = User::find($id);

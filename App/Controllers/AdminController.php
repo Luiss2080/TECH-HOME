@@ -298,6 +298,78 @@ class AdminController extends Controller
         }
     }
 
+    /**
+     * Mostrar formulario para editar roles de un usuario
+     */
+    public function editarRolesUsuario(Request $request, $id)
+    {
+        try {
+            // Verificar que el usuario existe
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
+            }
+
+            // Obtener todos los roles disponibles y los roles del usuario
+            $rolesDisponibles = $this->adminService->getAllRoles();
+            $rolesUsuario = $this->adminService->getUserRoles($id);
+
+            // Convertir roles del usuario a un array de IDs para facilitar la comparación
+            $rolesUsuarioIds = array_column($rolesUsuario, 'id');
+            $title = 'Editar Roles - Usuario: ' . $usuario->nombre . ' ' . $usuario->apellido;
+            return view('admin.usuarios.roles', [
+                'usuario' => $usuario,
+                'rolesDisponibles' => $rolesDisponibles,
+                'rolesUsuario' => $rolesUsuarioIds,
+                'title' => $title
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar la página: ' . $e->getMessage());
+            return redirect(route('usuarios'));
+        }
+    }
+
+    /**
+     * Actualizar roles de un usuario
+     */
+    public function actualizarRolesUsuario(Request $request, $id)
+    {
+        try {
+            // Verificar que el usuario existe
+            $usuario = $this->adminService->getUserById($id);
+            if (!$usuario) {
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
+            }
+
+            // Validaciones usando la clase Validation
+            $rules = [
+                'roles' => 'array' // Los roles pueden ser un array vacío
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->getErrors());
+                return redirect(route('usuarios.roles', ['id' => $id]));
+            }
+
+            // Obtener roles del request
+            $roles = $request->input('roles', []);
+
+            // Actualizar roles del usuario
+            $this->adminService->updateUserRoles($id, $roles);
+
+            Session::flash('success', 'Roles actualizados exitosamente.');
+            return redirect(route('usuarios'));
+            
+        } catch (Exception $e) {
+            throw $e;
+            Session::flash('error', 'Error al actualizar roles: ' . $e->getMessage());
+            return redirect(route('usuarios.roles', ['id' => $id]));
+        }
+    }
+
     public function cambiarEstadoUsuario(Request $request, $id)
     {
         try {

@@ -197,7 +197,6 @@ class User extends Model
                 $roleIds[] = $roleId;
             }
         }
-
         ModelHasRoles::syncRolesForModel('App\\Models\\User', $this->id, $roleIds);
         return $this;
     }
