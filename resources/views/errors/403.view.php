@@ -1,11 +1,15 @@
 <?php
 // Obtener información del usuario actual para personalizar el mensaje
 $user = auth();
-$userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónimo';
+$allRoles = $user ? ($user->roles() ? $user->roles() : []) : [];
+$isAdmin = $user && in_array('admin', array_column($allRoles, 'nombre'));
+$isEstudiante = $user && in_array('estudiante', array_column($allRoles, 'nombre'));
+$isDocente = $user && in_array('docente', array_column($allRoles, 'nombre'));
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,6 +26,7 @@ $userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónim
             justify-content: center;
             margin: 0;
         }
+
         .error-container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -31,27 +36,32 @@ $userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónim
             max-width: 500px;
             width: 90%;
         }
+
         .error-icon {
             font-size: 4rem;
             color: #dc3545;
             margin-bottom: 1rem;
         }
+
         .error-code {
             font-size: 3rem;
             font-weight: bold;
             color: #dc3545;
             margin-bottom: 1rem;
         }
+
         .error-title {
             font-size: 1.5rem;
             color: #333;
             margin-bottom: 1rem;
         }
+
         .error-message {
             color: #666;
             margin-bottom: 2rem;
             line-height: 1.6;
         }
+
         .user-info {
             background: #f8f9fa;
             border-radius: 10px;
@@ -59,6 +69,7 @@ $userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónim
             margin-bottom: 2rem;
             border-left: 4px solid #ffc107;
         }
+
         .btn-home {
             background: linear-gradient(45deg, #667eea, #764ba2);
             border: none;
@@ -71,12 +82,14 @@ $userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónim
             gap: 0.5rem;
             transition: all 0.3s ease;
         }
+
         .btn-home:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
             color: white;
             text-decoration: none;
         }
+
         .btn-back {
             background: #6c757d;
             border: none;
@@ -90,11 +103,13 @@ $userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónim
             margin-left: 1rem;
             transition: all 0.3s ease;
         }
+
         .btn-back:hover {
             background: #5a6268;
             color: white;
             text-decoration: none;
         }
+
         .role-badge {
             background: #007bff;
             color: white;
@@ -105,58 +120,61 @@ $userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónim
         }
     </style>
 </head>
+
 <body>
     <div class="error-container">
         <div class="error-icon">
             <i class="bi bi-shield-x"></i>
         </div>
-        
+
         <div class="error-code">403</div>
-        
+
         <h1 class="error-title">Acceso Denegado</h1>
-        
+
         <p class="error-message">
             Lo sentimos, no tienes los permisos necesarios para acceder a esta página.
         </p>
-        
+
         <?php if ($user): ?>
-        <div class="user-info">
-            <strong>Usuario actual:</strong> <?= htmlspecialchars($user->nombre . ' ' . $user->apellido) ?><br>
-            <strong>Rol:</strong> <span class="role-badge"><?= htmlspecialchars(ucfirst($userRole)) ?></span>
-        </div>
+            <div class="user-info">
+                <strong>Usuario actual:</strong> <?= htmlspecialchars($user->nombre . ' ' . $user->apellido) ?><br>
+                <?php foreach ($allRoles as $role): ?>
+                    <span class="role-badge"><?= htmlspecialchars(ucfirst($role['nombre'])) ?></span>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
-        
+
         <div class="error-message">
-            <?php if ($userRole === 'estudiante'): ?>
+            <?php if ($isEstudiante): ?>
                 <p><i class="bi bi-info-circle text-info"></i> Como estudiante, tienes acceso a cursos, materiales de estudio y tu progreso académico.</p>
-            <?php elseif ($userRole === 'docente'): ?>
+            <?php elseif ($isDocente): ?>
                 <p><i class="bi bi-info-circle text-info"></i> Como docente, puedes gestionar cursos, estudiantes y materiales, pero no funciones administrativas.</p>
-            <?php elseif ($userRole === 'administrador'): ?>
+            <?php elseif ($isAdmin): ?>
                 <p><i class="bi bi-exclamation-triangle text-warning"></i> Aunque eres administrador, esta página específica podría tener restricciones adicionales.</p>
             <?php else: ?>
                 <p><i class="bi bi-person-x text-muted"></i> Por favor, contacta al administrador para obtener los permisos adecuados.</p>
             <?php endif; ?>
         </div>
-        
+
         <div class="mt-4">
-            <a href="<?= route('dashboard') ?>" class="btn-home">
+            <a href="<?= route(Dashboard()) ?>" class="btn-home">
                 <i class="bi bi-house-door"></i>
                 Ir al Dashboard
             </a>
-            
+
             <a href="javascript:history.back()" class="btn-back">
                 <i class="bi bi-arrow-left"></i>
                 Volver
             </a>
         </div>
-        
+
         <?php if (flashGet('error')): ?>
-        <div class="alert alert-danger mt-3" role="alert">
-            <i class="bi bi-exclamation-triangle"></i>
-            <?= htmlspecialchars(flashGet('error')) ?>
-        </div>
+            <div class="alert alert-danger mt-3" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <?= htmlspecialchars(flashGet('error')) ?>
+            </div>
         <?php endif; ?>
-        
+
         <div class="mt-4">
             <small class="text-muted">
                 Si crees que esto es un error, contacta al administrador del sistema.
@@ -166,4 +184,5 @@ $userRole = $user ? ($user->rol() ? $user->rol()->nombre : 'sin rol') : 'anónim
 
     <script src="<?= BASE_URL ?>/public/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
