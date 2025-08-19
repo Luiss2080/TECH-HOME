@@ -119,16 +119,12 @@ class AdminService
     public function getAllRoles(): array
     {
         // Usar el modelo en lugar de consulta SQL directa
-        $roles = Role::all();
-        return array_map(function ($role) {
-            return $role->getAttributes();
-        }, $roles);
+        return Role::all();
     }
 
-    public function getRoleById(int $id): ?array
+    public function getRoleById(int $id): Role|null
     {
-        $role = Role::find($id);
-        return $role ? $role->getAttributes() : null;
+        return Role::find($id);
     }
 
     public function createRole(array $data): bool
@@ -317,11 +313,7 @@ class AdminService
 
     public function getAllPermissions(): array
     {
-        // Usar el modelo en lugar de consulta SQL directa
-        $permissions = Permission::all();
-        return array_map(function ($permission) {
-            return $permission->getAttributes();
-        }, $permissions);
+        return Permission::all();
     }
 
     public function getPermissionsForRole(int $roleId): array
