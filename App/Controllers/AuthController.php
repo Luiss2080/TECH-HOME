@@ -120,8 +120,8 @@ class AuthController extends Controller
             // Crear token de recuperación
             $token = \App\Models\PasswordResetToken::createToken($email);
 
-            // Enviar email
-            $emailService = new \App\Services\EmailService();
+            // Enviar email usando el helper
+            $emailService = mailService();
             $sent = $emailService->sendPasswordResetEmail($email, $token);
 
             if ($sent) {

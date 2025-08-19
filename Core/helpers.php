@@ -278,3 +278,11 @@ function Dashboard()
 {
     return \App\Models\User::Dashboard();
 }
+
+/**
+ * Helper para crear instancia del servicio de email
+ */
+function mailService()
+{
+    return \App\Services\MailServiceFactory::create();
+}

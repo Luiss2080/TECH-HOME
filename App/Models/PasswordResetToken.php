@@ -24,8 +24,9 @@ class PasswordResetToken extends Model
         // Generar token único
         $token = bin2hex(random_bytes(32));
         
-        // Fecha de expiración (15 minutos)
-        $expiresAt = date('Y-m-d H:i:s', time() + (15 * 60));
+        // Fecha de expiración (configurable desde .env, por defecto 15 minutos)
+        $tokenExpirationMinutes = $_ENV['PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES'] ?? 15;
+        $expiresAt = date('Y-m-d H:i:s', time() + ($tokenExpirationMinutes * 60));
         
         // Eliminar tokens anteriores para este email
         $db = \Core\DB::getInstance();

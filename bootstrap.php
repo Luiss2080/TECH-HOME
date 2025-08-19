@@ -15,7 +15,9 @@ date_default_timezone_set('America/La_Paz');
 foreach (glob(BASE_PATH  . 'Core' . DIRECTORY_SEPARATOR . '*.php') as $coreFile) {
     require_once $coreFile;
 }
-
+require BASE_PATH . 'resources' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Exception.php';
+require BASE_PATH . 'resources' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'PHPMailer.php';
+require BASE_PATH . 'resources' . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'SMTP.php';
 // Función de autocarga para clases con namespace
 spl_autoload_register(function ($className) {
     // Convertir el namespace a ruta de archivo
