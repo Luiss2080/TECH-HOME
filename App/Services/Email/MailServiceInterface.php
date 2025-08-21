@@ -15,6 +15,11 @@ interface MailServiceInterface
     public function sendPasswordResetEmail(string $email, string $token): bool;
     
     /**
+     * Enviar email de bienvenida
+     */
+    public function sendWelcomeEmail($user): bool;
+    
+    /**
      * Probar conexión del servicio
      */
     public function testConnection(): bool;

@@ -48,7 +48,7 @@ class PHPMailerService extends BaseEmailService
             $mail->Timeout = 30;
 
             $result = $mail->send();
-            
+
             if ($result) {
                 error_log("PHPMailerService: Email enviado exitosamente a $to");
                 return true;
@@ -56,12 +56,8 @@ class PHPMailerService extends BaseEmailService
                 error_log("PHPMailerService: Error enviando email - " . $mail->ErrorInfo);
                 return false;
             }
-
         } catch (Exception $e) {
             error_log("PHPMailerService: Excepción enviando email - " . $e->getMessage());
-            return false;
-        } catch (\Exception $e) {
-            error_log("PHPMailerService: Error general enviando email - " . $e->getMessage());
             return false;
         }
     }
@@ -95,7 +91,7 @@ class PHPMailerService extends BaseEmailService
 
             // Test de conexión usando SMTPConnect
             $connected = $mail->smtpConnect();
-            
+
             if ($connected) {
                 $mail->smtpClose();
                 error_log("PHPMailerService: Test de conexión exitoso");
@@ -104,7 +100,6 @@ class PHPMailerService extends BaseEmailService
                 error_log("PHPMailerService: Test de conexión falló - " . $mail->ErrorInfo);
                 return false;
             }
-
         } catch (Exception $e) {
             error_log("PHPMailerService: Error en test de conexión - " . $e->getMessage());
             return false;
