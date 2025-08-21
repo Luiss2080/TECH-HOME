@@ -24,14 +24,14 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
     <!-- Estilos base -->
     <link rel="stylesheet" href="<?= asset('css/admin/admin.css') ?>">
     <meta name="author" content="Desarrollado por estudiantes de la UPDS">
-    <link rel="icon" href="<?= asset('public/faviconTH.png') ?>" type="image/png">
+    <link rel="icon" href="<?= asset('faviconTH.png') ?>" type="image/png">
 
     <!-- Etiquetas meta para descripción y compatibilidad con WhatsApp -->
     <meta name="description" content="Tech Home Bolivia: Una plataforma educativa que simula un entorno de estudio, venta de libros y herramientas, además de ofrecer cursos especializados.">
     <meta property="og:title" content="Tech Home Bolivia">
     <meta property="og:description" content="Explora nuestra plataforma educativa para estudiar, comprar libros y herramientas, y realizar cursos especializados.">
-    <meta property="og:image" content="<?= asset('public/faviconTH.png') ?>">
-    <meta property="og:url" content="<?= url('/') ?>">
+    <meta property="og:image" content="<?= asset('faviconTH.png') ?>">
+    <meta property="og:url" content="<?= $_ENV['APP_URL'] ?>">
     <meta name="twitter:card" content="summary_large_image">
 </head>
 
