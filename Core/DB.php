@@ -90,6 +90,41 @@ class DB
     {
         return $this->connection;
     }
+    public static function beginTransaction()
+    {
+        return self::getInstance()->getConnection()->beginTransaction();
+    }
+
+    public static function inTransaction()
+    {
+        return self::getInstance()->getConnection()->inTransaction();
+    }
+
+    public static function commit()
+    {
+        $connection = self::getInstance()->getConnection();
+        
+        // Verificar si hay una transacción activa antes de hacer commit
+        if ($connection->inTransaction()) {
+            return $connection->commit();
+        }
+        
+        // No hacer nada si no hay transacción activa
+        return true;
+    }
+
+    public static function rollBack()
+    {
+        $connection = self::getInstance()->getConnection();
+        
+        // Verificar si hay una transacción activa antes de hacer rollback
+        if ($connection->inTransaction()) {
+            return $connection->rollBack();
+        }
+        
+        // No hacer nada si no hay transacción activa
+        return true;
+    }
 }
 
 

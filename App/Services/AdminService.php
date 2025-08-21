@@ -186,10 +186,21 @@ class AdminService
 
         // Verificar que no tenga usuarios asignados
         $db = DB::getInstance();
-        $usersCount = $db->query("SELECT COUNT(*) as count FROM model_has_roles WHERE role_id = ?", [$id])->fetch();
-        if ($usersCount['count'] > 0) {
-            throw new Exception('No se puede eliminar el rol porque tiene usuarios asignados');
+        try {
+            DB::beginTransaction();
+
+            $usersCount = $db->query("SELECT COUNT(*) as count FROM model_has_roles WHERE role_id = ?", [$id])->fetch();
+            if ($usersCount->count > 0) {
+                // borrar asignaciones de roles
+                $db->query("DELETE FROM model_has_roles WHERE role_id = ?", [$id]);
+            }
+            $role->delete();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
+
 
         // Eliminar primero los permisos del rol
         $db->query("DELETE FROM role_has_permissions WHERE role_id = ?", [$id]);
@@ -324,15 +335,72 @@ class AdminService
         return true;
     }
 
+    /**
+     * Verificar si un usuario tiene dependencias que impiden su eliminación
+     */
+    private function checkUserDependencies(int $userId): array
+    {
+        $dependencies = [];
+        
+        try {
+            // Verificar ventas como vendedor
+            $ventas = DB::getInstance()->query("SELECT COUNT(*) as count FROM ventas WHERE vendedor_id = ?", [$userId])->fetch();
+            if ($ventas->count > 0) {
+                $dependencies[] = "Tiene {$ventas->count} venta(s) asociada(s) como vendedor";
+            }
+            
+            // Verificar otras posibles dependencias
+            $sesiones = DB::getInstance()->query("SELECT COUNT(*) as count FROM sesiones_activas WHERE usuario_id = ?", [$userId])->fetch();
+            if ($sesiones->count > 0) {
+                $dependencies[] = "Tiene {$sesiones->count} sesión(es) activa(s)";
+            }
+            
+            $descargas = DB::getInstance()->query("SELECT COUNT(*) as count FROM descargas_libros WHERE usuario_id = ?", [$userId])->fetch();
+            if ($descargas->count > 0) {
+                $dependencies[] = "Tiene {$descargas->count} descarga(s) de libros registrada(s)";
+            }
+            
+        } catch (Exception $e) {
+            // Si hay error verificando, mejor ser conservador
+            $dependencies[] = "Error verificando dependencias: " . $e->getMessage();
+        }
+        
+        return $dependencies;
+    }
+
     public function deleteUser(int $id): bool
     {
         $user = User::find($id);
         if (!$user) {
             throw new Exception('Usuario no encontrado');
         }
-
-        // El modelo debería manejar las relaciones en cascada
-        return $user->delete();
+        
+        // Verificar dependencias antes de intentar eliminar
+        $dependencies = $this->checkUserDependencies($id);
+        if (!empty($dependencies)) {
+            $message = "No se puede eliminar el usuario '{$user->nombre}' porque:\n";
+            foreach ($dependencies as $dependency) {
+                $message .= "• " . $dependency . "\n";
+            }
+            $message .= "\nPrimero debe resolver estas dependencias o reasignar los registros a otro usuario.";
+            throw new Exception($message);
+        }
+        
+        try {
+            // Sin transacciones manuales, dejar que el modelo se encargue
+            $user->syncRoles([]);
+            $user->syncPermissions([]);
+            $user->delete();
+        } catch (Exception $e) {
+            // Capturar errores de clave foránea y hacer el mensaje más amigable
+            if (strpos($e->getMessage(), 'foreign key constraint') !== false || 
+                strpos($e->getMessage(), 'Integrity constraint violation') !== false) {
+                throw new Exception("No se puede eliminar el usuario '{$user->nombre}' porque está referenciado en otros registros del sistema. Contacte al administrador del sistema.");
+            }
+            throw new Exception('Error al eliminar usuario: ' . $e->getMessage());
+        }
+        
+        return true;
     }
 
     public function changeUserStatus(int $id, string $status): bool
