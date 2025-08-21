@@ -205,6 +205,7 @@ class Router
                 if ($r->getName() === $name) {
                     $route = $r;
                     break;
+                
                 }
             }
         }

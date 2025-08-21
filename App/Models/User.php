@@ -361,7 +361,7 @@ class User extends Model
             case 'administrador':
                 return 'admin.dashboard';
             case 'estudiante':
-                return 'estudiante.dashboard';
+                return 'estudiantes';
             case 'docente':
                 return 'docente.dashboard';
             default:

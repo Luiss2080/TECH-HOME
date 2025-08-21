@@ -96,13 +96,13 @@ class AdminController extends Controller
     {
         try {
             $usuarios = $this->adminService->getAllUsers();
-            return view('admin.usuarios.index', [
+            return view('admin.usuarios', [
                 'title' => 'Gestión de Usuarios - Panel de Administración',
                 'usuarios' => $usuarios
             ]);
         } catch (Exception $e) {
             Session::flash('error', 'Error al cargar usuarios: ' . $e->getMessage());
-            return view('admin.usuarios.index', [
+            return view('admin.usuarios', [
                 'title' => 'Gestión de Usuarios - Panel de Administración',
                 'usuarios' => []
             ]);
@@ -263,38 +263,32 @@ class AdminController extends Controller
         }
     }
 
-    public function eliminarUsuario($id)
+    public function eliminarUsuario(Request $request, $id)
     {
         try {
             // Verificar que el usuario existe
             $usuario = $this->adminService->getUserById($id);
             if (!$usuario) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Usuario no encontrado.'
-                ], 404);
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
             }
-
             // No permitir eliminar al usuario actual
-            if ($id == auth()->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No puedes eliminar tu propia cuenta.'
-                ], 400);
+            $currentUserId = Session::get('user_id') ?? Session::get('auth_user_id');
+            if ($id == $currentUserId) {
+                Session::flash('error', 'No puedes eliminar tu propia cuenta.');
+                return redirect(route('usuarios'));
             }
-
             // Eliminar usuario
             $this->adminService->deleteUser($id);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Usuario eliminado exitosamente.'
-            ]);
+            Session::flash('success', 'Usuario eliminado exitosamente.');
+            return redirect(route('usuarios'));
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al eliminar usuario: ' . $e->getMessage()
-            ], 500);
+            // DEBUG: Log para verificar que se está ejecutando
+            error_log("DEBUG AdminController::eliminarUsuario - Error: " . $e->getMessage());
+            
+            Session::flash('error', $e->getMessage());
+            return redirect(route('usuarios'));
         }
     }
 
@@ -362,7 +356,6 @@ class AdminController extends Controller
 
             Session::flash('success', 'Roles actualizados exitosamente.');
             return redirect(route('usuarios'));
-            
         } catch (Exception $e) {
             throw $e;
             Session::flash('error', 'Error al actualizar roles: ' . $e->getMessage());
@@ -382,10 +375,10 @@ class AdminController extends Controller
 
             // Obtener todos los permisos disponibles
             $permisos = $this->adminService->getAllPermissions();
-            
+
             // Obtener permisos actuales del usuario
             $permisosUsuario = $this->adminService->getUserPermissions($id);
-            
+
             return view('admin.usuarios.permisos', [
                 'title' => 'Editar Permisos de Usuario',
                 'usuario' => $usuario,
@@ -427,7 +420,6 @@ class AdminController extends Controller
 
             Session::flash('success', 'Permisos actualizados exitosamente.');
             return redirect(route('usuarios'));
-            
         } catch (Exception $e) {
             throw $e;
             Session::flash('error', 'Error al actualizar permisos: ' . $e->getMessage());
@@ -440,32 +432,24 @@ class AdminController extends Controller
         try {
             $usuario = $this->adminService->getUserById($id);
             if (!$usuario) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Usuario no encontrado.'
-                ], 404);
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('usuarios'));
             }
 
             $nuevoEstado = $request->input('estado');
-            if (!in_array($nuevoEstado, ['activo', 'inactivo'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Estado inválido.'
-                ], 400);
+            if (!in_array($nuevoEstado, ['0', '1'])) {
+                Session::flash('error', 'Estado inválido.');
+                return redirect(route('usuarios'));
             }
 
-            $this->adminService->changeUserStatus($id, $nuevoEstado);
+            $this->adminService->changeUserStatus($id, $nuevoEstado == '1' ? 'activo' : 'inactivo');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Estado del usuario actualizado.',
-                'nuevo_estado' => $nuevoEstado
-            ]);
+            $estadoTexto = $nuevoEstado == '1' ? 'activado' : 'desactivado';
+            Session::flash('success', "Usuario {$estadoTexto} exitosamente.");
+            return redirect(route('usuarios'));
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al cambiar estado: ' . $e->getMessage()
-            ], 500);
+            Session::flash('error', 'Error al cambiar estado: ' . $e->getMessage());
+            return redirect(route('usuarios'));
         }
     }
 
@@ -579,19 +563,16 @@ class AdminController extends Controller
         }
     }
 
-    public function eliminarRol($request, $id)
+    public function eliminarRol(Request $request, $id)
     {
         try {
             $this->adminService->deleteRole($id);
 
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Rol eliminado exitosamente']);
-            exit;
+            Session::flash('success', 'Rol eliminado exitosamente');
+            return redirect(route('admin.roles'));
         } catch (Exception $e) {
-            header('Content-Type: application/json');
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-            exit;
+            Session::flash('error', $e->getMessage());
+            return redirect(route('admin.roles'));
         }
     }
 

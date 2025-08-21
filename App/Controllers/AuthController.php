@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use Core\Controller;
 use App\Models\User;
+use App\Models\Role;
+use Core\DB;
 use Core\Request;
 use Core\Session;
 use Core\Validation;
@@ -15,6 +17,132 @@ class AuthController extends Controller
         return view('auth.login', ['title' => 'Bienvenido'], false);
     }
 
+    /**
+     * Mostrar formulario de registro
+     */
+    public function register()
+    {
+        return view('auth.register', ['title' => 'Crear Cuenta'], false);
+    }
+
+    /**
+     * Procesar registro de usuario
+     */
+    public function registerForm(Request $request)
+    {
+        // Validar datos del formulario
+        $validator = new Validation();
+        $rules = [
+            'nombre' => 'required|string|min:2|max:50',
+            'apellido' => 'required|string|min:2|max:50',
+            'email' => 'required|email|max:150',
+            'password' => 'required|min:8|max:50',
+            'password_confirmation' => 'required|same:password',
+            'telefono' => 'nullable|string|max:20',
+            'fecha_nacimiento' => 'nullable|date'
+        ];
+
+        if (!$validator->validate($request->all(), $rules)) {
+            Session::flash('errors', $validator->errors());
+            Session::flash('old', $request->except(['password', 'password_confirmation']));
+            return redirect(route('register'));
+        }
+
+        $data = $request->all();
+
+        // Verificar si el email ya existe
+        $existingUser = User::where('email', $data['email'])->first();
+        if ($existingUser) {
+            Session::flash('errors', ['email' => ['Este correo electrónico ya está registrado.']]);
+            Session::flash('old', $request->except(['password', 'password_confirmation']));
+            return redirect(route('register'));
+        }
+
+        try {
+            DB::beginTransaction();
+            // Crear el usuario
+            $user = new User([
+                'nombre' => $data['nombre'],
+                'apellido' => $data['apellido'],
+                'email' => $data['email'],
+                'password' => password_hash($data['password'], PASSWORD_DEFAULT),
+                'telefono' => $data['telefono'] ?? null,
+                'fecha_nacimiento' => $data['fecha_nacimiento'] ?? null,
+                'estado' => 1, // Usuario activo
+                'fecha_creacion' => date('Y-m-d H:i:s'),
+                'fecha_actualizacion' => date('Y-m-d H:i:s')
+            ]);
+
+            $user->save();
+            // Asegurar que existe el rol "Invitado"
+            $this->ensureGuestRoleExists();
+
+            // Asignar rol de Invitado por defecto
+            $guestRole = Role::findByName('Invitado');
+            if ($guestRole) {
+                $user->assignRole($guestRole->id);
+            }
+            DB::commit();
+            // Enviar email de bienvenida
+            try {
+                $emailService = mailService();
+                $emailService->sendWelcomeEmail($user);
+            } catch (\Exception $e) {
+                error_log('Error enviando email de bienvenida: ' . $e->getMessage());
+                // No fallar el registro si hay error en el email
+            }
+            dd($guestRole);
+
+            Session::flash('success', '¡Tu cuenta ha sido creada exitosamente! Te hemos enviado un email de bienvenida. Ya puedes iniciar sesión.');
+            return redirect(route('login'));
+        } catch (\Exception $e) {
+            error_log('Error en registro de usuario: ' . $e->getMessage());
+            DB::rollBack();
+            throw $e;
+            Session::flash('error', 'Error interno. Intenta de nuevo más tarde.');
+            Session::flash('old', $request->except(['password', 'password_confirmation']));
+            return redirect(route('register'));
+        }
+    }
+
+    /**
+     * Asegurar que el rol "Invitado" existe
+     */
+    private function ensureGuestRoleExists()
+    {
+        $guestRole = Role::findByName('Invitado');
+
+        if (!$guestRole) {
+            // Crear el rol Invitado si no existe
+            $role = new Role([
+                'nombre' => 'Invitado',
+                'descripcion' => 'Acceso temporal de 3 días a todo el material',
+                'estado' => 1
+            ]);
+            $role->save();
+
+            // Asignar permisos básicos al rol Invitado
+            $basicPermissions = [
+                'login',
+                'logout',
+                'cursos.ver',
+                'libros.ver',
+                'libros.descargar',
+                'materiales.ver',
+                'laboratorios.ver',
+                'api.verify_session'
+            ];
+
+            foreach ($basicPermissions as $permission) {
+                try {
+                    $role->givePermissionTo($permission);
+                } catch (\Exception $e) {
+                    error_log("Error asignando permiso {$permission} al rol Invitado: " . $e->getMessage());
+                }
+            }
+        }
+    }
+
 
 
     public function loginForm(Request $request)
@@ -22,31 +150,37 @@ class AuthController extends Controller
         // Validar datos
         $validator = new Validation();
         $rules = [
-            'email' => 'required|string|max:50',
-            'password' => 'required|min:8|max:16'
+            'email' => 'required|email|max:150',
+            'password' => 'required|min:8|max:50'
         ];
         if (!$validator->validate($request->all(), $rules)) {
             Session::flash('errors', $validator->errors());
-            Session::flash('old', $request->all());
+            Session::flash('old', $request->except(['password']));
             return redirect(route('login'));
         }
-        $user = $request->all()['email'];
-        $password = $request->all()['password'];
-        // Autenticar usuario
-        $user = $this->attempt($user, $password);
 
+        $email = $request->all()['email'];
+        $password = $request->all()['password'];
+
+        // Autenticar usuario
+        $user = $this->attempt($email, $password);
         if ($user) {
             Session::set('user', $user);
-            $route = route(Dashboard());
+
+            // Determinar a qué dashboard redirigir según el rol
+            $roles = $user->roles();
+            $route = route(Dashboard()); // fallback
+            // Si hay una URL de retorno guardada, usarla
             if (Session::has('back')) {
                 $route = Session::get('back');
                 Session::remove('back');
             }
+
             return redirect($route);
         }
 
-        Session::flash('errors', ['general' => ['Credenciales Incorrecta']]);
-        Session::flash('old', $_POST);
+        Session::flash('errors', ['general' => ['Credenciales incorrectas']]);
+        Session::flash('old', $request->except(['password']));
         return redirect(route('login'));
     }
 
@@ -161,7 +295,7 @@ class AuthController extends Controller
             'title' => 'Restablecer Contraseña',
             'token' => $token,
             'email' => $tokenData['email']
-        ],false);
+        ], false);
     }
 
     /**

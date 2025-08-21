@@ -156,17 +156,16 @@ function view($view, $data = [], $layout = 'layouts/app', $statusCode = 200): \C
     if (!file_exists($path)) {
         throw new \Exception("Vista '{$view}' no encontrada en '{$path}'");
     }
-
     // Capturar el contenido de la vista en un buffer
     ob_start(); // Iniciar el buffer
     $errors = flashGet('errors') ?? [];
     $old = flashGet('old') ?? [];
-    clearFlash();
     require $path;
     $content = ob_get_clean();
 
     // Si no se usa layout, devolver el contenido directamente
     if ($layout === false) {
+        clearFlash();
         return new \Core\Response($content, $statusCode);
     }
 
@@ -180,9 +179,9 @@ function view($view, $data = [], $layout = 'layouts/app', $statusCode = 200): \C
         ob_start();
         require $layoutPath;
         $finalContent = ob_get_clean();
+        clearFlash();
         return new \Core\Response($finalContent, $statusCode);
     }
-
     throw new \Exception("Layout '{$layout}' no encontrado");
 }
 

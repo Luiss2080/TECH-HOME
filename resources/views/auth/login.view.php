@@ -53,11 +53,19 @@
                 <h2 class="login-title">Iniciar Sesión</h2>
                 <p class="login-subtitle">Ingresa tus credenciales para continuar</p>
 
-                <?php if (isset($errors['general'])):
-                    foreach ($errors['general'] as $error): ?>
+                <?php if (isset($_SESSION['errors']['general'])): ?>
+                    <?php foreach ($_SESSION['errors']['general'] as $error): ?>
                         <div class="invalid-feedback"><?= $error ?></div>
-                <?php endforeach;
-                endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="invalid-feedback"><?= $_SESSION['error'] ?></div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success"><?= $_SESSION['success'] ?></div>
+                <?php endif; ?>
             </div>
 
             <!-- Formulario -->
@@ -67,15 +75,15 @@
                     <label class="form-label">Correo Electrónico</label>
                     <div class="input-wrapper">
                         <input type="email" class="form-input" id="email" name="email"
-                            value="<?= $old['email'] ?? '' ?>"
+                            value="<?= old('email') ?>"
                             placeholder="Ingresa tu correo académico..." required>
                         <i class="fas fa-envelope input-icon"></i>
                         <div class="tooltip">Usa tu email registrado en la plataforma</div>
-                        <?php if (isset($errors['email'])):
-                            foreach ($errors['email'] as $error): ?>
+                        <?php if (isset($_SESSION['errors']['email'])): ?>
+                            <?php foreach ($_SESSION['errors']['email'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
-                        <?php endforeach;
-                        endif; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -86,12 +94,12 @@
                             placeholder="Ingresa tu contraseña..." required>
                         <i class="fas fa-lock input-icon"></i>
                         <i class="fas fa-eye password-toggle" id="togglePassword"></i>
-                        <?php if (isset($errors['password'])):
-                            foreach ($errors['password'] as $error): ?>
+                        <?php if (isset($_SESSION['errors']['password'])): ?>
+                            <?php foreach ($_SESSION['errors']['password'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
-                        <?php endforeach;
-                        endif; ?>
-                        <div class="tooltip">Mínimo 8 caracteres con mayúsculas y números</div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <div class="tooltip">Mínimo 8 caracteres</div>
                     </div>
                 </div>
 
@@ -135,7 +143,7 @@
             </div>
 
             <div class="register-link">
-                ¿No tienes cuenta? <a href="#">Regístrate aquí</a>
+                ¿No tienes cuenta? <a href="<?= route('register') ?>">Regístrate aquí</a>
             </div>
         </div>
     </div>

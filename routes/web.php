@@ -20,6 +20,10 @@ Router::get('/', [HomeController::class, 'index'])
 Router::get('/login', [AuthController::class, 'login'])->name('login');
 Router::post('/login', [AuthController::class, 'loginForm'])->name('login.loginForm');
 
+// Rutas de registro
+Router::get('/register', [AuthController::class, 'register'])->name('register');
+Router::post('/register', [AuthController::class, 'registerForm'])->name('register.store');
+
 // Rutas para recuperación de contraseña
 Router::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.forgot');
 Router::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
@@ -139,6 +143,7 @@ Router::get('/estudiantes/dashboard', [EstudianteController::class, 'estudiantes
     ->name('estudiantes')
     ->middleware('role:estudiante|has:estudiantes.dashboard');
 
+    
 Router::get('/cursos', [CursoController::class, 'cursos'])
     ->name('cursos')
     ->middleware('role:docente,estudiante|has:cursos.ver');

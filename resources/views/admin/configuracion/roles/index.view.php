@@ -189,32 +189,59 @@ $roles = $roles ?? [];
 </div>
 
 <!-- Modal de Confirmación de Eliminación -->
-<div class="modal fade" id="deleteRoleModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="deleteRoleModal" tabindex="-1" role="dialog" aria-labelledby="deleteRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5>¿Estás seguro de eliminar este rol?</h5>
-                    <p class="text-muted">Esta acción no se puede deshacer. El rol "<span id="roleNameToDelete"></span>" será eliminado permanentemente.</p>
+            <form id="deleteRoleForm" method="POST" action="">
+                <?= CSRF() ?>
+                <input type="hidden" name="_method" value="DELETE">
+                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteRoleModalLabel">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteRole">
-                    <i class="fas fa-trash"></i>
-                    Eliminar Rol
-                </button>
-            </div>
+                
+                <div class="modal-body">
+                    <div class="text-center py-3">
+                        <div class="mb-4">
+                            <div class="warning-icon">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                        </div>
+                        <h4 class="mb-3">¿Estás seguro de eliminar este rol?</h4>
+                        <p class="text-muted mb-2">Esta acción no se puede deshacer.</p>
+                        <div class="role-to-delete-info">
+                            <strong>Rol: <span id="roleNameToDelete" class="text-danger"></span></strong>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning mt-3" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>El rol será eliminado permanentemente del sistema junto con todas sus configuraciones.</small>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>
+                        Eliminar Rol
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<!-- Overlay personalizado para mayor compatibilidad -->
+<div class="custom-modal-overlay" id="customModalOverlay" style="display: none;"></div>
 
 <style>
 .role-info {
@@ -363,91 +390,384 @@ $roles = $roles ?? [];
 .btn-close:hover {
     opacity: 1;
 }
+
+/* ============================================
+   ESTILOS DEL MODAL
+   ============================================ */
+.modal {
+    z-index: 1050;
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-title {
+    color: #374151;
+    font-weight: 600;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.modal-body {
+    padding: 2rem 1.5rem;
+    background: white;
+}
+
+.modal-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 0 0 15px 15px;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.warning-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+    animation: warningPulse 2s ease-in-out infinite;
+}
+
+@keyframes warningPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4); }
+}
+
+.warning-icon i {
+    font-size: 2rem;
+    color: white;
+}
+
+.role-to-delete-info {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.role-to-delete-info strong {
+    color: #991b1b;
+}
+
+.modal .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal .btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.modal .btn-secondary:hover {
+    background: #4b5563;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(107, 114, 128, 0.4);
+}
+
+.modal .btn-danger {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+}
+
+.modal .btn-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    color: #6b7280;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.btn-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Overlay personalizado */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Asegurar que el modal esté por encima */
+.modal.show {
+    display: block !important;
+}
+
+.modal-backdrop {
+    z-index: 1040;
+}
+
+/* Responsive del modal */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+    
+    .modal-content {
+        border-radius: 10px;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+    
+    .warning-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .warning-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+    }
+    
+    .modal .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Roles management page loaded');
     
-    // Configurar botones de eliminación
-    setupDeleteButtons();
+    // Configurar modal de eliminación
+    setupDeleteModal();
+    
+    // Auto-dismiss alerts
+    setupAlertDismissal();
 });
 
-
-function setupDeleteButtons() {
+function setupDeleteModal() {
     const deleteButtons = document.querySelectorAll('.btn-delete-role');
-    const modal = new bootstrap.Modal(document.getElementById('deleteRoleModal'));
+    const modalElement = document.getElementById('deleteRoleModal');
+    const customOverlay = document.getElementById('customModalOverlay');
     const roleNameSpan = document.getElementById('roleNameToDelete');
-    const confirmButton = document.getElementById('confirmDeleteRole');
+    const deleteForm = document.getElementById('deleteRoleForm');
+    const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"], .btn-close');
     
-    let roleToDelete = null;
+    console.log(`🔍 Found ${deleteButtons.length} delete buttons`);
     
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            roleToDelete = {
-                id: this.dataset.roleId,
-                name: this.dataset.roleName
-            };
+    // Función para mostrar el modal
+    function showModal() {
+        console.log('📂 Showing modal');
+        modalElement.style.display = 'block';
+        customOverlay.style.display = 'block';
+        
+        // Añadir clases para animación
+        setTimeout(() => {
+            modalElement.classList.add('show');
+            customOverlay.classList.add('show');
+            console.log('✨ Modal animation triggered');
+        }, 10);
+        
+        // Bloquear scroll del body
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Función para ocultar el modal
+    function hideModal() {
+        console.log('📁 Hiding modal');
+        modalElement.classList.remove('show');
+        customOverlay.classList.remove('show');
+        
+        setTimeout(() => {
+            modalElement.style.display = 'none';
+            customOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            console.log('🚫 Modal hidden');
+        }, 300);
+        
+        // Limpiar datos
+        roleNameSpan.textContent = '';
+        deleteForm.action = '';
+    }
+    
+    // Event listeners para botones de eliminación
+    deleteButtons.forEach((button, index) => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log(`🗑️ Delete button ${index} clicked`);
             
-            roleNameSpan.textContent = roleToDelete.name;
-            modal.show();
+            const roleId = this.dataset.roleId;
+            const roleName = this.dataset.roleName;
+            
+            console.log('📋 Role to delete:', { id: roleId, name: roleName });
+            
+            // Configurar el modal
+            roleNameSpan.textContent = roleName;
+            
+            // Configurar la acción del formulario
+            const currentUrl = window.location.pathname; // /admin/configuracion/roles
+            deleteForm.action = `${currentUrl}/${roleId}`;
+            
+            console.log('🎯 Form action set to:', deleteForm.action);
+            
+            showModal();
         });
     });
     
-    confirmButton.addEventListener('click', function() {
-        if (roleToDelete) {
-            deleteRole(roleToDelete.id);
-            modal.hide();
+    // Event listeners para cerrar modal
+    closeButtons.forEach((button, index) => {
+        button.addEventListener('click', function() {
+            console.log(`❌ Close button ${index} clicked`);
+            hideModal();
+        });
+    });
+    
+    // Cerrar con overlay
+    customOverlay.addEventListener('click', function() {
+        console.log('🖱️ Overlay clicked');
+        hideModal();
+    });
+    
+    // Cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalElement.classList.contains('show')) {
+            console.log('⌨️ ESC key pressed');
+            hideModal();
         }
+    });
+    
+    // Debug del formulario antes del envío
+    deleteForm.addEventListener('submit', function(e) {
+        console.log('📝 Form submitting with:');
+        console.log('- Action:', this.action);
+        console.log('- Method:', this.method);
+        console.log('- _method:', this.querySelector('input[name="_method"]').value);
+        
+        // Verificar que la acción esté configurada
+        if (!this.action || this.action.endsWith('/')) {
+            console.error('❌ Form action not properly set!');
+            e.preventDefault();
+            alert('Error: No se pudo configurar la URL de eliminación');
+            return false;
+        }
+        
+        // Confirmar una última vez
+        const roleName = roleNameSpan.textContent;
+        if (!confirm(`¿Realmente deseas eliminar el rol "${roleName}"?`)) {
+            e.preventDefault();
+            return false;
+        }
+        
+        console.log('✅ Form submission allowed');
     });
 }
 
-function deleteRole(roleId) {
-    fetch(`/admin/configuracion/roles/${roleId}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+function setupAlertDismissal() {
+    // Auto-dismiss para alertas existentes
+    const alerts = document.querySelectorAll('.alert-dismissible');
+    alerts.forEach(alert => {
+        const closeBtn = alert.querySelector('.btn-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                alert.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => alert.remove(), 300);
+            });
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Remover la fila de la tabla
-            const row = document.querySelector(`tr[data-role-id="${roleId}"]`);
-            if (row) {
-                row.remove();
+        
+        // Auto-dismiss después de 8 segundos
+        setTimeout(() => {
+            if (alert.parentElement) {
+                alert.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => alert.remove(), 300);
             }
-            
-            // Mostrar mensaje de éxito
-            showAlert('success', data.message || 'Rol eliminado exitosamente');
-        } else {
-            showAlert('danger', data.message || 'Error al eliminar el rol');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showAlert('danger', 'Error de conexión al eliminar el rol');
+        }, 8000);
     });
 }
 
-function showAlert(type, message) {
-    const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible">
-            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
-            ${message}
-        </div>
-    `;
+// Estilos de animación para alertas
+const alertStyles = document.createElement('style');
+alertStyles.textContent = `
+    @keyframes slideDown {
+        0% { opacity: 0; transform: translateY(-100%); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
     
-    const dashboardContent = document.querySelector('.dashboard-content');
-    dashboardContent.insertAdjacentHTML('afterbegin', alertHtml);
-    
-    // Auto-remover después de 5 segundos
-    setTimeout(() => {
-        const alert = dashboardContent.querySelector('.alert');
-        if (alert) {
-            alert.remove();
-        }
-    }, 5000);
-}
+    @keyframes slideUp {
+        0% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-100%); }
+    }
+`;
+document.head.appendChild(alertStyles);
 </script>

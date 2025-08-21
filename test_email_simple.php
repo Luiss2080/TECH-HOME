@@ -13,7 +13,7 @@ echo "PRUEBA DE EMAIL DE RECUPERACIÓN\n";
 echo "========================================\n";
 
 try {
-    $testEmail = 'jhoel0521@gmail.com';
+    $testEmail = 'luisrochavelaa1@gmail.com';
     $resetToken = 'recovery-token-' . uniqid() . '-' . time();
     
     echo "📧 Destinatario: $testEmail\n";

@@ -169,12 +169,12 @@
                                             <div class="col-md-6 mb-2">
                                                 <div class="form-check">
                                                     <input class="form-check-input <?= isset($errors['roles']) ? 'is-invalid' : '' ?>" type="checkbox"
-                                                        id="role_<?= $rol['id'] ?>" name="roles[]"
-                                                        value="<?= $rol['id'] ?>"
-                                                        <?= in_array($rol['id'], $old['roles'] ?? []) ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="role_<?= $rol['id'] ?>">
-                                                        <strong><?= htmlspecialchars($rol['nombre']) ?></strong>
-                                                        <small class="text-muted d-block"><?= htmlspecialchars($rol['descripcion']) ?></small>
+                                                        id="role_<?= $rol->id ?>" name="roles[]"
+                                                        value="<?= $rol->id ?>"
+                                                        <?= in_array($rol->id, $old['roles'] ?? []) ? 'checked' : '' ?>>
+                                                    <label class="form-check-label" for="role_<?= $rol->id ?>">
+                                                        <strong><?= htmlspecialchars($rol->nombre) ?></strong>
+                                                        <small class="text-muted d-block"><?= htmlspecialchars($rol->descripcion) ?></small>
                                                     </label>
                                                 </div>
                                             </div>
