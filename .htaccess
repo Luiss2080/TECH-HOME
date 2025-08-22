@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase /
+RewriteBase /TECH-HOME/
 
 
 # Manejo de errores
