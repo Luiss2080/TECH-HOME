@@ -2,6 +2,8 @@
 
 namespace App\Services\Email;
 
+use App\Models\User;
+
 interface MailServiceInterface
 {
     /**
@@ -15,10 +17,10 @@ interface MailServiceInterface
     public function sendPasswordResetEmail(string $email, string $token): bool;
     
     /**
-     * Enviar email de bienvenida
+     * Enviar email de bienvenida con token de activación
      */
-    public function sendWelcomeEmail($user): bool;
-    
+    public function sendWelcomeEmail(User $user, string $token): bool;
+
     /**
      * Probar conexión del servicio
      */

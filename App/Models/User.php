@@ -314,7 +314,7 @@ class User extends Model
      */
     public static function attempt($email, $password)
     {
-        $user = self::where('email', '=', $email)->first();
+        $user = self::where('email', '=', $email)->where('estado', '=', 1)->first();
         if ($user && password_verify($password, $user->password)) {
             return $user;
         }

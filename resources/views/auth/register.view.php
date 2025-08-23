@@ -1,3 +1,9 @@
+<?php 
+// Variables para mensajes flash
+$error = flashGet('error');
+$success = flashGet('success');
+$errors = flashGet('errors') ?? [];
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -7,6 +13,10 @@
     <title>Crear Cuenta - Tech Home Bolivia</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/register.css') ?>">
+
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css">
+
     <!-- Headers anti-cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -42,10 +52,10 @@
 
             <h1 class="welcome-title">¡Únete a Nosotros!</h1>
             <p class="welcome-text">
-                Crea tu cuenta y forma parte de la comunidad más innovadora de Bolivia. 
+                Crea tu cuenta y forma parte de la comunidad más innovadora de Bolivia.
                 Accede a cursos de robótica, programación, electrónica y mucho más.
             </p>
-            
+
             <div class="features-list">
                 <div class="feature-item">
                     <i class="fas fa-robot"></i>
@@ -75,38 +85,24 @@
             <div class="register-header">
                 <h2 class="register-title">Crear Cuenta</h2>
                 <p class="register-subtitle">Completa tus datos para empezar tu aventura tecnológica</p>
-
-                <?php if (isset($_SESSION['errors']['general'])): ?>
-                    <?php foreach ($_SESSION['errors']['general'] as $error): ?>
-                        <div class="alert alert-error"><?= $error ?></div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-error"><?= $_SESSION['error'] ?></div>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-success"><?= $_SESSION['success'] ?></div>
-                <?php endif; ?>
             </div>
 
             <!-- Formulario -->
             <form method="POST" action="<?= route('register.store') ?>" id="registerForm">
                 <?= CSRF() ?>
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Nombre</label>
                         <div class="input-wrapper">
                             <input type="text" class="form-input" id="nombre" name="nombre"
-                                placeholder="Tu nombre..." 
+                                placeholder="Tu nombre..."
                                 value="<?= old('nombre') ?>" required>
                             <i class="fas fa-user input-icon"></i>
                             <div class="tooltip">Ingresa tu nombre completo</div>
                         </div>
-                        <?php if (isset($_SESSION['errors']['nombre'])): ?>
-                            <?php foreach ($_SESSION['errors']['nombre'] as $error): ?>
+                        <?php if (isset($errors['nombre'])): ?>
+                            <?php foreach ($errors['nombre'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -116,13 +112,13 @@
                         <label class="form-label">Apellido</label>
                         <div class="input-wrapper">
                             <input type="text" class="form-input" id="apellido" name="apellido"
-                                placeholder="Tu apellido..." 
+                                placeholder="Tu apellido..."
                                 value="<?= old('apellido') ?>" required>
                             <i class="fas fa-user-tag input-icon"></i>
                             <div class="tooltip">Ingresa tu apellido completo</div>
                         </div>
-                        <?php if (isset($_SESSION['errors']['apellido'])): ?>
-                            <?php foreach ($_SESSION['errors']['apellido'] as $error): ?>
+                        <?php if (isset($errors['apellido'])): ?>
+                            <?php foreach ($errors['apellido'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -133,13 +129,13 @@
                     <label class="form-label">Correo Electrónico</label>
                     <div class="input-wrapper">
                         <input type="email" class="form-input" id="email" name="email"
-                            placeholder="ejemplo@correo.com" 
+                            placeholder="ejemplo@correo.com"
                             value="<?= old('email') ?>" required>
                         <i class="fas fa-envelope input-icon"></i>
                         <div class="tooltip">Usaremos este email para enviarte información importante</div>
                     </div>
-                    <?php if (isset($_SESSION['errors']['email'])): ?>
-                        <?php foreach ($_SESSION['errors']['email'] as $error): ?>
+                    <?php if (isset($errors['email'])): ?>
+                        <?php foreach ($errors['email'] as $error): ?>
                             <div class="invalid-feedback"><?= $error ?></div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -150,13 +146,13 @@
                         <label class="form-label">Teléfono (Opcional)</label>
                         <div class="input-wrapper">
                             <input type="tel" class="form-input" id="telefono" name="telefono"
-                                placeholder="+591 12345678" 
+                                placeholder="+591 12345678"
                                 value="<?= old('telefono') ?>">
                             <i class="fas fa-phone input-icon"></i>
                             <div class="tooltip">Número de contacto (opcional)</div>
                         </div>
-                        <?php if (isset($_SESSION['errors']['telefono'])): ?>
-                            <?php foreach ($_SESSION['errors']['telefono'] as $error): ?>
+                        <?php if (isset($errors['telefono'])): ?>
+                            <?php foreach ($errors['telefono'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -170,8 +166,8 @@
                             <i class="fas fa-calendar input-icon"></i>
                             <div class="tooltip">Tu fecha de nacimiento (opcional)</div>
                         </div>
-                        <?php if (isset($_SESSION['errors']['fecha_nacimiento'])): ?>
-                            <?php foreach ($_SESSION['errors']['fecha_nacimiento'] as $error): ?>
+                        <?php if (isset($errors['fecha_nacimiento'])): ?>
+                            <?php foreach ($errors['fecha_nacimiento'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -188,8 +184,8 @@
                             <i class="fas fa-eye password-toggle" data-target="password"></i>
                             <div class="tooltip">Debe tener al menos 8 caracteres</div>
                         </div>
-                        <?php if (isset($_SESSION['errors']['password'])): ?>
-                            <?php foreach ($_SESSION['errors']['password'] as $error): ?>
+                        <?php if (isset($errors['password'])): ?>
+                            <?php foreach ($errors['password'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -204,8 +200,8 @@
                             <i class="fas fa-eye password-toggle" data-target="password_confirmation"></i>
                             <div class="tooltip">Debe coincidir con la contraseña anterior</div>
                         </div>
-                        <?php if (isset($_SESSION['errors']['password_confirmation'])): ?>
-                            <?php foreach ($_SESSION['errors']['password_confirmation'] as $error): ?>
+                        <?php if (isset($errors['password_confirmation'])): ?>
+                            <?php foreach ($errors['password_confirmation'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -315,6 +311,185 @@
 
         console.log('🚀 Register page loaded');
     </script>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        // Configuración personalizada de SweetAlert2
+        const customSwal = Swal.mixin({
+            customClass: {
+                confirmButton: 'swal-confirm-btn',
+                cancelButton: 'swal-cancel-btn',
+                popup: 'swal-popup'
+            },
+            buttonsStyling: false
+        });
+
+        // Mostrar mensajes usando SweetAlert2
+        <?php 
+        $error = flashGet('error');
+        $success = flashGet('success');
+        $errors = flashGet('errors') ?? [];
+        ?>
+        
+        <?php if ($error): ?>
+            customSwal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: '<?= addslashes($error) ?>',
+                confirmButtonText: 'Entendido',
+                background: '#1f2937',
+                color: '#fff',
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp animate__faster'
+                }
+            });
+        <?php endif; ?>
+
+        <?php if ($success): ?>
+            customSwal.fire({
+                icon: 'success',
+                title: '¡Cuenta creada!',
+                html: '<?= addslashes($success) ?><br><br><strong>🔑 Importante:</strong> Revisa tu email para activar tu cuenta antes de iniciar sesión.',
+                confirmButtonText: 'Ir al Login',
+                background: '#1f2937',
+                color: '#fff',
+                timer: 8000,
+                timerProgressBar: true,
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp animate__faster'
+                }
+            }).then((result) => {
+                if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+                    window.location.href = '<?= route('login') ?>';
+                }
+            });
+        <?php endif; ?>
+
+        // Mostrar errores de validación
+        <?php if (!empty($errors) && is_array($errors)): ?>
+            <?php 
+            $errorMessages = [];
+            foreach ($errors as $field => $fieldErrors) {
+                if (is_array($fieldErrors)) {
+                    foreach ($fieldErrors as $fieldError) {
+                        $errorMessages[] = ucfirst($field) . ': ' . $fieldError;
+                    }
+                }
+            }
+            if (!empty($errorMessages)): ?>
+                let errorMessage = 'Por favor corrige los siguientes errores:\n\n';
+                <?php foreach ($errorMessages as $errorMsg): ?>
+                    errorMessage += '• <?= addslashes($errorMsg) ?>\n';
+                <?php endforeach; ?>
+                
+                customSwal.fire({
+                    icon: 'warning',
+                    title: 'Errores de validación',
+                    text: errorMessage,
+                    confirmButtonText: 'Corregir',
+                    background: '#1f2937',
+                    color: '#fff',
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp animate__faster'
+                    }
+                });
+            <?php endif; ?>
+        <?php endif; ?>
+    </script>
+
+    <!-- Estilos personalizados para SweetAlert2 -->
+    <style>
+        .swal-popup {
+            border-radius: 15px !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .swal-confirm-btn {
+            background: linear-gradient(45deg, #dc2626, #b91c1c) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            margin: 0 5px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal-confirm-btn:hover {
+            background: linear-gradient(45deg, #b91c1c, #991b1b) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4) !important;
+        }
+
+        .swal-cancel-btn {
+            background: #6b7280 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            margin: 0 5px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal-cancel-btn:hover {
+            background: #4b5563 !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* Animaciones personalizadas */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -100%, 0);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                transform: translate3d(0, -100%, 0);
+            }
+        }
+
+        .animate__animated {
+            animation-duration: 0.5s;
+        }
+
+        .animate__faster {
+            animation-duration: 0.3s;
+        }
+
+        .animate__fadeInDown {
+            animation-name: fadeInDown;
+        }
+
+        .animate__fadeOutUp {
+            animation-name: fadeOutUp;
+        }
+    </style>
 </body>
 
 </html>

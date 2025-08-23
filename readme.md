@@ -1,1 +1,0 @@
-<h2>Practico de desarrollo de sistemas</h2>

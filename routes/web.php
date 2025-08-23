@@ -30,6 +30,9 @@ Router::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name
 Router::get('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 Router::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
+// Ruta para activación de cuenta
+Router::get('/account/activation', [AuthController::class, 'activateAccount'])->name('account.activation');
+
 Router::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');

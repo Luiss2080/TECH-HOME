@@ -133,7 +133,10 @@ abstract class BaseEmailService implements MailServiceInterface
     {
         $subject = 'Bienvenido a Tech Home Bolivia - Activa tu cuenta';
         
-        $activationUrl = $this->config['app_url'] . "/account/activation?token=" . urlencode($token);
+        $activationUrl = $this->config['app_url'] . "/activate-account?token=" . urlencode($token);
+        $loginUrl = $this->config['app_url'] . "/login";
+        $coursesUrl = $this->config['app_url'] . "/cursos";
+        $booksUrl = $this->config['app_url'] . "/libros";
         
         $body = "
         <html>
@@ -157,6 +160,14 @@ abstract class BaseEmailService implements MailServiceInterface
                     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
                     margin-bottom: 30px;
                 }
+                .activation-box {
+                    background: #fff3cd;
+                    border: 2px solid #ffc107;
+                    padding: 25px;
+                    border-radius: 12px;
+                    margin: 25px 0;
+                    text-align: center;
+                }
                 .button { 
                     display: inline-block; 
                     background: #dc2626; 
@@ -177,6 +188,16 @@ abstract class BaseEmailService implements MailServiceInterface
                     text-decoration: none !important;
                     box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
                     transform: translateY(-2px);
+                }
+                .button.activation {
+                    background: #28a745;
+                    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+                    font-size: 18px;
+                    padding: 20px 40px;
+                }
+                .button.activation:hover {
+                    background: #218838;
+                    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
                 }
                 .button.secondary {
                     background: #3498db;
@@ -202,6 +223,7 @@ abstract class BaseEmailService implements MailServiceInterface
                 .footer { text-align: center; color: #666; font-size: 14px; padding: 30px; background: #2c3e50; color: white; }
                 .footer a { color: #3498db; text-decoration: none; }
                 .info-box { background: #e8f4f8; border-left: 4px solid #3498db; padding: 20px; margin: 20px 0; border-radius: 5px; }
+                .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 5px; color: #856404; }
                 .social-links { text-align: center; margin: 20px 0; }
                 .social-links a { 
                     display: inline-block; 
@@ -231,10 +253,9 @@ abstract class BaseEmailService implements MailServiceInterface
                     <div class='welcome-box'>
                         <h2 style='color: #dc2626; margin-top: 0;'>¡Bienvenido, " . htmlspecialchars($user->nombre) . "! 🎉</h2>
                         <p style='font-size: 18px; color: #555;'>
-                            Tu cuenta en Tech Home Bolivia ha sido creada exitosamente. Nos complace darte la bienvenida a nuestra comunidad de innovadores y tecnólogos.
+                            Tu cuenta ha sido creada exitosamente en Tech Home Bolivia. 
                         </p>
                         <p><strong>Email registrado:</strong> " . htmlspecialchars($user->email) . "</p>
-                        <p><strong>Rol asignado:</strong> Invitado (acceso completo por tiempo limitado)</p>
                     </div>
 
                     <div class='activation-box'>
@@ -260,6 +281,27 @@ abstract class BaseEmailService implements MailServiceInterface
                         </ul>
                     </div>
 
+                    <div class='info-box'>
+                        <h3>🎯 ¿Qué puedes hacer después de activar tu cuenta?</h3>
+                        <div style='text-align: center; margin: 20px 0;'>
+                            <a href='$coursesUrl' class='button secondary'>📚 Explorar Cursos</a>
+                            <a href='$booksUrl' class='button secondary'>📖 Ver Biblioteca</a>
+                        </div>
+                    </div>
+
+                    <div class='features'>
+                        <div class='feature'>
+                            <div class='feature-icon'>🤖</div>
+                            <h3>Robótica Avanzada</h3>
+                            <p>Aprende programación de robots, Arduino, Raspberry Pi y más</p>
+                        </div>
+                        <div class='feature'>
+                            <div class='feature-icon'>💻</div>
+                            <h3>Tecnología Moderna</h3>
+                            <p>Domina las últimas tecnologías en automatización e IoT</p>
+                        </div>
+                    </div>
+
                     <p style='text-align: center; color: #6c757d;'>
                         Si el botón de activación no funciona, copia y pega este enlace en tu navegador:<br>
                         <span style='word-break: break-all; background: #e9ecef; padding: 10px; border-radius: 3px; display: inline-block; margin-top: 10px;'>$activationUrl</span>
@@ -269,10 +311,10 @@ abstract class BaseEmailService implements MailServiceInterface
                 <div class='footer'>
                     <h3 style='color: white; margin-top: 0;'>¡Síguenos en nuestras redes sociales!</h3>
                     <div class='social-links'>
-                        <a href='#'>📱 TikTok</a>
                         <a href='#'>📘 Facebook</a>
                         <a href='#'>📸 Instagram</a>
-                        <a href='#'>💬 WhatsApp</a>
+                        <a href='#'>💼 LinkedIn</a>
+                        <a href='#'>🎬 YouTube</a>
                     </div>
                     <p style='margin-top: 20px;'>
                         📧 ¿Tienes preguntas? Contáctanos: info@techhomebolivia.com<br>

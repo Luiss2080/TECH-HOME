@@ -5,6 +5,7 @@ namespace App\Controllers;
 use Core\Controller;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\ActivationToken;
 use Core\DB;
 use Core\Request;
 use Core\Session;
@@ -68,7 +69,7 @@ class AuthController extends Controller
                 'password' => password_hash($data['password'], PASSWORD_DEFAULT),
                 'telefono' => $data['telefono'] ?? null,
                 'fecha_nacimiento' => $data['fecha_nacimiento'] ?? null,
-                'estado' => 1, // Usuario activo
+                'estado' => 0, // Usuario inactivo hasta que valide el token
                 'fecha_creacion' => date('Y-m-d H:i:s'),
                 'fecha_actualizacion' => date('Y-m-d H:i:s')
             ]);
@@ -83,22 +84,24 @@ class AuthController extends Controller
                 $user->assignRole($guestRole->id);
             }
             DB::commit();
-            // Enviar email de bienvenida
+            
+            // Crear token de activación
+            $activationToken = ActivationToken::createToken($user->email);
+            
+            // Enviar email de bienvenida con token
             try {
                 $emailService = mailService();
-                $emailService->sendWelcomeEmail($user);
+                $emailService->sendWelcomeEmail($user, $activationToken);
             } catch (\Exception $e) {
                 error_log('Error enviando email de bienvenida: ' . $e->getMessage());
                 // No fallar el registro si hay error en el email
             }
-            dd($guestRole);
 
-            Session::flash('success', '¡Tu cuenta ha sido creada exitosamente! Te hemos enviado un email de bienvenida. Ya puedes iniciar sesión.');
+            Session::flash('success', '¡Tu cuenta ha sido creada exitosamente! Te hemos enviado un email con un enlace para activar tu cuenta. Revisa tu bandeja de entrada.');
             return redirect(route('login'));
         } catch (\Exception $e) {
             error_log('Error en registro de usuario: ' . $e->getMessage());
             DB::rollBack();
-            throw $e;
             Session::flash('error', 'Error interno. Intenta de nuevo más tarde.');
             Session::flash('old', $request->except(['password', 'password_confirmation']));
             return redirect(route('register'));
@@ -165,6 +168,13 @@ class AuthController extends Controller
         // Autenticar usuario
         $user = $this->attempt($email, $password);
         if ($user) {
+            // Verificar si la cuenta está activa
+            if ($user->estado == 0) {
+                Session::flash('errors', ['general' => ['Tu cuenta no está activada. Revisa tu email para activar tu cuenta.']]);
+                Session::flash('old', $request->except(['password']));
+                return redirect(route('login'));
+            }
+            
             Session::set('user', $user);
 
             // Determinar a qué dashboard redirigir según el rol
@@ -193,6 +203,50 @@ class AuthController extends Controller
     {
         Session::destroy();
         return redirect(route('login'));
+    }
+    
+    /**
+     * Activar cuenta con token
+     */
+    public function activateAccount(Request $request)
+    {
+        $token = $request->input('token');
+
+        if (!$token) {
+            Session::flash('error', 'Token de activación requerido.');
+            return redirect(route('login'));
+        }
+
+        // Validar token
+        $tokenData = ActivationToken::validateToken($token);
+
+        if (!$tokenData) {
+            Session::flash('error', 'El enlace de activación es inválido o ya ha sido usado.');
+            return redirect(route('login'));
+        }
+
+        try {
+            // Activar usuario
+            $user = User::where('email', $tokenData['email'])->first();
+            if (!$user) {
+                Session::flash('error', 'Usuario no encontrado.');
+                return redirect(route('login'));
+            }
+
+            // Cambiar estado del usuario a activo
+            $user->estado = 1;
+            $user->save();
+
+            // Marcar token como usado
+            ActivationToken::markAsUsed($token);
+
+            Session::flash('success', '¡Tu cuenta ha sido activada exitosamente! Ya puedes iniciar sesión y acceder a todo el contenido.');
+            return redirect(route('login'));
+        } catch (\Exception $e) {
+            Session::flash('error', 'Error activando la cuenta. Intenta de nuevo.');
+            error_log('Error activando cuenta: ' . $e->getMessage());
+            return redirect(route('login'));
+        }
     }
     public function verify_session()
     {
@@ -264,7 +318,6 @@ class AuthController extends Controller
                 Session::flash('error', 'Hubo un problema enviando el email. Intenta de nuevo.');
             }
         } catch (\Exception $e) {
-            throw $e;
             Session::flash('error', 'Error interno. Intenta de nuevo más tarde.');
             error_log('Error en recuperación de contraseña: ' . $e->getMessage());
         }
