@@ -112,10 +112,37 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                     <h6 class="ithr-nav-group-title">Gestión Académica</h6>
                     <ul class="ithr-nav-list">
                         <li class="ithr-nav-item">
+                            <a href="<?= route('docente.dashboard') ?>" class="ithr-nav-link">
+                                <i class="fas fa-chalkboard-teacher ithr-nav-icon"></i>
+                                <span class="ithr-nav-text">Docentes</span>
+                                <span class="ithr-nav-badge"><?php
+                                    try {
+                                        // Obtener contador dinámico de docentes activos
+                                        $contadorDocentes = \App\Models\User::where('estado', '=', 1)
+                                            ->whereRaw('id IN (SELECT model_id FROM model_has_roles WHERE model_type = "App\\\\Models\\\\User" AND role_id = (SELECT id FROM roles WHERE nombre = "docente"))')
+                                            ->count();
+                                        echo $contadorDocentes;
+                                    } catch (Exception $e) {
+                                        echo '0';
+                                    }
+                                ?></span>
+                            </a>
+                        </li>
+                        <li class="ithr-nav-item">
                             <a href="<?= route('estudiantes') ?>" class="ithr-nav-link">
                                 <i class="fas fa-user-graduate ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Estudiantes</span>
-                                <span class="ithr-nav-badge">125</span>
+                                <span class="ithr-nav-badge"><?php
+                                    try {
+                                        // Obtener contador dinámico de estudiantes activos
+                                        $contadorEstudiantes = \App\Models\User::where('estado', '=', 1)
+                                            ->whereRaw('id IN (SELECT model_id FROM model_has_roles WHERE model_type = "App\\\\Models\\\\User" AND role_id = (SELECT id FROM roles WHERE nombre = "estudiante"))')
+                                            ->count();
+                                        echo $contadorEstudiantes;
+                                    } catch (Exception $e) {
+                                        echo '125';
+                                    }
+                                ?></span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
@@ -775,7 +802,7 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
     </div>
 
     <!-- Incluir Footer Component -->
-    <div class="footer-container">
+    <div class="footer-container-wrapper">
         <!DOCTYPE html>
         <html lang="es">
 
@@ -799,7 +826,7 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                     <!-- ============================================================================
                  CONTENIDO PRINCIPAL DEL FOOTER
                  ============================================================================ -->
-                    <div class="footer-main-content">
+                    <div class="footer-main-content <?= $isAuth ? 'authenticated' : 'non-authenticated' ?>">
                         <!-- Columna 1: Información de Contacto -->
                         <div class="footer-column">
                             <h6 class="footer-column-title">Contacto</h6>

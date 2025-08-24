@@ -5,11 +5,12 @@ $roles = $roles ?? [];
 ?>
 
 <!-- Estilos específicos para usuarios -->
-<link rel="stylesheet" href="<?= asset('css/admin/usuarios.css'); ?>">
+<link rel="stylesheet" href="<?= asset('css/CRUD/index.css'); ?>">
 
-<div class="dashboard-content">
+
     
-    <!-- Header de Usuarios -->
+    <<!-- Gestión de Usuarios -->
+<div class="section-card">
     <div class="section-header">
         <div class="section-header-content">
             <h2 class="section-title">
@@ -19,12 +20,13 @@ $roles = $roles ?? [];
             <p class="section-subtitle">Administra los usuarios del sistema y sus roles asignados</p>
         </div>
         <div class="section-header-actions">
-            <a href="<?= route('usuarios.crear'); ?>" class="btn btn-primary">
-                <i class="fas fa-plus"></i>
+            <a href="<?= route('usuarios.crear'); ?>" class="section-action-header">
+                <i class="fas fa-user-plus"></i>
                 Crear Nuevo Usuario
             </a>
         </div>
     </div>
+</div>
 
     <!-- Filtros de Búsqueda -->
     <div class="section-card">
