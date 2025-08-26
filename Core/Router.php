@@ -210,7 +210,7 @@ class Router
             }
         }
         if (!isset($route)) {
-            throw new \Exception("La ruta con nombre '$name' no existe.");
+            return "#$name";
         }
         $uri = $route->getUri();
         foreach ($parameters as $key => $value) {
@@ -228,3 +228,8 @@ class Router
         }
     }
 }
+
+
+
+
+

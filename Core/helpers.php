@@ -285,3 +285,233 @@ function mailService()
 {
     return \App\Services\MailServiceFactory::create();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ==================== FUNCIONES AUXILIARES ADICIONALES ====================
+// Agregar estas funciones al final del archivo helpers.php existente
+
+if (!function_exists('obtenerIniciales')) {
+    /**
+     * Obtiene las iniciales de un nombre completo
+     */
+    function obtenerIniciales($nombre)
+    {
+        if (empty($nombre)) {
+            return 'NN';
+        }
+        
+        $palabras = explode(' ', trim($nombre));
+        $iniciales = '';
+        
+        foreach ($palabras as $palabra) {
+            if (!empty($palabra)) {
+                $iniciales .= strtoupper(substr($palabra, 0, 1));
+            }
+            if (strlen($iniciales) >= 2) {
+                break;
+            }
+        }
+        
+        return $iniciales ?: 'NN';
+    }
+}
+
+if (!function_exists('colorEstado')) {
+    /**
+     * Retorna color CSS según el estado
+     */
+    function colorEstado($estado)
+    {
+        $colores = [
+            'activo' => '#10b981',
+            'inactivo' => '#6b7280',
+            'pendiente' => '#f59e0b',
+            'completado' => '#10b981',
+            'publicado' => '#10b981',
+            'borrador' => '#6b7280',
+            'disponible' => '#10b981',
+            'stock_bajo' => '#f59e0b',
+            'agotado' => '#ef4444'
+        ];
+        
+        return $colores[strtolower($estado)] ?? '#6b7280';
+    }
+}
+
+if (!function_exists('tipoMaterialIcono')) {
+    /**
+     * Retorna icono Font Awesome según el tipo de material
+     */
+    function tipoMaterialIcono($tipo)
+    {
+        $iconos = [
+            'pdf' => 'file-pdf',
+            'documento' => 'file-alt',
+            'video' => 'file-video',
+            'imagen' => 'file-image',
+            'codigo' => 'file-code',
+            'arduino' => 'file-code',
+            'python' => 'file-code',
+            'zip' => 'file-archive',
+            'link' => 'link'
+        ];
+        
+        $tipoLower = strtolower($tipo);
+        
+        // Buscar por coincidencia parcial
+        foreach ($iconos as $key => $icono) {
+            if (strpos($tipoLower, $key) !== false) {
+                return $icono;
+            }
+        }
+        
+        return 'file-alt'; // Icono por defecto
+    }
+}
+
+if (!function_exists('porcentajeProgreso')) {
+    /**
+     * Calcula porcentaje con dos valores
+     */
+    function porcentajeProgreso($actual, $total)
+    {
+        if ($total == 0) {
+            return 0;
+        }
+        
+        return min(100, round(($actual / $total) * 100, 1));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+// ==================== FUNCIONES AUXILIARES ESENCIALES PARA ESTUDIANTE ====================
+
+if (!function_exists('calcularPorcentaje')) {
+    /**
+     * Calcula porcentaje entre dos valores
+     */
+    function calcularPorcentaje($actual, $total)
+    {
+        if ($total == 0) return 0;
+        return min(100, round(($actual / $total) * 100, 1));
+    }
+}
+
+if (!function_exists('formatearTiempo')) {
+    /**
+     * Convierte minutos a formato legible
+     */
+    function formatearTiempo($minutos)
+    {
+        if (!is_numeric($minutos) || $minutos <= 0) return '0min';
+        
+        $horas = floor($minutos / 60);
+        $minutosRestantes = $minutos % 60;
+        
+        if ($horas > 0) {
+            return $minutosRestantes > 0 ? "{$horas}h {$minutosRestantes}min" : "{$horas}h";
+        }
+        return "{$minutosRestantes}min";
+    }
+}
+
+if (!function_exists('estadoCurso')) {
+    /**
+     * Determina estado del curso según progreso
+     */
+    function estadoCurso($progreso, $completado = false)
+    {
+        if ($completado) {
+            return [
+                'texto' => 'Completado',
+                'color' => '#10b981',
+                'clase' => 'completado'
+            ];
+        }
+        
+        if ($progreso >= 75) {
+            return [
+                'texto' => 'Casi Terminado',
+                'color' => '#f59e0b',
+                'clase' => 'casi-terminado'
+            ];
+        }
+        
+        if ($progreso >= 1) {
+            return [
+                'texto' => 'En Progreso',
+                'color' => '#3b82f6',
+                'clase' => 'en-progreso'
+            ];
+        }
+        
+        return [
+            'texto' => 'No Iniciado',
+            'color' => '#6b7280',
+            'clase' => 'no-iniciado'
+        ];
+    }
+}
+
+if (!function_exists('colorProgreso')) {
+    /**
+     * Color según porcentaje de progreso
+     */
+    function colorProgreso($porcentaje)
+    {
+        if ($porcentaje >= 80) return '#10b981';
+        if ($porcentaje >= 60) return '#3b82f6';
+        if ($porcentaje >= 40) return '#f59e0b';
+        return '#ef4444';
+    }
+}
+
+if (!function_exists('validarAccesoLibro')) {
+    /**
+     * Valida si el usuario puede acceder a un libro
+     */
+    function validarAccesoLibro($libro, $esInvitado = false)
+    {
+        // Libros gratuitos: acceso libre
+        if ($libro['es_gratuito']) {
+            return ['acceso' => true, 'razon' => null];
+        }
+        
+        // Usuarios invitados: solo libros gratuitos
+        if ($esInvitado) {
+            return ['acceso' => false, 'razon' => 'Requiere registro completo'];
+        }
+        
+        // Sin stock
+        if ($libro['stock'] <= 0) {
+            return ['acceso' => false, 'razon' => 'Sin stock disponible'];
+        }
+        
+        return ['acceso' => true, 'razon' => null];
+    }
+}

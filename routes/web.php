@@ -190,3 +190,161 @@ Router::get('/docente/dashboard', [DocenteController::class, 'dashboard'])
 Router::get('/reportes/basicos', [AdminController::class, 'reportesBasicos'])
     ->name('reportes.basicos')
     ->middleware('has:admin.reportes');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ==================== RUTAS ADICIONALES PARA DOCENTE ====================
+// Agregar estas rutas al final del archivo routes.php existente
+
+// AJAX para métricas del docente
+Router::get('/docente/ajax/metricas', [DocenteController::class, 'ajaxMetricas'])
+    ->name('docente.ajax.metricas')
+    ->middleware('role:docente|has:docente.dashboard');
+
+Router::post('/docente/ajax/refresh-metrics', [DocenteController::class, 'refreshMetrics'])
+    ->name('docente.ajax.refresh')
+    ->middleware('role:docente|has:docente.dashboard');
+
+// Gestión de cursos del docente
+Router::get('/docente/cursos', [DocenteController::class, 'cursos'])
+    ->name('docente.cursos')
+    ->middleware('role:docente|has:docente.cursos');
+
+Router::get('/docente/cursos/crear', [DocenteController::class, 'crearCurso'])
+    ->name('docente.cursos.crear')
+    ->middleware('role:docente|has:docente.cursos.crear');
+
+Router::post('/docente/cursos', [DocenteController::class, 'guardarCurso'])
+    ->name('docente.cursos.guardar')
+    ->middleware('role:docente|has:docente.cursos.crear');
+
+// Gestión de estudiantes
+Router::get('/docente/estudiantes', [DocenteController::class, 'estudiantes'])
+    ->name('docente.estudiantes')
+    ->middleware('role:docente|has:docente.estudiantes');
+
+Router::get('/docente/estudiantes/progreso', [DocenteController::class, 'progreso'])
+    ->name('docente.progreso')
+    ->middleware('role:docente|has:docente.estudiantes');
+
+// Gestión de materiales
+Router::get('/docente/materiales', [DocenteController::class, 'materiales'])
+    ->name('docente.materiales')
+    ->middleware('role:docente|has:docente.materiales');
+
+Router::get('/docente/materiales/subir', [DocenteController::class, 'subirMaterial'])
+    ->name('docente.materiales.subir')
+    ->middleware('role:docente|has:docente.materiales.crear');
+
+// Tareas y evaluaciones
+Router::get('/docente/tareas/revision', [DocenteController::class, 'tareasRevision'])
+    ->name('docente.tareas.revision')
+    ->middleware('role:docente|has:docente.tareas');
+
+Router::get('/docente/evaluaciones', [DocenteController::class, 'evaluaciones'])
+    ->name('docente.evaluaciones')
+    ->middleware('role:docente|has:docente.evaluaciones');
+
+Router::get('/docente/evaluaciones/crear', [DocenteController::class, 'crearEvaluacion'])
+    ->name('docente.evaluaciones.crear')
+    ->middleware('role:docente|has:docente.evaluaciones.crear');
+
+// Comentarios y comunicación
+Router::get('/docente/comentarios', [DocenteController::class, 'comentarios'])
+    ->name('docente.comentarios')
+    ->middleware('role:docente|has:docente.comunicacion');
+
+// Estadísticas
+Router::get('/docente/estadisticas', [DocenteController::class, 'estadisticas'])
+    ->name('docente.estadisticas')
+    ->middleware('role:docente|has:docente.estadisticas');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+// ==================== RUTAS ESENCIALES PARA ESTUDIANTE ====================
+
+// Dashboard principal
+Router::get('/estudiante/dashboard', [EstudianteController::class, 'estudiantes'])
+    ->name('estudiante.dashboard')
+    ->middleware('role:estudiante');
+
+// AJAX para métricas
+Router::get('/estudiante/ajax/metricas', [EstudianteController::class, 'ajaxMetricas'])
+    ->name('estudiante.ajax.metricas')
+    ->middleware('role:estudiante');
+
+// =========================================
+// GESTIÓN DE CURSOS
+// =========================================
+
+// Mis cursos inscritos
+Router::get('/estudiante/cursos', [EstudianteController::class, 'misCursos'])
+    ->name('estudiante.cursos')
+    ->middleware('role:estudiante');
+
+// Ver curso específico
+Router::get('/estudiante/cursos/{id}', [EstudianteController::class, 'verCurso'])
+    ->name('estudiante.curso.ver')
+    ->middleware('role:estudiante');
+
+// Actualizar progreso de curso (AJAX)
+Router::post('/estudiante/cursos/{id}/progreso', [EstudianteController::class, 'actualizarProgreso'])
+    ->name('estudiante.curso.progreso')
+    ->middleware('role:estudiante');
+
+// =========================================
+// BIBLIOTECA DE LIBROS
+// =========================================
+
+// Ver libros disponibles
+Router::get('/estudiante/libros', [EstudianteController::class, 'libros'])
+    ->name('estudiante.libros')
+    ->middleware('role:estudiante');
+
+// Descargar libro
+Router::get('/estudiante/libros/{id}/descargar', [EstudianteController::class, 'descargarLibro'])
+    ->name('estudiante.libro.descargar')
+    ->middleware('role:estudiante');
+
+// =========================================
+// PERFIL Y PROGRESO
+// =========================================
+
+// Ver mi progreso
+Router::get('/estudiante/progreso', [EstudianteController::class, 'miProgreso'])
+    ->name('estudiante.progreso')
+    ->middleware('role:estudiante');
+
+// Ver/editar perfil
+Router::get('/estudiante/perfil', [EstudianteController::class, 'perfil'])
+    ->name('estudiante.perfil')
+    ->middleware('role:estudiante');
+
+Router::post('/estudiante/perfil', [EstudianteController::class, 'actualizarPerfil'])
+    ->name('estudiante.perfil.actualizar')
+    ->middleware('role:estudiante');

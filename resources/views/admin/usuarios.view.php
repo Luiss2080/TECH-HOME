@@ -7,9 +7,7 @@ $roles = $roles ?? [];
 <!-- Estilos específicos para usuarios -->
 <link rel="stylesheet" href="<?= asset('css/CRUD/index.css'); ?>">
 
-
-    
-    <<!-- Gestión de Usuarios -->
+<!-- Gestión de Usuarios -->
 <div class="section-card">
     <div class="section-header">
         <div class="section-header-content">
@@ -28,259 +26,262 @@ $roles = $roles ?? [];
     </div>
 </div>
 
-    <!-- Filtros de Búsqueda -->
-    <div class="section-card">
-        <h5 class="mb-3">
-            <i class="fas fa-filter"></i>
-            Filtros de Búsqueda
-        </h5>
-        <div class="filters-container">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="filterName">Buscar por nombre:</label>
-                        <input type="text" class="form-control" id="filterName" placeholder="Filtrar por nombre o email...">
-                    </div>
+<!-- Filtros de Búsqueda -->
+<div class="section-card">
+    <h5 class="mb-3">
+        <i class="fas fa-filter"></i>
+        Filtros de Búsqueda
+    </h5>
+    <div class="filters-container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="filterName">Buscar por nombre:</label>
+                    <input type="text" class="form-control" id="filterName" placeholder="Filtrar por nombre o email...">
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="filterRole">Filtrar por rol:</label>
-                        <select class="form-control" id="filterRole">
-                            <option value="">Todos los roles</option>
-                            <option value="administrador">Administrador</option>
-                            <option value="docente">Docente</option>
-                            <option value="estudiante">Estudiante</option>
-                            <option value="invitado">Invitado</option>
-                        </select>
-                    </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="filterRole">Filtrar por rol:</label>
+                    <select class="form-control" id="filterRole">
+                        <option value="">Todos los roles</option>
+                        <option value="administrador">Administrador</option>
+                        <option value="docente">Docente</option>
+                        <option value="estudiante">Estudiante</option>
+                        <option value="invitado">Invitado</option>
+                    </select>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="filterStatus">Filtrar por estado:</label>
-                        <select class="form-control" id="filterStatus">
-                            <option value="">Todos los estados</option>
-                            <option value="1">Activos</option>
-                            <option value="0">Inactivos</option>
-                        </select>
-                    </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="filterStatus">Filtrar por estado:</label>
+                    <select class="form-control" id="filterStatus">
+                        <option value="">Todos los estados</option>
+                        <option value="1">Activos</option>
+                        <option value="0">Inactivos</option>
+                    </select>
                 </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label>&nbsp;</label>
-                        <div>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">
-                                <i class="fas fa-times"></i> Limpiar
-                            </button>
-                        </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- DEBUG: Verificar mensajes flash -->
-    <?php 
-    error_log("DEBUG usuarios.view - flashGet('error'): " . (flashGet('error') ?? 'NULL'));
-    error_log("DEBUG usuarios.view - flashGet('success'): " . (flashGet('success') ?? 'NULL'));
-    ?>
+<!-- DEBUG: Verificar mensajes flash -->
+<?php 
+error_log("DEBUG usuarios.view - flashGet('error'): " . (flashGet('error') ?? 'NULL'));
+error_log("DEBUG usuarios.view - flashGet('success'): " . (flashGet('success') ?? 'NULL'));
+?>
 
-    <!-- Mensajes de éxito/error -->
-    <?php if (flashGet('success')): ?>
-        <div class="alert alert-success alert-dismissible">
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            <i class="fas fa-check-circle"></i>
-            <?= htmlspecialchars(flashGet('success')) ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (flashGet('error')): ?>
-        <div class="alert alert-danger alert-dismissible" style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important; padding: 15px !important; margin: 20px 0 !important;">
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            <i class="fas fa-exclamation-triangle"></i>
-            <strong>ERROR:</strong> <?= htmlspecialchars(flashGet('error')) ?>
-        </div>
-    <?php endif; ?>
-    
-    <!-- Tabla de Usuarios -->
-    <div class="section-card">
-        <div class="table-container">
-            <?php if (!empty($usuarios)): ?>
-                <table class="table data-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Email</th>
-                            <th>Roles</th>
-                            <th>Estado</th>
-                            <th>Último Acceso</th>
-                            <th>Fecha Registro</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($usuarios as $usuario):
-                            $usuario = new \App\Models\User($usuario);
-                            ?>
-                            <tr data-user-id="<?= $usuario->id ?>">
-                                <td><?= $usuario->id ?></td>
-                                <td>
-                                    <div class="user-info">
-                                        <div class="user-avatar">
-                                            <?php if (!empty($usuario->avatar)): ?>
-                                                <img src="<?= asset('imagenes/avatars/' . $usuario->avatar) ?>" alt="Avatar">
-                                            <?php else: ?>
-                                                <div class="avatar-placeholder">
-                                                    <?= strtoupper(substr($usuario->nombre, 0, 1) . substr($usuario->apellido ?? '', 0, 1)) ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="user-details">
-                                            <span class="user-name"><?= htmlspecialchars($usuario->nombre . ' ' . ($usuario->apellido ?? '')) ?></span>
-                                            <span class="user-phone"><?= htmlspecialchars($usuario->telefono ?? 'Sin teléfono') ?></span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><?= htmlspecialchars($usuario->email) ?></td>
-                                <td>
-                                    <div class="user-roles">
-                                        <?php 
-                                        try {
-                                            $userRoles = $usuario->roles();
-                                            if (!empty($userRoles)):
-                                                foreach ($userRoles as $role): ?>
-                                                    <span class="badge badge-role"><?= htmlspecialchars($role['nombre']) ?></span>
-                                                <?php endforeach;
-                                            else: ?>
-                                                <span class="badge badge-warning">Sin rol</span>
-                                            <?php endif;
-                                        } catch (Exception $e) { ?>
-                                            <span class="badge badge-warning">Error</span>
-                                        <?php } ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <?php if ($usuario->estado == 1): ?>
-                                        <span class="badge badge-success">
-                                            <i class="fas fa-check-circle"></i>
-                                            Activo
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge badge-danger">
-                                            <i class="fas fa-times-circle"></i>
-                                            Inactivo
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="text-muted">
-                                    <?php 
-                                    // Aquí puedes agregar lógica para mostrar último acceso si tienes esa información
-                                    echo 'Sin datos';
-                                    ?>
-                                </td>
-                                <td class="text-muted">
-                                    <?php 
-                                    $fecha = $usuario->fecha_creacion ?? date('Y-m-d H:i:s');
-                                    echo date('d/m/Y H:i', strtotime($fecha));
-                                    ?>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="<?= route('usuarios.editar', ['id' => $usuario->id]) ?>" 
-                                           class="btn btn-sm btn-outline-primary" title="Editar Usuario">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="<?= route('usuarios.roles', ['id' => $usuario->id]) ?>" 
-                                           class="btn btn-sm btn-outline-info" title="Asignar Roles">
-                                            <i class="fas fa-user-shield"></i>
-                                        </a>
-                                        <button type="button" 
-                                                class="btn btn-sm <?= $usuario->estado == 1 ? 'btn-outline-warning' : 'btn-outline-success' ?> btn-toggle-status" 
-                                                data-user-id="<?= $usuario->id ?>" 
-                                                data-user-name="<?= htmlspecialchars($usuario->nombre . ' ' . ($usuario->apellido ?? '')) ?>"
-                                                data-current-status="<?= $usuario->estado ?>"
-                                                data-status-url="<?= route('usuarios.estado', ['id' => $usuario->id]) ?>"
-                                                title="<?= $usuario->estado == 1 ? 'Desactivar' : 'Activar' ?> Usuario">
-                                            <i class="fas fa-<?= $usuario->estado == 1 ? 'ban' : 'check' ?>"></i>
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-outline-danger btn-delete-user" 
-                                                data-user-id="<?= $usuario->id ?>" 
-                                                data-user-name="<?= htmlspecialchars($usuario->nombre . ' ' . ($usuario->apellido ?? '')) ?>"
-                                                data-delete-url="<?= route('usuarios.delete', ['id' => $usuario->id]) ?>"
-                                                title="Eliminar Usuario">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>No hay usuarios registrados</h3>
-                    <p>Comienza creando el primer usuario del sistema</p>
-                    <a href="<?= route('usuarios.crear'); ?>" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        Crear Primer Usuario
-                    </a>
-                </div>
-            <?php endif; ?>
-        </div>
+<!-- Mensajes de éxito/error -->
+<?php if (flashGet('success')): ?>
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-check-circle"></i>
+        <?= htmlspecialchars(flashGet('success')) ?>
     </div>
+<?php endif; ?>
 
-    <!-- Estadísticas de Usuarios -->
-    <div class="section-card">
-        <h3 class="section-title">
-            <i class="fas fa-chart-bar"></i>
-            Estadísticas de Usuarios
-        </h3>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-icon bg-blue">
+<?php if (flashGet('error')): ?>
+    <div class="alert alert-danger alert-dismissible" style="background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24 !important; padding: 15px !important; margin: 20px 0 !important;">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>ERROR:</strong> <?= htmlspecialchars(flashGet('error')) ?>
+    </div>
+<?php endif; ?>
+
+<!-- Tabla de Usuarios -->
+<div class="section-card">
+    <div class="table-container">
+        <?php if (!empty($usuarios)): ?>
+            <table class="table data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Estado</th>
+                        <th>Último Acceso</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($usuarios as $usuario):
+                        $usuario = new \App\Models\User($usuario);
+                        ?>
+                        <tr data-user-id="<?= $usuario->id ?>">
+                            <td><?= $usuario->id ?></td>
+                            <td>
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        <?php if (!empty($usuario->avatar)): ?>
+                                            <img src="<?= asset('imagenes/avatars/' . $usuario->avatar) ?>" alt="Avatar">
+                                        <?php else: ?>
+                                            <div class="avatar-placeholder">
+                                                <?= strtoupper(substr($usuario->nombre, 0, 1) . substr($usuario->apellido ?? '', 0, 1)) ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="user-details">
+                                        <span class="user-name"><?= htmlspecialchars($usuario->nombre . ' ' . ($usuario->apellido ?? '')) ?></span>
+                                        <span class="user-phone"><?= htmlspecialchars($usuario->telefono ?? 'Sin teléfono') ?></span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><?= htmlspecialchars($usuario->email) ?></td>
+                            <td>
+                                <div class="user-roles">
+                                    <?php 
+                                    try {
+                                        $userRoles = $usuario->roles();
+                                        if (!empty($userRoles)):
+                                            foreach ($userRoles as $role): ?>
+                                                <span class="badge badge-role"><?= htmlspecialchars($role['nombre']) ?></span>
+                                            <?php endforeach;
+                                        else: ?>
+                                            <span class="badge badge-warning">Sin rol</span>
+                                        <?php endif;
+                                    } catch (Exception $e) { ?>
+                                        <span class="badge badge-warning">Error</span>
+                                    <?php } ?>
+                                </div>
+                            </td>
+                            <td>
+                                <?php if ($usuario->estado == 1): ?>
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle"></i>
+                                        Activo
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge badge-danger">
+                                        <i class="fas fa-times-circle"></i>
+                                        Inactivo
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-muted">
+                                <?php 
+                                // Aquí puedes agregar lógica para mostrar último acceso si tienes esa información
+                                echo 'Sin datos';
+                                ?>
+                            </td>
+                            <td class="text-muted">
+                                <?php 
+                                $fecha = $usuario->fecha_creacion ?? date('Y-m-d H:i:s');
+                                echo date('d/m/Y H:i', strtotime($fecha));
+                                ?>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="<?= route('usuarios.editar', ['id' => $usuario->id]) ?>" 
+                                       class="btn btn-sm btn-outline-primary" title="Editar Usuario">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="<?= route('usuarios.roles', ['id' => $usuario->id]) ?>" 
+                                       class="btn btn-sm btn-outline-info" title="Asignar Roles">
+                                        <i class="fas fa-user-shield"></i>
+                                    </a>
+                                    <a href="<?= route('usuarios.permisos', ['id' => $usuario->id]) ?>" 
+                                       class="btn btn-sm btn-outline-warning" title="Gestionar Permisos">
+                                        <i class="fas fa-key"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm <?= $usuario->estado == 1 ? 'btn-outline-warning' : 'btn-outline-success' ?> btn-toggle-status" 
+                                            data-user-id="<?= $usuario->id ?>" 
+                                            data-user-name="<?= htmlspecialchars($usuario->nombre . ' ' . ($usuario->apellido ?? '')) ?>"
+                                            data-current-status="<?= $usuario->estado ?>"
+                                            data-status-url="<?= route('usuarios.estado', ['id' => $usuario->id]) ?>"
+                                            title="<?= $usuario->estado == 1 ? 'Desactivar' : 'Activar' ?> Usuario">
+                                        <i class="fas fa-<?= $usuario->estado == 1 ? 'ban' : 'check' ?>"></i>
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger btn-delete-user" 
+                                            data-user-id="<?= $usuario->id ?>" 
+                                            data-user-name="<?= htmlspecialchars($usuario->nombre . ' ' . ($usuario->apellido ?? '')) ?>"
+                                            data-delete-url="<?= route('usuarios.delete', ['id' => $usuario->id]) ?>"
+                                            title="Eliminar Usuario">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <div class="empty-state">
+                <div class="empty-state-icon">
                     <i class="fas fa-users"></i>
                 </div>
-                <div class="stat-content">
-                    <h4>Total Usuarios</h4>
-                    <span class="stat-number"><?= count($usuarios) ?></span>
-                </div>
+                <h3>No hay usuarios registrados</h3>
+                <p>Comienza creando el primer usuario del sistema</p>
+                <a href="<?= route('usuarios.crear'); ?>" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Crear Primer Usuario
+                </a>
             </div>
-            <div class="stat-item">
-                <div class="stat-icon bg-green">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h4>Usuarios Activos</h4>
-                    <span class="stat-number">
-                        <?= count(array_filter($usuarios, fn($u) => $u['estado'] == 1)) ?>
-                    </span>
-                </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Estadísticas de Usuarios -->
+<div class="section-card">
+    <h3 class="section-title">
+        <i class="fas fa-chart-bar"></i>
+        Estadísticas de Usuarios
+    </h3>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-icon bg-blue">
+                <i class="fas fa-users"></i>
             </div>
-            <div class="stat-item">
-                <div class="stat-icon bg-yellow">
-                    <i class="fas fa-user-clock"></i>
-                </div>
-                <div class="stat-content">
-                    <h4>Registros Hoy</h4>
-                    <span class="stat-number">
-                        <?= count(array_filter($usuarios, fn($u) => date('Y-m-d', strtotime($u->fecha_creacion ?? '1970-01-01')) === date('Y-m-d'))) ?>
-                    </span>
-                </div>
+            <div class="stat-content">
+                <h4>Total Usuarios</h4>
+                <span class="stat-number"><?= count($usuarios) ?></span>
             </div>
-            <div class="stat-item">
-                <div class="stat-icon bg-red">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h4>Usuarios Inactivos</h4>
-                    <span class="stat-number">
-                        <?= count(array_filter($usuarios, fn($u) => $u['estado'] == 0)) ?>
-                    </span>
-                </div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon bg-green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h4>Usuarios Activos</h4>
+                <span class="stat-number">
+                    <?= count(array_filter($usuarios, fn($u) => $u['estado'] == 1)) ?>
+                </span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon bg-yellow">
+                <i class="fas fa-user-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h4>Registros Hoy</h4>
+                <span class="stat-number">
+                    <?= count(array_filter($usuarios, fn($u) => date('Y-m-d', strtotime($u->fecha_creacion ?? '1970-01-01')) === date('Y-m-d'))) ?>
+                </span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-icon bg-red">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h4>Usuarios Inactivos</h4>
+                <span class="stat-number">
+                    <?= count(array_filter($usuarios, fn($u) => $u['estado'] == 0)) ?>
+                </span>
             </div>
         </div>
     </div>
