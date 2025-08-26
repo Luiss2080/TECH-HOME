@@ -96,13 +96,13 @@ class AdminController extends Controller
     {
         try {
             $usuarios = $this->adminService->getAllUsers();
-            return view('admin.usuarios', [
+            return view('admin.usuarios.index', [
                 'title' => 'Gestión de Usuarios - Panel de Administración',
                 'usuarios' => $usuarios
             ]);
         } catch (Exception $e) {
             Session::flash('error', 'Error al cargar usuarios: ' . $e->getMessage());
-            return view('admin.usuarios', [
+            return view('admin.usuarios.index', [
                 'title' => 'Gestión de Usuarios - Panel de Administración',
                 'usuarios' => []
             ]);

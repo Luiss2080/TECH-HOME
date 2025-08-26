@@ -2,6 +2,7 @@
 
 use App\Services\AdminService;
 ?>
+<link rel="stylesheet" href="<?= asset('css/admin/admin.css') ?>">
 
 <div class="dashboard-content">
 

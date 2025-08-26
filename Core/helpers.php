@@ -143,7 +143,7 @@ function back(): string
 /**
  * Retorna una vista
  */
-function view($view, $data = [], $layout = 'layouts/app', $statusCode = 200): \Core\Response
+function view(string $view, array $data = [], string $layout = 'layouts/app', int $statusCode = 200): \Core\Response
 {
     // Extraer los datos para que estén disponibles en la vista
     extract($data);

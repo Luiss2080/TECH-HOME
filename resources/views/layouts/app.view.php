@@ -22,7 +22,6 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
     <meta http-equiv="Expires" content="0">
 
     <!-- Estilos base -->
-    <link rel="stylesheet" href="<?= asset('css/admin/admin.css') ?>">
     <meta name="author" content="Desarrollado por estudiantes de la UPDS">
     <link rel="icon" href="<?= asset('faviconTH.png') ?>" type="image/png">
 
