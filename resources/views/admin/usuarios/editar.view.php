@@ -13,7 +13,7 @@ if (!$usuario) {
 ?>
 
 <!-- Estilos específicos para el módulo CRUD - Editar -->
-<link rel="stylesheet" href="<?= asset('css/CRUD/vistas.css'); ?>">
+<link rel="stylesheet" href="<?= asset('css/vistas.css'); ?>">
 
 <!-- Contenedor principal del CRUD de edición -->
 <div class="crud-edit-container">

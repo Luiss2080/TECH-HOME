@@ -19,7 +19,7 @@ foreach ($permisosUsuario as $permiso) {
 ?>
 
 <!-- Estilos específicos para el módulo CRUD - Editar Permisos -->
-<link rel="stylesheet" href="<?= asset('css/CRUD/vistas.css'); ?>">
+<link rel="stylesheet" href="<?= asset('css/vistas.css'); ?>">
 
 <!-- Contenedor principal del CRUD de edición de permisos -->
 <div class="crud-edit-container">

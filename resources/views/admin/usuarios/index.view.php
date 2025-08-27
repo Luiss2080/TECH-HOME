@@ -5,7 +5,7 @@ $roles = $roles ?? [];
 ?>
 
 <!-- Estilos específicos para el módulo CRUD -->
-<link rel="stylesheet" href="<?= asset('css/CRUD/index.css'); ?>">
+<link rel="stylesheet" href="<?= asset('css/index.css'); ?>">
 
 <!-- Contenedor principal del CRUD -->
 <div class="crud-container">

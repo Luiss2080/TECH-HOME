@@ -6,7 +6,7 @@ $roles = $roles ?? [];
 ?>
 
 <!-- Estilos específicos para el módulo CRUD - Crear -->
-<link rel="stylesheet" href="<?= asset('css/CRUD/vistas.css'); ?>">
+<link rel="stylesheet" href="<?= asset('css/vistas.css'); ?>">
 
 <!-- Contenedor principal del CRUD de creación -->
 <div class="crud-edit-container">
