@@ -3,6 +3,8 @@
 use App\Services\DocenteService;
 ?>
 
+<!-- Estilos específicos para el módulo  -->
+<link rel="stylesheet" href="<?= asset('css/admin/admin.css'); ?>">
 
 
 <div class="dashboard-content">

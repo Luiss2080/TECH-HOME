@@ -3,6 +3,9 @@ $title = $title ?? 'Editar Roles de Usuario';
 $errors = flashGet('errors') ?? [];
 ?>
 
+<!-- Estilos específicos para el módulo  -->
+<link rel="stylesheet" href="<?= asset('css/admin/admin.css'); ?>">
+
 <div class="dashboard-content">
     <!-- Header -->
     <div class="section-header">

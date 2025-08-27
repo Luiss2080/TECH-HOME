@@ -1,3 +1,6 @@
+<!-- Estilos específicos para el módulo  -->
+<link rel="stylesheet" href="<?= asset('css/admin/admin.css'); ?>">
+
 <div class="dashboard-content">
     <div class="section-card">
         <!-- Header -->
@@ -214,3 +217,4 @@
         </script>
 
     </div>
+</div>

@@ -1,3 +1,6 @@
+<!-- Estilos específicos para el módulo  -->
+<link rel="stylesheet" href="<?= asset('css/admin/admin.css'); ?>">
+
 <?php
 $title = $title ?? 'Configuración - Panel de Administración';
 ?>

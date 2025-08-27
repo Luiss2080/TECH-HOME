@@ -3,6 +3,9 @@
 // Datos de ejemplo estáticos para mostrar la estructura visual
 ?>
 
+<!-- Estilos específicos para el módulo  -->
+<link rel="stylesheet" href="<?= asset('css/admin/admin.css'); ?>">
+
 <div class="dashboard-content">
 
     <!-- Sección 1: Acciones Rápidas para Estudiante -->
