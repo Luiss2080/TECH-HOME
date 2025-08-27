@@ -201,6 +201,66 @@ body {
     opacity: 0.9;
 }
 
+/* ============================================
+   ESTILOS ESPECÍFICOS PARA TECH HOME HERO
+   ============================================ */
+.crud-section-card.tech-home-hero {
+    background: var(--background-card);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.tech-home-icon {
+    background: var(--gradient-primary) !important;
+}
+
+.tech-home-title {
+    background: linear-gradient(135deg, var(--primary-red), var(--primary-red-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tech-home-brand {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-top: 0.3rem;
+}
+
+.tech-home-subtitle {
+    font-size: 1rem !important;
+    color: var(--text-secondary);
+}
+
+.tech-home-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-indicator.online {
+    background: linear-gradient(135deg, var(--success-color), #34d399);
+    color: white;
+}
+
+.current-time {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    text-align: right;
+}
+
 .crud-section-header-actions {
     flex-shrink: 0;
     display: flex;

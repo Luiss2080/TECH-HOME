@@ -466,7 +466,6 @@ INSERT INTO `roles` (`id`, `nombre`, `descripcion`, `estado`, `fecha_creacion`) 
 (1, 'Administrador', 'Acceso completo al sistema', 1, '2025-08-18 15:16:30'),
 (2, 'Docente', 'Puede crear y gestionar cursos', 1, '2025-08-18 15:16:30'),
 (3, 'Estudiante', 'Puede acceder a cursos y materiales', 1, '2025-08-18 15:16:30'),
-(6, 'Mirones', 'astuto', 1, '2025-08-18 19:12:47');
 
 -- --------------------------------------------------------
 
