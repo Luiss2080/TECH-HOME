@@ -142,8 +142,9 @@ function back(): string
 
 /**
  * Retorna una vista
+ * 
  */
-function view(string $view, array $data = [], string $layout = 'layouts/app', int $statusCode = 200): \Core\Response
+function view($view,  $data = [], $layout = 'layouts/app',  $statusCode = 200): \Core\Response
 {
     // Extraer los datos para que estén disponibles en la vista
     extract($data);
@@ -315,10 +316,10 @@ if (!function_exists('obtenerIniciales')) {
         if (empty($nombre)) {
             return 'NN';
         }
-        
+
         $palabras = explode(' ', trim($nombre));
         $iniciales = '';
-        
+
         foreach ($palabras as $palabra) {
             if (!empty($palabra)) {
                 $iniciales .= strtoupper(substr($palabra, 0, 1));
@@ -327,7 +328,7 @@ if (!function_exists('obtenerIniciales')) {
                 break;
             }
         }
-        
+
         return $iniciales ?: 'NN';
     }
 }
@@ -349,7 +350,7 @@ if (!function_exists('colorEstado')) {
             'stock_bajo' => '#f59e0b',
             'agotado' => '#ef4444'
         ];
-        
+
         return $colores[strtolower($estado)] ?? '#6b7280';
     }
 }
@@ -371,16 +372,16 @@ if (!function_exists('tipoMaterialIcono')) {
             'zip' => 'file-archive',
             'link' => 'link'
         ];
-        
+
         $tipoLower = strtolower($tipo);
-        
+
         // Buscar por coincidencia parcial
         foreach ($iconos as $key => $icono) {
             if (strpos($tipoLower, $key) !== false) {
                 return $icono;
             }
         }
-        
+
         return 'file-alt'; // Icono por defecto
     }
 }
@@ -394,7 +395,7 @@ if (!function_exists('porcentajeProgreso')) {
         if ($total == 0) {
             return 0;
         }
-        
+
         return min(100, round(($actual / $total) * 100, 1));
     }
 }
@@ -429,10 +430,10 @@ if (!function_exists('formatearTiempo')) {
     function formatearTiempo($minutos)
     {
         if (!is_numeric($minutos) || $minutos <= 0) return '0min';
-        
+
         $horas = floor($minutos / 60);
         $minutosRestantes = $minutos % 60;
-        
+
         if ($horas > 0) {
             return $minutosRestantes > 0 ? "{$horas}h {$minutosRestantes}min" : "{$horas}h";
         }
@@ -453,7 +454,7 @@ if (!function_exists('estadoCurso')) {
                 'clase' => 'completado'
             ];
         }
-        
+
         if ($progreso >= 75) {
             return [
                 'texto' => 'Casi Terminado',
@@ -461,7 +462,7 @@ if (!function_exists('estadoCurso')) {
                 'clase' => 'casi-terminado'
             ];
         }
-        
+
         if ($progreso >= 1) {
             return [
                 'texto' => 'En Progreso',
@@ -469,7 +470,7 @@ if (!function_exists('estadoCurso')) {
                 'clase' => 'en-progreso'
             ];
         }
-        
+
         return [
             'texto' => 'No Iniciado',
             'color' => '#6b7280',
@@ -501,17 +502,17 @@ if (!function_exists('validarAccesoLibro')) {
         if ($libro['es_gratuito']) {
             return ['acceso' => true, 'razon' => null];
         }
-        
+
         // Usuarios invitados: solo libros gratuitos
         if ($esInvitado) {
             return ['acceso' => false, 'razon' => 'Requiere registro completo'];
         }
-        
+
         // Sin stock
         if ($libro['stock'] <= 0) {
             return ['acceso' => false, 'razon' => 'Sin stock disponible'];
         }
-        
+
         return ['acceso' => true, 'razon' => null];
     }
 }
