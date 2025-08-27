@@ -294,6 +294,9 @@ $roles = $roles ?? [];
             </div>
         </div>
 
+        <!-- Espacio de separacion -->
+        <div style="height: 40px;"></div>  
+
     </div>
 </div>
 
