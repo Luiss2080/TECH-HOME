@@ -1,1 +1,13 @@
+# Configuración local
+config/local.php
+# Uploads
+/publico/uploads/*
+!/publico/uploads/.gitkeep
+# Logs
+/logs/*
+*.log
+# Temporales
+*.tmp
+.DS_Store
+Thumbs.db
 .env
