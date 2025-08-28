@@ -320,15 +320,168 @@ Router::post('/cursos/{cursoId}/modulos/{moduloId}/completar', [CursoController:
     ->name('cursos.modulo.completar')
     ->middleware('auth');
 
-// ==================== OTRAS RUTAS DE MÓDULOS ====================
+// ==================== RUTAS PARA MÓDULO DE MATERIALES ====================
 
+// Rutas públicas de materiales (requieren autenticación)
+Router::get('/materiales', [MaterialController::class, 'index'])
+    ->name('materiales.index')
+    ->middleware('auth');
+
+Router::get('/materiales/{id}', [MaterialController::class, 'ver'])
+    ->name('materiales.show')
+    ->middleware('auth');
+
+Router::get('/materiales/{id}/descargar', [MaterialController::class, 'descargar'])
+    ->name('materiales.descargar')
+    ->middleware('auth');
+
+// Alias para compatibilidad
 Router::get('/materiales', [MaterialController::class, 'materiales'])
     ->name('materiales')
     ->middleware('role:docente,estudiante|has:materiales.ver');
 
+// Rutas administrativas de materiales
+Router::get('/admin/materiales', [MaterialController::class, 'index'])
+    ->name('admin.materiales')
+    ->middleware('role:administrador|has:admin.materiales');
+
+Router::get('/admin/materiales/crear', [MaterialController::class, 'crear'])
+    ->name('admin.materiales.crear')
+    ->middleware('role:administrador,docente|has:admin.materiales.crear');
+
+Router::post('/admin/materiales', [MaterialController::class, 'guardar'])
+    ->name('admin.materiales.store')
+    ->middleware('role:administrador,docente|has:admin.materiales.crear');
+
+Router::get('/admin/materiales/{id}/editar', [MaterialController::class, 'editar'])
+    ->name('admin.materiales.editar')
+    ->middleware('role:administrador,docente|has:admin.materiales.editar');
+
+Router::put('/admin/materiales/{id}', [MaterialController::class, 'actualizar'])
+    ->name('admin.materiales.update')
+    ->middleware('role:administrador,docente|has:admin.materiales.editar');
+
+Router::delete('/admin/materiales/{id}', [MaterialController::class, 'eliminar'])
+    ->name('admin.materiales.delete')
+    ->middleware('role:administrador|has:admin.materiales.eliminar');
+
+Router::get('/admin/materiales/{id}', [MaterialController::class, 'ver'])
+    ->name('admin.materiales.show')
+    ->middleware('role:administrador,docente|has:admin.materiales.ver');
+
+// Acciones específicas para materiales
+Router::post('/admin/materiales/{id}/estado', [MaterialController::class, 'cambiarEstado'])
+    ->name('admin.materiales.estado')
+    ->middleware('role:administrador,docente|has:admin.materiales.editar');
+
+Router::post('/admin/materiales/{id}/visibilidad', [MaterialController::class, 'cambiarVisibilidad'])
+    ->name('admin.materiales.visibilidad')
+    ->middleware('role:administrador,docente|has:admin.materiales.editar');
+
+Router::post('/admin/materiales/{id}/duplicar', [MaterialController::class, 'duplicar'])
+    ->name('admin.materiales.duplicar')
+    ->middleware('role:administrador,docente|has:admin.materiales.crear');
+
+// Búsqueda y filtros de materiales
+Router::get('/admin/materiales/buscar', [MaterialController::class, 'buscar'])
+    ->name('admin.materiales.buscar')
+    ->middleware('role:administrador,docente|has:admin.materiales.ver');
+
+// Rutas AJAX para materiales
+Router::get('/ajax/materiales/estadisticas', [MaterialController::class, 'estadisticas'])
+    ->name('ajax.materiales.estadisticas')
+    ->middleware('role:administrador,docente|has:admin.materiales.ver');
+
+Router::get('/ajax/materiales/docente/{docenteId}', [MaterialController::class, 'porDocente'])
+    ->name('ajax.materiales.docente')
+    ->middleware('role:administrador,docente|has:admin.materiales.ver');
+
+Router::get('/ajax/materiales/categoria/{categoriaId}', [MaterialController::class, 'porCategoria'])
+    ->name('ajax.materiales.categoria')
+    ->middleware('role:administrador,docente,estudiante|has:materiales.ver');
+
+// ==================== OTRAS RUTAS DE MÓDULOS ====================
+
+// ==================== RUTAS PARA MÓDULO DE LABORATORIOS ====================
+
+// Página principal de laboratorios (vista pública)
 Router::get('/laboratorios', [LaboratorioController::class, 'laboratorios'])
     ->name('laboratorios')
     ->middleware('role:docente,estudiante|has:laboratorios.ver');
+
+// Rutas administrativas para laboratorios
+Router::get('/admin/laboratorios', [LaboratorioController::class, 'index'])
+    ->name('admin.laboratorios')
+    ->middleware('role:administrador|has:admin.laboratorios');
+
+Router::get('/admin/laboratorios/crear', [LaboratorioController::class, 'create'])
+    ->name('admin.laboratorios.crear')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.crear');
+
+Router::post('/admin/laboratorios', [LaboratorioController::class, 'store'])
+    ->name('admin.laboratorios.store')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.crear');
+
+Router::get('/admin/laboratorios/{id}', [LaboratorioController::class, 'show'])
+    ->name('admin.laboratorios.show')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.ver');
+
+Router::get('/admin/laboratorios/{id}/editar', [LaboratorioController::class, 'edit'])
+    ->name('admin.laboratorios.editar')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+Router::put('/admin/laboratorios/{id}', [LaboratorioController::class, 'update'])
+    ->name('admin.laboratorios.update')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+Router::delete('/admin/laboratorios/{id}', [LaboratorioController::class, 'destroy'])
+    ->name('admin.laboratorios.delete')
+    ->middleware('role:administrador|has:admin.laboratorios.eliminar');
+
+// Acciones específicas para laboratorios
+Router::post('/admin/laboratorios/{id}/estado', [LaboratorioController::class, 'changeStatus'])
+    ->name('admin.laboratorios.estado')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+Router::post('/admin/laboratorios/{id}/publico', [LaboratorioController::class, 'changePublicStatus'])
+    ->name('admin.laboratorios.publico')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+Router::post('/admin/laboratorios/{id}/destacado', [LaboratorioController::class, 'changeDestacadoStatus'])
+    ->name('admin.laboratorios.destacado')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+Router::post('/admin/laboratorios/{id}/duplicar', [LaboratorioController::class, 'duplicate'])
+    ->name('admin.laboratorios.duplicar')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.crear');
+
+Router::get('/admin/laboratorios/{id}/exportar', [LaboratorioController::class, 'export'])
+    ->name('admin.laboratorios.exportar')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.ver');
+
+// Gestión de participantes
+Router::post('/admin/laboratorios/{id}/participantes', [LaboratorioController::class, 'addParticipante'])
+    ->name('admin.laboratorios.participante.agregar')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+Router::delete('/admin/laboratorios/{id}/participantes', [LaboratorioController::class, 'removeParticipante'])
+    ->name('admin.laboratorios.participante.remover')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+// Actualización de fechas
+Router::put('/admin/laboratorios/{id}/fechas', [LaboratorioController::class, 'updateFechas'])
+    ->name('admin.laboratorios.fechas')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.editar');
+
+// Búsqueda y filtros de laboratorios
+Router::get('/admin/laboratorios/buscar', [LaboratorioController::class, 'search'])
+    ->name('admin.laboratorios.buscar')
+    ->middleware('role:administrador,docente|has:admin.laboratorios.ver');
+
+// Dashboard específico para docentes
+Router::get('/docente/laboratorios/dashboard', [LaboratorioController::class, 'dashboard'])
+    ->name('docente.laboratorios.dashboard')
+    ->middleware('role:docente|has:docente.laboratorios');
 
 
 Router::get('/componentes', [ComponenteController::class, 'componentes'])

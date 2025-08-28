@@ -268,6 +268,18 @@ body {
     gap: 1rem;
 }
 
+.crud-section-header-actions .crud-btn-secondary {
+    background: var(--primary-red) !important;
+    color: white !important;
+    border: 1px solid var(--primary-red) !important;
+}
+
+.crud-section-header-actions .crud-btn-secondary:hover {
+    background: var(--primary-red-light) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
 /* ============================================
    BREADCRUMB INTEGRADO
    ============================================ */

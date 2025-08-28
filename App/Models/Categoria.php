@@ -34,6 +34,11 @@ class Categoria extends Model
         return $this->hasMany(Componente::class, 'categoria_id', 'id');
     }
 
+    public function materiales()
+    {
+        return $this->hasMany(Material::class, 'categoria_id', 'id');
+    }
+
     // Scopes
     public static function porTipo($tipo)
     {

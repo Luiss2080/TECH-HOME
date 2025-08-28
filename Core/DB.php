@@ -17,7 +17,7 @@ class DB
         $this->connect();
     }
 
-    public static function getInstance(array $config = null)
+    public static function getInstance(?array $config = null)
     {
         if (!self::$instance) {
             if (!$config) {
