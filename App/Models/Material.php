@@ -69,6 +69,14 @@ class Material extends Model
     }
 
     /**
+     * Materiales disponibles (activos y públicos)
+     */
+    public static function disponibles()
+    {
+        return self::where('estado', '=', 1)->where('publico', '=', 1);
+    }
+
+    /**
      * Materiales por tipo
      */
     public static function porTipo($tipo)

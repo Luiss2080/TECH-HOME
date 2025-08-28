@@ -2,23 +2,477 @@
 
 namespace App\Controllers;
 
+use App\Services\ComponenteService;
 use Core\Controller;
+use Core\Request;
+use Core\Session;
+use Core\Validation;
+use Exception;
 
 class ComponenteController extends Controller
 {
-    public function componentes()
+    private $componenteService;
+
+    public function __construct()
     {
-        return view('componentes.index', [
-            'title' => 'Gestión de Componentes',
-            'ruta' => '/componentes'
-        ]);
+        parent::__construct();
+        $this->componenteService = new ComponenteService();
     }
 
+    /**
+     * Listado principal de componentes
+     */
+    public function componentes()
+    {
+        try {
+            $filtros = [
+                'busqueda' => $_GET['busqueda'] ?? '',
+                'categoria_id' => $_GET['categoria_id'] ?? '',
+                'estado' => $_GET['estado'] ?? '',
+                'marca' => $_GET['marca'] ?? '',
+                'stock_bajo' => isset($_GET['stock_bajo']) ? (bool)$_GET['stock_bajo'] : false,
+                'pagina' => (int)($_GET['pagina'] ?? 1),
+                'por_pagina' => (int)($_GET['por_pagina'] ?? 20)
+            ];
+
+            $data = $this->componenteService->listarComponentes($filtros);
+            
+            return view('componentes.index', [
+                'title' => 'Gestión de Componentes',
+                'componentes' => $data['componentes'],
+                'categorias' => $data['categorias'],
+                'marcas' => $data['marcas'],
+                'paginacion' => $data['paginacion'],
+                'filtros' => $filtros,
+                'estadisticas' => $data['estadisticas']
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar componentes: ' . $e->getMessage());
+            return view('componentes.index', [
+                'title' => 'Gestión de Componentes',
+                'componentes' => [],
+                'categorias' => [],
+                'marcas' => [],
+                'paginacion' => null,
+                'filtros' => $filtros,
+                'estadisticas' => []
+            ]);
+        }
+    }
+
+    /**
+     * Formulario para crear nuevo componente
+     */
     public function crearComponente()
     {
-        return view('componentes.crear', [
-            'title' => 'Crear Nuevo Componente',
-            'ruta' => '/componentes/crear'
-        ]);
+        try {
+            $categorias = $this->componenteService->obtenerCategoriasComponentes();
+            
+            return view('componentes.crear', [
+                'title' => 'Crear Componente',
+                'categorias' => $categorias
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar formulario: ' . $e->getMessage());
+            return redirect(route('componentes'));
+        }
+    }
+
+    /**
+     * Guardar nuevo componente
+     */
+    public function guardarComponente(Request $request)
+    {
+        try {
+            // Validaciones
+            $rules = [
+                'nombre' => 'required|min:3|max:200',
+                'descripcion' => 'nullable|max:1000',
+                'categoria_id' => 'required|integer',
+                'codigo_producto' => 'nullable|max:50',
+                'marca' => 'nullable|max:100',
+                'modelo' => 'nullable|max:100',
+                'precio' => 'required|numeric|min:0.01',
+                'stock' => 'required|integer|min:0',
+                'stock_minimo' => 'required|integer|min:0',
+                'proveedor' => 'nullable|max:150',
+                'estado' => 'required|in:Disponible,Agotado,Descontinuado'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->errors());
+                Session::flash('old', $request->all());
+                return redirect(route('componentes.crear'));
+            }
+
+            // Verificar que la categoría existe y es de tipo componente
+            if (!$this->componenteService->categoriaValida($request->input('categoria_id'))) {
+                Session::flash('error', 'La categoría seleccionada no es válida para componentes.');
+                Session::flash('old', $request->all());
+                return redirect(route('componentes.crear'));
+            }
+
+            // Verificar código de producto único si se proporciona
+            $codigoProducto = $request->input('codigo_producto');
+            if ($codigoProducto && $this->componenteService->codigoProductoExiste($codigoProducto)) {
+                Session::flash('error', 'El código de producto ya está en uso.');
+                Session::flash('old', $request->all());
+                return redirect(route('componentes.crear'));
+            }
+
+            // Preparar datos del componente
+            $componenteData = [
+                'nombre' => trim($request->input('nombre')),
+                'descripcion' => $request->input('descripcion'),
+                'categoria_id' => (int)$request->input('categoria_id'),
+                'codigo_producto' => $codigoProducto,
+                'marca' => $request->input('marca'),
+                'modelo' => $request->input('modelo'),
+                'precio' => (float)$request->input('precio'),
+                'stock' => (int)$request->input('stock'),
+                'stock_minimo' => (int)$request->input('stock_minimo'),
+                'proveedor' => $request->input('proveedor'),
+                'estado' => $request->input('estado')
+            ];
+
+            // Procesar especificaciones técnicas si están presentes
+            $especificaciones = $this->procesarEspecificaciones($request);
+            if (!empty($especificaciones)) {
+                $componenteData['especificaciones'] = json_encode($especificaciones, JSON_UNESCAPED_UNICODE);
+            }
+
+            // Crear componente
+            $componenteId = $this->componenteService->crearComponente($componenteData);
+
+            Session::flash('success', 'Componente creado exitosamente.');
+            return redirect(route('componentes.ver', ['id' => $componenteId]));
+
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al crear componente: ' . $e->getMessage());
+            Session::flash('old', $request->all());
+            return redirect(route('componentes.crear'));
+        }
+    }
+
+    /**
+     * Ver detalles de un componente
+     */
+    public function verComponente(Request $request, $id)
+    {
+        try {
+            $componente = $this->componenteService->obtenerComponentePorId($id);
+            
+            if (!$componente) {
+                Session::flash('error', 'Componente no encontrado.');
+                return redirect(route('componentes'));
+            }
+
+            // Obtener historial de ventas del componente
+            $historialVentas = $this->componenteService->obtenerHistorialVentas($id);
+            
+            // Obtener movimientos de stock
+            $movimientosStock = $this->componenteService->obtenerMovimientosStock($id);
+
+            return view('componentes.ver', [
+                'title' => 'Ver Componente - ' . $componente->nombre,
+                'componente' => $componente,
+                'historial_ventas' => $historialVentas,
+                'movimientos_stock' => $movimientosStock
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar componente: ' . $e->getMessage());
+            return redirect(route('componentes'));
+        }
+    }
+
+    /**
+     * Formulario para editar componente
+     */
+    public function editarComponente(Request $request, $id)
+    {
+        try {
+            $componente = $this->componenteService->obtenerComponentePorId($id);
+            
+            if (!$componente) {
+                Session::flash('error', 'Componente no encontrado.');
+                return redirect(route('componentes'));
+            }
+
+            $categorias = $this->componenteService->obtenerCategoriasComponentes();
+
+            return view('componentes.editar', [
+                'title' => 'Editar Componente - ' . $componente->nombre,
+                'componente' => $componente,
+                'categorias' => $categorias
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar componente: ' . $e->getMessage());
+            return redirect(route('componentes'));
+        }
+    }
+
+    /**
+     * Actualizar componente
+     */
+    public function actualizarComponente(Request $request, $id)
+    {
+        try {
+            $componente = $this->componenteService->obtenerComponentePorId($id);
+            
+            if (!$componente) {
+                Session::flash('error', 'Componente no encontrado.');
+                return redirect(route('componentes'));
+            }
+
+            // Validaciones
+            $rules = [
+                'nombre' => 'required|min:3|max:200',
+                'descripcion' => 'nullable|max:1000',
+                'categoria_id' => 'required|integer',
+                'codigo_producto' => 'nullable|max:50',
+                'marca' => 'nullable|max:100',
+                'modelo' => 'nullable|max:100',
+                'precio' => 'required|numeric|min:0.01',
+                'stock' => 'required|integer|min:0',
+                'stock_minimo' => 'required|integer|min:0',
+                'proveedor' => 'nullable|max:150',
+                'estado' => 'required|in:Disponible,Agotado,Descontinuado'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->errors());
+                Session::flash('old', $request->all());
+                return redirect(route('componentes.editar', ['id' => $id]));
+            }
+
+            // Verificar categoría válida
+            if (!$this->componenteService->categoriaValida($request->input('categoria_id'))) {
+                Session::flash('error', 'La categoría seleccionada no es válida para componentes.');
+                Session::flash('old', $request->all());
+                return redirect(route('componentes.editar', ['id' => $id]));
+            }
+
+            // Verificar código de producto único si cambió
+            $codigoProducto = $request->input('codigo_producto');
+            if ($codigoProducto && $codigoProducto !== $componente->codigo_producto) {
+                if ($this->componenteService->codigoProductoExiste($codigoProducto, $id)) {
+                    Session::flash('error', 'El código de producto ya está en uso por otro componente.');
+                    Session::flash('old', $request->all());
+                    return redirect(route('componentes.editar', ['id' => $id]));
+                }
+            }
+
+            // Preparar datos actualizados
+            $componenteData = [
+                'nombre' => trim($request->input('nombre')),
+                'descripcion' => $request->input('descripcion'),
+                'categoria_id' => (int)$request->input('categoria_id'),
+                'codigo_producto' => $codigoProducto,
+                'marca' => $request->input('marca'),
+                'modelo' => $request->input('modelo'),
+                'precio' => (float)$request->input('precio'),
+                'stock' => (int)$request->input('stock'),
+                'stock_minimo' => (int)$request->input('stock_minimo'),
+                'proveedor' => $request->input('proveedor'),
+                'estado' => $request->input('estado')
+            ];
+
+            // Procesar especificaciones técnicas
+            $especificaciones = $this->procesarEspecificaciones($request);
+            if (!empty($especificaciones)) {
+                $componenteData['especificaciones'] = json_encode($especificaciones, JSON_UNESCAPED_UNICODE);
+            }
+
+            // Actualizar componente
+            $this->componenteService->actualizarComponente($id, $componenteData);
+
+            Session::flash('success', 'Componente actualizado exitosamente.');
+            return redirect(route('componentes.ver', ['id' => $id]));
+
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al actualizar componente: ' . $e->getMessage());
+            Session::flash('old', $request->all());
+            return redirect(route('componentes.editar', ['id' => $id]));
+        }
+    }
+
+    /**
+     * Eliminar componente (cambiar estado a Descontinuado)
+     */
+    public function eliminarComponente(Request $request, $id)
+    {
+        try {
+            $componente = $this->componenteService->obtenerComponentePorId($id);
+            
+            if (!$componente) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Componente no encontrado.'
+                ], 404);
+            }
+
+            // Verificar si el componente tiene ventas asociadas
+            if ($this->componenteService->tieneVentasAsociadas($id)) {
+                // No eliminar físicamente, solo cambiar estado
+                $this->componenteService->descontinuarComponente($id);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Componente marcado como descontinuado debido a ventas asociadas.'
+                ]);
+            } else {
+                // Eliminar físicamente si no tiene ventas
+                $this->componenteService->eliminarComponente($id);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Componente eliminado exitosamente.'
+                ]);
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar componente: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Ajustar stock de componente
+     */
+    public function ajustarStock(Request $request, $id)
+    {
+        try {
+            $componente = $this->componenteService->obtenerComponentePorId($id);
+            
+            if (!$componente) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Componente no encontrado.'
+                ], 404);
+            }
+
+            // Validar datos de ajuste de stock
+            $rules = [
+                'tipo_movimiento' => 'required|in:entrada,salida,ajuste',
+                'cantidad' => 'required|integer|min:1',
+                'motivo' => 'required|min:5|max:255'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos de ajuste inválidos.',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            // Realizar ajuste de stock
+            $resultado = $this->componenteService->ajustarStock(
+                $id,
+                $request->input('tipo_movimiento'),
+                (int)$request->input('cantidad'),
+                $request->input('motivo'),
+                auth()->id
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Stock ajustado exitosamente.',
+                'nuevo_stock' => $resultado['nuevo_stock']
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al ajustar stock: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener componentes con stock bajo (AJAX)
+     */
+    public function stockBajo()
+    {
+        try {
+            header('Content-Type: application/json');
+
+            if (strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') !== 'xmlhttprequest') {
+                throw new Exception('Solo se permiten peticiones AJAX');
+            }
+
+            $componentes = $this->componenteService->obtenerComponentesStockBajo();
+
+            return response()->json([
+                'success' => true,
+                'data' => $componentes
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Búsqueda de componentes (AJAX)
+     */
+    public function buscar()
+    {
+        try {
+            header('Content-Type: application/json');
+
+            if (strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') !== 'xmlhttprequest') {
+                throw new Exception('Solo se permiten peticiones AJAX');
+            }
+
+            $termino = $_GET['q'] ?? '';
+            $limite = (int)($_GET['limite'] ?? 10);
+
+            $componentes = $this->componenteService->buscarComponentes($termino, $limite);
+
+            return response()->json([
+                'success' => true,
+                'data' => $componentes
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Procesar especificaciones técnicas del formulario
+     */
+    private function procesarEspecificaciones(Request $request): array
+    {
+        $especificaciones = [];
+
+        // Obtener especificaciones dinámicas del formulario
+        $especKeys = $request->input('espec_keys', []);
+        $especValues = $request->input('espec_values', []);
+
+        if (is_array($especKeys) && is_array($especValues)) {
+            for ($i = 0; $i < count($especKeys); $i++) {
+                $key = trim($especKeys[$i] ?? '');
+                $value = trim($especValues[$i] ?? '');
+                
+                if (!empty($key) && !empty($value)) {
+                    $especificaciones[$key] = $value;
+                }
+            }
+        }
+
+        return $especificaciones;
     }
 }

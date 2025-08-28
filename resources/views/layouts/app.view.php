@@ -179,7 +179,7 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                                 <span class="ithr-nav-badge"><?php
                                     try {
                                         // Obtener contador dinámico de libros disponibles
-                                        $contadorLibros = \App\Models\Libro::where('estado', '=', 'activo')->count();
+                                        $contadorLibros = \App\Models\Libro::disponibles()->count();
                                         echo $contadorLibros;
                                     } catch (Exception $e) {
                                         echo '0';
@@ -194,7 +194,7 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                                 <span class="ithr-nav-badge"><?php
                                     try {
                                         // Obtener contador dinámico de materiales disponibles
-                                        $contadorMateriales = \App\Models\Material::where('estado', '=', 'publicado')->count();
+                                        $contadorMateriales = \App\Models\Material::disponibles()->count();
                                         echo $contadorMateriales;
                                     } catch (Exception $e) {
                                         echo '0';
@@ -208,8 +208,8 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                                 <span class="ithr-nav-text">Laboratorios</span>
                                 <span class="ithr-nav-badge"><?php
                                     try {
-                                        // Obtener contador dinámico de laboratorios activos
-                                        $contadorLaboratorios = \App\Models\Laboratorio::where('estado', '=', 'activo')->count();
+                                        // Obtener contador dinámico de laboratorios disponibles
+                                        $contadorLaboratorios = \App\Models\Laboratorio::disponibles()->count();
                                         echo $contadorLaboratorios;
                                     } catch (Exception $e) {
                                         echo '0';
@@ -224,9 +224,7 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                                 <span class="ithr-nav-badge"><?php
                                     try {
                                         // Obtener contador dinámico de componentes disponibles
-                                        $contadorComponentes = \App\Models\Componente::where('estado', '!=', 'Descontinuado')
-                                            ->where('stock', '>', 0)
-                                            ->count();
+                                        $contadorComponentes = \App\Models\Componente::disponibles()->count();
                                         echo $contadorComponentes;
                                     } catch (Exception $e) {
                                         echo '0';

@@ -212,37 +212,33 @@ Router::get('/ajax/cursos/buscar', [CursoController::class, 'buscarCursos'])
 
 // ==================== RUTAS PARA MÓDULO DE LIBROS ====================
 
-// Rutas públicas de libros (requieren autenticación)
+// Rutas públicas de libros
 Router::get('/libros', [LibroController::class, 'index'])
-    ->name('libros.index')
-    ->middleware('auth');
+    ->name('libros.index');
 
 Router::get('/libros/{id}', [LibroController::class, 'show'])
-    ->name('libros.show')
-    ->middleware('auth');
-
-Router::get('/libros/{id}/descargar', [LibroController::class, 'descargar'])
-    ->name('libros.descargar')
-    ->middleware('auth');
+    ->name('libros.show');
 
 // Alias para compatibilidad
 Router::get('/libros', [LibroController::class, 'libros'])
-    ->name('libros')
-    ->middleware('role:docente,estudiante|has:libros.ver');
+    ->name('libros');
 
 // Rutas administrativas de libros
 Router::get('/admin/libros', [LibroController::class, 'admin'])
     ->name('admin.libros')
     ->middleware('role:administrador|has:admin.libros');
 
+Router::get('/admin/libros', [LibroController::class, 'admin'])
+    ->name('libros.admin')
+    ->middleware('role:administrador|has:admin.libros');
+
 Router::get('/admin/libros/crear', [LibroController::class, 'create'])
     ->name('admin.libros.crear')
     ->middleware('role:administrador|has:admin.libros.crear');
 
-// Alias para compatibilidad
-Router::get('/libros/crear', [LibroController::class, 'crearLibro'])
+Router::get('/admin/libros/crear', [LibroController::class, 'create'])
     ->name('libros.crear')
-    ->middleware('role:docente|has:libros.crear');
+    ->middleware('role:administrador|has:admin.libros.crear');
 
 Router::post('/admin/libros', [LibroController::class, 'store'])
     ->name('admin.libros.store')
@@ -250,6 +246,10 @@ Router::post('/admin/libros', [LibroController::class, 'store'])
 
 Router::get('/admin/libros/{id}/editar', [LibroController::class, 'edit'])
     ->name('admin.libros.editar')
+    ->middleware('role:administrador|has:admin.libros.editar');
+
+Router::get('/admin/libros/{id}/editar', [LibroController::class, 'edit'])
+    ->name('libros.editar')
     ->middleware('role:administrador|has:admin.libros.editar');
 
 Router::put('/admin/libros/{id}', [LibroController::class, 'update'])
@@ -269,27 +269,12 @@ Router::put('/admin/libros/{id}/stock', [LibroController::class, 'actualizarStoc
     ->name('admin.libros.stock')
     ->middleware('role:administrador|has:admin.libros.editar');
 
-Router::get('/admin/libros/{id}/descargas', [LibroController::class, 'verDescargas'])
-    ->name('admin.libros.descargas')
-    ->middleware('role:administrador|has:admin.libros.ver');
-
-// Reportes de libros
-Router::get('/admin/libros/reportes', [LibroController::class, 'reporte'])
-    ->name('admin.libros.reportes')
-    ->middleware('role:administrador|has:admin.reportes');
-
-// APIs AJAX para búsqueda y funcionalidades
+// APIs AJAX para búsqueda
 Router::get('/ajax/libros/buscar', [LibroController::class, 'buscar'])
-    ->name('ajax.libros.buscar')
-    ->middleware('auth');
+    ->name('ajax.libros.buscar');
 
 Router::get('/ajax/libros/{id}/info', [LibroController::class, 'info'])
-    ->name('ajax.libros.info')
-    ->middleware('auth');
-
-Router::get('/ajax/libros/{id}/disponibilidad', [LibroController::class, 'verificarDisponibilidad'])
-    ->name('ajax.libros.disponibilidad')
-    ->middleware('auth');
+    ->name('ajax.libros.info');
 
 
 
@@ -299,25 +284,7 @@ Router::get('/ajax/libros/{id}/disponibilidad', [LibroController::class, 'verifi
 
 
 
-// ==================== RUTAS PARA FAVORITOS Y CALIFICACIONES ====================
 
-// Favoritos - Libros
-Router::post('/libros/{id}/favorito', [LibroController::class, 'toggleFavorito'])
-    ->name('libros.favorito')
-    ->middleware('auth');
-
-Router::get('/mis-favoritos-libros', [LibroController::class, 'misFavoritos'])
-    ->name('libros.mis-favoritos')
-    ->middleware('auth');
-
-// Calificaciones - Libros
-Router::post('/libros/{id}/calificar', [LibroController::class, 'calificar'])
-    ->name('libros.calificar')
-    ->middleware('auth');
-
-Router::get('/libros/{id}/calificaciones', [LibroController::class, 'getCalificaciones'])
-    ->name('libros.calificaciones')
-    ->middleware('auth');
 
 // Favoritos - Cursos
 Router::post('/cursos/{id}/favorito', [CursoController::class, 'toggleFavorito'])
@@ -525,6 +492,38 @@ Router::get('/componentes', [ComponenteController::class, 'componentes'])
 Router::get('/componentes/crear', [ComponenteController::class, 'crearComponente'])
     ->name('componentes.crear')
     ->middleware('role:administrador,vendedor|has:componentes.crear');
+
+Router::post('/componentes/crear', [ComponenteController::class, 'guardarComponente'])
+    ->name('componentes.guardar')
+    ->middleware('role:administrador,vendedor|has:componentes.crear');
+
+Router::get('/componentes/ver/{id}', [ComponenteController::class, 'verComponente'])
+    ->name('componentes.ver')
+    ->middleware('role:administrador,docente,estudiante,vendedor|has:componentes.ver');
+
+Router::get('/componentes/editar/{id}', [ComponenteController::class, 'editarComponente'])
+    ->name('componentes.editar')
+    ->middleware('role:administrador,vendedor|has:componentes.editar');
+
+Router::post('/componentes/editar/{id}', [ComponenteController::class, 'actualizarComponente'])
+    ->name('componentes.actualizar')
+    ->middleware('role:administrador,vendedor|has:componentes.editar');
+
+Router::delete('/componentes/eliminar/{id}', [ComponenteController::class, 'eliminarComponente'])
+    ->name('componentes.eliminar')
+    ->middleware('role:administrador|has:componentes.eliminar');
+
+Router::post('/componentes/ajustar-stock/{id}', [ComponenteController::class, 'ajustarStock'])
+    ->name('componentes.ajustar_stock')
+    ->middleware('role:administrador,vendedor|has:componentes.editar');
+
+Router::get('/api/componentes/stock-bajo', [ComponenteController::class, 'stockBajo'])
+    ->name('api.componentes.stock_bajo')
+    ->middleware('role:administrador,vendedor|has:componentes.ver');
+
+Router::get('/api/componentes/buscar', [ComponenteController::class, 'buscar'])
+    ->name('api.componentes.buscar')
+    ->middleware('role:administrador,docente,estudiante,vendedor|has:componentes.ver');
 
 Router::get('/docente/dashboard', [DocenteController::class, 'dashboard'])
     ->name('docente.dashboard')

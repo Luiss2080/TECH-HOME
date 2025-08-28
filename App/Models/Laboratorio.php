@@ -113,6 +113,14 @@ class Laboratorio extends Model
     }
 
     /**
+     * Laboratorios disponibles (activos y públicos)
+     */
+    public static function disponibles()
+    {
+        return self::whereIn('estado', ['En Progreso', 'Completado'])->where('publico', '=', 1);
+    }
+
+    /**
      * Laboratorios recientes
      */
     public static function recientes(int $dias = 30)

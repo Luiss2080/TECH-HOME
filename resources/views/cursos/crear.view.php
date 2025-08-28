@@ -308,12 +308,6 @@ $isDocente = $user && $user->hasRole('docente') && !$user->hasRole('administrado
                         <nav aria-label="breadcrumb" class="crud-breadcrumb-nav">
                             <ol class="crud-breadcrumb">
                                 <li class="crud-breadcrumb-item">
-                                    <a href="<?= route('admin.dashboard') ?>">
-                                        <i class="fas fa-tachometer-alt"></i>
-                                        Dashboard
-                                    </a>
-                                </li>
-                                <li class="crud-breadcrumb-item">
                                     <a href="<?= route('cursos') ?>">
                                         <i class="fas fa-play-circle"></i>
                                         Cursos
@@ -362,12 +356,13 @@ $isDocente = $user && $user->hasRole('docente') && !$user->hasRole('administrado
         <?php endif; ?>
 
         <!-- Errores de validación -->
-        <?php if (!empty($errors)): ?>
+        <?php if (flashGet('errors')): ?>
             <div class="crud-alert crud-alert-danger">
                 <i class="fas fa-exclamation-triangle"></i>
                 <div class="crud-alert-content">
                     <strong>Por favor corrige los siguientes errores:</strong>
                     <ul class="crud-error-list">
+                        <?php $errors = flashGet('errors'); ?>
                         <?php foreach ($errors as $field => $fieldErrors): ?>
                             <?php if (is_array($fieldErrors)): ?>
                                 <?php foreach ($fieldErrors as $error): ?>
@@ -410,7 +405,7 @@ $isDocente = $user && $user->hasRole('docente') && !$user->hasRole('administrado
                                    class="crud-form-control <?= isset($errors['titulo']) ? 'is-invalid' : '' ?>"
                                    id="crudTitulo" 
                                    name="titulo" 
-                                   value="<?= htmlspecialchars($old['titulo'] ?? '') ?>" 
+                                   value="<?= htmlspecialchars(flashGet('old')['titulo'] ?? '') ?>" 
                                    required 
                                    maxlength="200"
                                    placeholder="Ej: Introducción a la Robótica con Arduino">
@@ -435,7 +430,7 @@ $isDocente = $user && $user->hasRole('docente') && !$user->hasRole('administrado
                                       required
                                       rows="4"
                                       maxlength="1000"
-                                      placeholder="Describe detalladamente el contenido, objetivos y beneficios del curso..."><?= htmlspecialchars($old['descripcion'] ?? '') ?></textarea>
+                                      placeholder="Describe detalladamente el contenido, objetivos y beneficios del curso..."><?= htmlspecialchars(flashGet('old')['descripcion'] ?? '') ?></textarea>
                             <div class="char-counter" id="descripcionCounter">0/1000 caracteres</div>
                             <div class="crud-form-text">
                                 <i class="fas fa-lightbulb"></i>
