@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:3306
--- Tiempo de generación: 18-08-2025 a las 21:55:33
--- Versión del servidor: 10.11.10-MariaDB-log
--- Versión de PHP: 8.1.10
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 27-08-2025 a las 03:28:16
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -46,6 +46,30 @@ CREATE TABLE `acceso_invitados` (
 
 INSERT INTO `acceso_invitados` (`id`, `usuario_id`, `fecha_inicio`, `fecha_vencimiento`, `dias_restantes`, `ultima_notificacion`, `notificaciones_enviadas`, `acceso_bloqueado`, `fecha_creacion`, `fecha_actualizacion`) VALUES
 (1, 6, '2025-08-18', '2025-08-21', 3, NULL, NULL, 0, '2025-08-18 15:16:31', '2025-08-18 15:16:31');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `activation_tokens`
+--
+
+CREATE TABLE `activation_tokens` (
+  `id` int(11) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `usado` tinyint(1) DEFAULT 0,
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `activation_tokens`
+--
+
+INSERT INTO `activation_tokens` (`id`, `email`, `token`, `usado`, `fecha_creacion`) VALUES
+(2, 'luisrochavela990@gmail.com', '977518154ce4e6209be95eaee5c0a273a23c68189bcf4a2ef03c777225389d29', 1, '2025-08-22 13:20:28'),
+(3, 'leonardopenaanez@gmail.com', '0e19bbc1a467d40ed69bedeb13c85663d088f70c390a13f3e6f34204e645ec45', 1, '2025-08-25 12:59:25'),
+(4, 'leonardopenaanez@gmail.com', '857fe405624c298dd023d909749145629cccbd2295b8b595f1f30e3b3fe90dda', 1, '2025-08-25 13:17:14'),
+(5, 'tantani.m.g@gmail.com', '5f07a806d850d8d560d255b53e91b58861656b7711dc71c97c926d1708da9d44', 1, '2025-08-25 13:31:45');
 
 -- --------------------------------------------------------
 
@@ -333,6 +357,18 @@ CREATE TABLE `model_has_permissions` (
   `model_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+--
+-- Volcado de datos para la tabla `model_has_permissions`
+--
+
+INSERT INTO `model_has_permissions` (`permission_id`, `model_type`, `model_id`) VALUES
+(6, 'App\\Models\\User', 6),
+(6, 'App\\Models\\User', 9),
+(7, 'App\\Models\\User', 9),
+(8, 'App\\Models\\User', 9),
+(9, 'App\\Models\\User', 9),
+(38, 'App\\Models\\User', 9);
+
 -- --------------------------------------------------------
 
 --
@@ -351,13 +387,49 @@ CREATE TABLE `model_has_roles` (
 
 INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES
 (1, 'App\\Models\\User', 1),
-(1, 'App\\Models\\User', 9),
+(1, 'App\\Models\\User', 15),
+(1, 'App\\Models\\User', 21),
 (2, 'App\\Models\\User', 2),
 (2, 'App\\Models\\User', 3),
+(2, 'App\\Models\\User', 11),
+(2, 'App\\Models\\User', 14),
 (3, 'App\\Models\\User', 4),
 (3, 'App\\Models\\User', 5),
 (3, 'App\\Models\\User', 8),
-(3, 'App\\Models\\User', 9);
+(3, 'App\\Models\\User', 10),
+(3, 'App\\Models\\User', 12),
+(3, 'App\\Models\\User', 18),
+(6, 'App\\Models\\User', 9),
+(7, 'App\\Models\\User', 20);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `id` int(11) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `expires_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `used` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Volcado de datos para la tabla `password_reset_tokens`
+--
+
+INSERT INTO `password_reset_tokens` (`id`, `email`, `token`, `expires_at`, `used`, `created_at`) VALUES
+(2, 'admin@techhome.bo', 'daf9f58b874dcf8a7df556a053f649d5b113c5d4e616946bda19aa2468fb73ce', '2025-08-19 15:08:55', 0, '2025-08-19 14:53:55'),
+(10, 'luisrochavelaa1@gmail.com', 'b8706d4679c0b8d9db9183b48489704a556ba0d9f9b2d8171537cd79ae8989a3', '2025-08-20 00:07:30', 0, '2025-08-19 23:52:30'),
+(11, 'jhoel0521@gmail.com', '3e91ca19e5d956cf38ab7a30b30ebb6d1fdd1edad6e5be755c0e22a2a62631f5', '2025-08-20 00:08:29', 0, '2025-08-19 23:53:29'),
+(20, 'luisrochavela1@gmail.com', 'f2b0de26371a353964e1565d9f22e2478a715eef8ce7c679d1ad46425d6299db', '2025-08-20 14:08:57', 0, '2025-08-20 13:53:57'),
+(21, 'naxelf666@gmail.com', 'b8b09e0e252f99e7afac81ffd2dac6e33388458fa86e6835cfef297f54e1582e', '2025-08-20 14:12:30', 0, '2025-08-20 13:57:30'),
+(23, 'leonardopenaanez@gmail.com', '6fd1abd954ba83e0dbe938b25683cb8ec352ed4f4e92451af6e7135b9acb0bde', '2025-08-25 13:33:35', 1, '2025-08-25 13:18:35'),
+(24, 'douglasdfh88@gmail.com', 'bcc17aca6fe7e2fafd8da08ca7106fbd07497cdde59edc6048ec52986a75ce7f', '2025-08-25 13:46:34', 1, '2025-08-25 13:31:34'),
+(25, 'tantani.m.g@gmail.com', '77675369749b5e14dd74af19334372b18ddd81835fddab5a4705252ba8236233', '2025-08-25 13:51:18', 1, '2025-08-25 13:36:18');
 
 -- --------------------------------------------------------
 
@@ -414,7 +486,9 @@ INSERT INTO `permissions` (`id`, `name`, `guard_name`, `created_at`, `updated_at
 (34, 'componentes.editar', 'web', NULL, NULL),
 (35, 'componentes.eliminar', 'web', NULL, NULL),
 (36, 'docente.dashboard', 'web', NULL, NULL),
-(37, 'api.verify_session', 'web', NULL, NULL);
+(37, 'api.verify_session', 'web', NULL, NULL),
+(38, 'admin.usuarios.roles', 'web', '2025-08-19 13:14:55', '2025-08-19 13:14:55'),
+(39, 'admin.usuarios.permisos', 'web', '2025-08-19 14:02:01', '2025-08-19 14:02:01');
 
 -- --------------------------------------------------------
 
@@ -466,6 +540,8 @@ INSERT INTO `roles` (`id`, `nombre`, `descripcion`, `estado`, `fecha_creacion`) 
 (1, 'Administrador', 'Acceso completo al sistema', 1, '2025-08-18 15:16:30'),
 (2, 'Docente', 'Puede crear y gestionar cursos', 1, '2025-08-18 15:16:30'),
 (3, 'Estudiante', 'Puede acceder a cursos y materiales', 1, '2025-08-18 15:16:30'),
+(6, 'Mirones', 'astuto', 1, '2025-08-18 19:12:47'),
+(7, 'Invitado', 'Acceso temporal de 3 días a todo el material', 1, '2025-08-22 12:16:45');
 
 -- --------------------------------------------------------
 
@@ -486,13 +562,16 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 (1, 1),
 (1, 2),
 (1, 3),
+(1, 7),
 (2, 1),
 (2, 2),
 (2, 3),
+(2, 7),
 (3, 1),
 (4, 1),
 (5, 1),
 (6, 1),
+(6, 2),
 (7, 1),
 (8, 1),
 (9, 1),
@@ -505,6 +584,7 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 (15, 1),
 (15, 2),
 (15, 3),
+(15, 7),
 (16, 1),
 (16, 2),
 (17, 1),
@@ -513,6 +593,7 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 (19, 1),
 (19, 2),
 (19, 3),
+(19, 7),
 (20, 1),
 (20, 2),
 (21, 1),
@@ -520,15 +601,18 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 (23, 1),
 (23, 2),
 (23, 3),
+(23, 7),
 (24, 1),
 (24, 2),
 (24, 3),
+(24, 7),
 (25, 1),
 (26, 1),
 (27, 1),
 (28, 1),
 (28, 2),
 (28, 3),
+(28, 7),
 (29, 1),
 (30, 1),
 (31, 1),
@@ -542,7 +626,10 @@ INSERT INTO `role_has_permissions` (`permission_id`, `role_id`) VALUES
 (36, 2),
 (37, 1),
 (37, 2),
-(37, 3);
+(37, 3),
+(37, 7),
+(38, 1),
+(39, 1);
 
 -- --------------------------------------------------------
 
@@ -589,15 +676,23 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `telefono`, `fecha_nacimiento`, `avatar`, `estado`, `fecha_creacion`, `fecha_actualizacion`) VALUES
-(1, 'Admin', 'Tech Home', 'admin@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', '', '1998-05-21', NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:19:59'),
-(2, 'María', 'Gómez', 'maria.gomez@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:20:09'),
-(3, 'Carlos', 'Fernández', 'carlos.fernandez@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:20:09'),
-(4, 'Ana', 'Rodríguez', 'ana.rodriguez@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:20:09'),
-(5, 'Luis', 'Pérez', 'luis.perez@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:20:09'),
-(6, 'Demo', 'Invitado', 'demo@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:20:09'),
-(7, 'Pedro', 'Morales', 'pedro.morales@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:20:09'),
-(8, 'Laura', 'Santos', 'laura.santos@techhome.bo', '$2y$10$bvljEBEfTXx2n9A/dhQpzunsA0zsMTWnZ93cFCh7ORLXy/8OZsx8K', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-18 15:20:09'),
-(9, 'JHOEL', 'ZURITA', 'jh@techhome.bo', '$2y$10$Ys/Tsp2AcjTPTfrP/gUQGen0bRJDCGPuN/Xz58EzPZ6zUgCHD3K5G', '1231312', '1998-05-21', NULL, 1, '2025-08-18 21:51:10', '2025-08-18 21:51:10');
+(1, 'Admin', 'Tech Home', 'luisrochavela1@gmail.com', '$2y$10$rOqR/us0TLqgtfz6yZGCVua37JMzB7HO5S6tMWwZRuyn8oBIW/y46', '', '1998-05-21', NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:54:44'),
+(2, 'María', 'Gómez', 'maria.gomez@techhome.bo', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:42:07'),
+(3, 'Carlos', 'Fernández', 'carlos.fernandez@techhome.bo', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:42:07'),
+(4, 'Ana', 'Rodríguez', 'ana.rodriguez@techhome.bo', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:42:07'),
+(5, 'Luis', 'Pérez', 'luis.perez@techhome.bo', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:42:07'),
+(6, 'Demo', 'Invitado', 'demo@techhome.bo', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:42:07'),
+(7, 'Pedro', 'Morales', 'pedro.morales@techhome.bo', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:42:07'),
+(8, 'Laura', 'Santos', 'laura.santos@techhome.bo', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', NULL, NULL, NULL, 1, '2025-08-18 15:16:31', '2025-08-19 23:42:07'),
+(9, 'JHOEL', 'ZURITA', 'jhoel0521@gmail.com', '$2y$10$xdeoOY9xiJnH8sS8iaYo6.iJE1i/25LTCuWSNclF1h8S0qmH2LM5.', '1231312', '1998-05-21', NULL, 1, '2025-08-18 21:51:10', '2025-08-19 23:42:07'),
+(10, 'test', 'UPDS', 'test123@gmail.com', '$2y$10$3VQQ7OoyKAqZ0zDxuF/CNO1Q1w7bqLPFGueVCbGVPbMDbzPGoESm6', '12312312', '2002-06-13', NULL, 1, '2025-08-20 12:09:11', '2025-08-20 12:09:11'),
+(11, 'test2', 'UPDS', 'test2080@gmail.com', '$2y$10$GnPAx8X6yW0LPDrq0Eb8p.CaagbOU/4xN9EeBJ8f3737HxPOKtqUK', '12312312', '2002-06-13', NULL, 1, '2025-08-20 12:30:29', '2025-08-20 12:30:29'),
+(12, 'Carlos', 'Rocha', 'carlosrocha123@gmail.com', '$2y$10$yqdtUnCIFVhj8mTGiAyG4OLqwO/Uoajn6Shlst8e5IrlOHd0yMcry', '', '2003-07-18', NULL, 1, '2025-08-20 12:33:03', '2025-08-20 12:33:03'),
+(14, 'Douglas', 'Flor', 'douglasdfh88@gmail.com', '$2y$10$JCIKzYXL8Qp0vLJu4eeJEe1vUCB0XRieVyJA6QyWmn8HbdA5swIw6', '21321421', '1994-07-15', NULL, 1, '2025-08-20 13:28:06', '2025-08-20 13:28:06'),
+(15, 'Felipe', 'Nazel', 'naxelf666@gmail.com', '$2y$10$ifVgYZbviCw8VjaT3MQZ8.4M1TIoRbJGp2MH8A7zFAYQeSZaTng9S', '4325342', '2002-06-14', NULL, 1, '2025-08-20 13:29:33', '2025-08-20 13:29:33'),
+(18, 'Luis', 'Rocha', 'luisrochavela990@gmail.com', '$2y$10$NByMTYDxfYa50zKkFlJgZOxW6fiuFNc3AVtgUgor22S3qaD6IPWKO', '+59168832824', '2002-03-09', NULL, 1, '2025-08-22 13:20:28', '2025-08-22 13:20:28'),
+(20, 'Leonardo', 'Peña Añez', 'leonardopenaanez@gmail.com', '$2y$10$k54gKH7i.qX8Q10pbOP9j..aBw5InzaiQEnZYMPCd6itcN/w13/VC', '75678428', '2005-08-06', NULL, 1, '2025-08-25 13:17:14', '2025-08-25 13:17:14'),
+(21, 'Gustavo', 'Tantani Mamani', 'tantani.m.g@gmail.com', '$2y$10$fZFHauZ2i/vZG0Q3e2mf.ecp839PSbuqvoB3sudBctoq4a/uiTmbG', '70017480', '2000-10-01', NULL, 1, '2025-08-25 13:31:45', '2025-08-25 13:31:45');
 
 -- --------------------------------------------------------
 
@@ -644,6 +739,16 @@ ALTER TABLE `acceso_invitados`
   ADD KEY `idx_usuario_activo` (`usuario_id`,`acceso_bloqueado`),
   ADD KEY `idx_fecha_vencimiento` (`fecha_vencimiento`),
   ADD KEY `idx_dias_restantes` (`dias_restantes`);
+
+--
+-- Indices de la tabla `activation_tokens`
+--
+ALTER TABLE `activation_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `token` (`token`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_token` (`token`),
+  ADD KEY `idx_usado` (`usado`);
 
 --
 -- Indices de la tabla `categorias`
@@ -734,6 +839,17 @@ ALTER TABLE `model_has_roles`
   ADD KEY `idx_model_id_and_model_type` (`model_id`,`model_type`);
 
 --
+-- Indices de la tabla `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `token` (`token`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_token` (`token`),
+  ADD KEY `idx_expires_at` (`expires_at`),
+  ADD KEY `idx_used` (`used`);
+
+--
 -- Indices de la tabla `permissions`
 --
 ALTER TABLE `permissions`
@@ -807,6 +923,12 @@ ALTER TABLE `acceso_invitados`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT de la tabla `activation_tokens`
+--
+ALTER TABLE `activation_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT de la tabla `categorias`
 --
 ALTER TABLE `categorias`
@@ -855,10 +977,16 @@ ALTER TABLE `libros`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT de la tabla `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
 -- AUTO_INCREMENT de la tabla `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT de la tabla `progreso_estudiantes`
@@ -870,7 +998,7 @@ ALTER TABLE `progreso_estudiantes`
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `sesiones_activas`
@@ -882,7 +1010,7 @@ ALTER TABLE `sesiones_activas`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
