@@ -20,6 +20,20 @@ class DocenteController extends Controller
     }
 
     /**
+     * Obtener ID del docente autenticado con validación
+     */
+    private function getDocenteId()
+    {
+        $docenteId = Session::get('user_id') ?? Session::get('auth_user_id');
+        
+        if (!$docenteId) {
+            throw new Exception('Usuario no autenticado o sesión expirada');
+        }
+        
+        return $docenteId;
+    }
+
+    /**
      * Dashboard principal del docente
      */
     public function dashboard()
@@ -68,6 +82,29 @@ class DocenteController extends Controller
                 'comentarios_recientes' => [],
                 'cursos_recientes' => [],
                 'materiales_recientes' => [],
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Vista index para gestión de docentes (para administradores)
+     */
+    public function index()
+    {
+        try {
+            // Para ahora, usar datos básicos - puedes implementar la lógica según necesites
+            $docentes = []; // Implementar la lógica según necesites
+            
+            return view('docente.index', [
+                'title' => 'Gestión de Docentes - Tech Home Bolivia',
+                'docentes' => $docentes
+            ]);
+            
+        } catch (Exception $e) {
+            return view('docente.index', [
+                'title' => 'Gestión de Docentes - Tech Home Bolivia',
+                'docentes' => [],
                 'error' => $e->getMessage()
             ]);
         }
@@ -146,18 +183,19 @@ class DocenteController extends Controller
     public function cursos()
     {
         try {
-            $docenteId = Session::get('user_id');
+            $docenteId = $this->getDocenteId();
             $cursos = $this->docenteService->getCursos($docenteId);
             
-            return view('docente.cursos.index', [
+            return view('docente.index', [
                 'title' => 'Mis Cursos - Panel Docente',
                 'cursos' => $cursos
             ]);
         } catch (Exception $e) {
             Session::flash('error', 'Error al cargar cursos: ' . $e->getMessage());
-            return view('docente.cursos.index', [
+            return view('docente.index', [
                 'title' => 'Mis Cursos - Panel Docente',
-                'cursos' => []
+                'cursos' => [],
+                'error' => $e->getMessage()
             ]);
         }
     }
@@ -204,7 +242,7 @@ class DocenteController extends Controller
                 return redirect(route('docente.cursos.crear'));
             }
 
-            $docenteId = Session::get('user_id');
+            $docenteId = $this->getDocenteId();
             $cursoData = array_merge($request->all(), ['docente_id' => $docenteId]);
             
             $cursoId = $this->docenteService->crearCurso($cursoData);
@@ -229,18 +267,19 @@ class DocenteController extends Controller
     public function estudiantes()
     {
         try {
-            $docenteId = Session::get('user_id');
+            $docenteId = $this->getDocenteId();
             $estudiantes = $this->docenteService->getEstudiantes($docenteId);
             
-            return view('docente.estudiantes.index', [
+            return view('estudiantes.index', [
                 'title' => 'Mis Estudiantes - Panel Docente',
                 'estudiantes' => $estudiantes
             ]);
         } catch (Exception $e) {
             Session::flash('error', 'Error al cargar estudiantes: ' . $e->getMessage());
-            return view('docente.estudiantes.index', [
+            return view('estudiantes.index', [
                 'title' => 'Mis Estudiantes - Panel Docente',
-                'estudiantes' => []
+                'estudiantes' => [],
+                'error' => $e->getMessage()
             ]);
         }
     }

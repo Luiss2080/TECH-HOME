@@ -37,6 +37,13 @@ Router::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
 
+
+
+
+
+
+
+
 // ==================== RUTAS PROTEGIDAS (REQUIEREN AUTENTICACIÓN) ====================
 
 Router::get('/admin/dashboard', [AdminController::class, 'index'])
@@ -146,6 +153,11 @@ Router::get('/estudiantes/dashboard', [EstudianteController::class, 'estudiantes
     ->name('estudiantes')
     ->middleware('role:estudiante|has:estudiantes.dashboard');
 
+// Nueva ruta para la vista index de estudiantes
+Router::get('/estudiantes', [EstudianteController::class, 'index'])
+    ->name('estudiantes.index')
+    ->middleware('role:administrador|has:admin.usuarios.ver');
+
     
 Router::get('/cursos', [CursoController::class, 'cursos'])
     ->name('cursos')
@@ -191,6 +203,12 @@ Router::get('/ajax/cursos/estadisticas', [CursoController::class, 'ajaxEstadisti
 Router::get('/ajax/cursos/buscar', [CursoController::class, 'buscarCursos'])
     ->name('cursos.ajax.buscar')
     ->middleware('role:administrador,docente,estudiante|has:cursos.ver');
+
+
+
+
+
+
 
 // ==================== RUTAS PARA MÓDULO DE LIBROS ====================
 
@@ -273,6 +291,14 @@ Router::get('/ajax/libros/{id}/disponibilidad', [LibroController::class, 'verifi
     ->name('ajax.libros.disponibilidad')
     ->middleware('auth');
 
+
+
+
+
+
+
+
+
 // ==================== RUTAS PARA FAVORITOS Y CALIFICACIONES ====================
 
 // Favoritos - Libros
@@ -319,6 +345,11 @@ Router::get('/cursos/{id}/progreso', [CursoController::class, 'verProgreso'])
 Router::post('/cursos/{cursoId}/modulos/{moduloId}/completar', [CursoController::class, 'completarModulo'])
     ->name('cursos.modulo.completar')
     ->middleware('auth');
+
+
+
+
+
 
 // ==================== RUTAS PARA MÓDULO DE MATERIALES ====================
 
@@ -400,7 +431,10 @@ Router::get('/ajax/materiales/categoria/{categoriaId}', [MaterialController::cla
     ->name('ajax.materiales.categoria')
     ->middleware('role:administrador,docente,estudiante|has:materiales.ver');
 
-// ==================== OTRAS RUTAS DE MÓDULOS ====================
+
+
+
+
 
 // ==================== RUTAS PARA MÓDULO DE LABORATORIOS ====================
 
@@ -545,6 +579,11 @@ Router::post('/docente/cursos', [DocenteController::class, 'guardarCurso'])
 Router::get('/docente/estudiantes', [DocenteController::class, 'estudiantes'])
     ->name('docente.estudiantes')
     ->middleware('role:docente|has:docente.estudiantes');
+
+// Nueva ruta para la vista index de docentes
+Router::get('/docentes', [DocenteController::class, 'index'])
+    ->name('docentes.index')
+    ->middleware('role:administrador|has:admin.usuarios.ver');
 
 Router::get('/docente/estudiantes/progreso', [DocenteController::class, 'progreso'])
     ->name('docente.progreso')

@@ -81,7 +81,7 @@ use App\Services\AdminService;
                         <i class="fas fa-arrow-up"></i>
                         <span><?= $estadisticas['estudiantes_activos']; ?> activos</span>
                     </div>
-                    <a href="<?= route('usuarios'); ?>" class="metric-action">
+                    <a href="<?= route('estudiantes.index'); ?>" class="metric-action">
                         <i class="fas fa-users-cog"></i>
                         Gestionar
                     </a>
@@ -103,7 +103,7 @@ use App\Services\AdminService;
                         <i class="fas fa-check-circle"></i>
                         <span><?= $estadisticas['docentes_activos']; ?> activos</span>
                     </div>
-                    <a href="<?= route('usuarios'); ?>" class="metric-action">
+                    <a href="<?= route('docentes.index'); ?>" class="metric-action">
                         <i class="fas fa-user-tie"></i>
                         Ver Docentes
                     </a>

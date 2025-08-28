@@ -19,17 +19,26 @@ class EstudianteController extends Controller
     }
 
     /**
+     * Obtener ID del estudiante autenticado con validación
+     */
+    private function getEstudianteId()
+    {
+        $estudianteId = Session::get('user_id') ?? Session::get('auth_user_id');
+        
+        if (!$estudianteId) {
+            throw new Exception('Usuario no autenticado o sesión expirada');
+        }
+        
+        return $estudianteId;
+    }
+
+    /**
      * Dashboard principal del estudiante
      */
     public function estudiantes()
     {
         try {
-            // Obtener ID del estudiante actual desde la sesión
-            $estudianteId = Session::get('user_id') ?? Session::get('auth_user_id') ?? 1; // ID por defecto para testing
-            
-            if (!$estudianteId) {
-                throw new Exception('Usuario no autenticado');
-            }
+            $estudianteId = $this->getEstudianteId();
 
             // Obtener datos del dashboard usando el servicio
             $data = $this->estudianteService->getDashboardData($estudianteId);
@@ -51,6 +60,29 @@ class EstudianteController extends Controller
                 'libros_disponibles' => [],
                 'actividad_reciente' => [],
                 'progreso_cursos' => [],
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Vista index para gestión de estudiantes (para administradores)
+     */
+    public function index()
+    {
+        try {
+            // Para ahora, usar datos básicos - puedes implementar el método en el servicio después
+            $estudiantes = []; // Implementar la lógica según necesites
+            
+            return view('estudiantes.index', [
+                'title' => 'Gestión de Estudiantes - Tech Home Bolivia',
+                'estudiantes' => $estudiantes
+            ]);
+            
+        } catch (Exception $e) {
+            return view('estudiantes.index', [
+                'title' => 'Gestión de Estudiantes - Tech Home Bolivia',
+                'estudiantes' => [],
                 'error' => $e->getMessage()
             ]);
         }
