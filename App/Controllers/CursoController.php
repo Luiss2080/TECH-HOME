@@ -60,6 +60,30 @@ class CursoController extends Controller
     }
 
     /**
+     * Mostrar catálogo de cursos (vista pública)
+     */
+    public function catalogo()
+    {
+        try {
+            $cursos = $this->cursoService->getAllCursos();
+            $categorias = $this->cursoService->getAllCategoriasCursos();
+            
+            return view('cursos.catalogo', [
+                'title' => 'Catálogo de Cursos',
+                'cursos' => $cursos,
+                'categorias' => $categorias
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar catálogo: ' . $e->getMessage());
+            return view('cursos.catalogo', [
+                'title' => 'Catálogo de Cursos',
+                'cursos' => [],
+                'categorias' => []
+            ]);
+        }
+    }
+
+    /**
      * Mostrar formulario de creación de curso
      */
     public function crearCurso()
@@ -85,14 +109,13 @@ class CursoController extends Controller
     public function guardarCurso(Request $request)
     {
         try {
-            // Validaciones
+            // Validaciones simplificadas para cursos con videos de YouTube
             $rules = [
                 'titulo' => 'required|min:5|max:200',
                 'descripcion' => 'required|min:10',
+                'video_url' => 'required|url',
                 'docente_id' => 'required|numeric',
                 'categoria_id' => 'required|numeric',
-                'precio' => 'nullable|numeric',
-                'duracion_horas' => 'nullable|numeric',
                 'nivel' => 'required|in:Principiante,Intermedio,Avanzado',
                 'estado' => 'required|in:Borrador,Publicado,Archivado'
             ];
@@ -104,19 +127,22 @@ class CursoController extends Controller
                 return redirect(route('cursos.crear'));
             }
 
+            // Verificar que sea una URL de YouTube válida
+            if (!$this->isValidYoutubeUrl($request->input('video_url'))) {
+                Session::flash('error', 'La URL debe ser un enlace válido de YouTube.');
+                Session::flash('old', $request->all());
+                return redirect(route('cursos.crear'));
+            }
+
             // Preparar datos del curso
             $cursoData = [
                 'titulo' => trim($request->input('titulo')),
                 'descripcion' => trim($request->input('descripcion')),
-                'contenido' => $request->input('contenido'),
+                'video_url' => trim($request->input('video_url')),
                 'docente_id' => (int)$request->input('docente_id'),
                 'categoria_id' => (int)$request->input('categoria_id'),
                 'imagen_portada' => $request->input('imagen_portada'),
-                'precio' => $request->input('precio') ? (float)$request->input('precio') : 0.00,
-                'duracion_horas' => $request->input('duracion_horas') ? (int)$request->input('duracion_horas') : 0,
                 'nivel' => $request->input('nivel'),
-                'requisitos' => $request->input('requisitos'),
-                'objetivos' => $request->input('objetivos'),
                 'estado' => $request->input('estado') ?: 'Borrador'
             ];
 
@@ -195,14 +221,13 @@ class CursoController extends Controller
                 }
             }
 
-            // Validaciones
+            // Validaciones simplificadas
             $rules = [
                 'titulo' => 'required|min:5|max:200',
                 'descripcion' => 'required|min:10',
+                'video_url' => 'required|url',
                 'docente_id' => 'required|numeric',
                 'categoria_id' => 'required|numeric',
-                'precio' => 'nullable|numeric',
-                'duracion_horas' => 'nullable|numeric',
                 'nivel' => 'required|in:Principiante,Intermedio,Avanzado',
                 'estado' => 'required|in:Borrador,Publicado,Archivado'
             ];
@@ -214,19 +239,22 @@ class CursoController extends Controller
                 return redirect(route('cursos.editar', ['id' => $id]));
             }
 
+            // Verificar que sea una URL de YouTube válida
+            if (!$this->isValidYoutubeUrl($request->input('video_url'))) {
+                Session::flash('error', 'La URL debe ser un enlace válido de YouTube.');
+                Session::flash('old', $request->all());
+                return redirect(route('cursos.editar', ['id' => $id]));
+            }
+
             // Preparar datos de actualización
             $cursoData = [
                 'titulo' => trim($request->input('titulo')),
                 'descripcion' => trim($request->input('descripcion')),
-                'contenido' => $request->input('contenido'),
+                'video_url' => trim($request->input('video_url')),
                 'docente_id' => (int)$request->input('docente_id'),
                 'categoria_id' => (int)$request->input('categoria_id'),
                 'imagen_portada' => $request->input('imagen_portada'),
-                'precio' => $request->input('precio') ? (float)$request->input('precio') : 0.00,
-                'duracion_horas' => $request->input('duracion_horas') ? (int)$request->input('duracion_horas') : 0,
                 'nivel' => $request->input('nivel'),
-                'requisitos' => $request->input('requisitos'),
-                'objetivos' => $request->input('objetivos'),
                 'estado' => $request->input('estado')
             ];
 
@@ -298,7 +326,7 @@ class CursoController extends Controller
                               ($user->hasRole('docente') && $curso['docente_id'] == $user->id);
             }
 
-            return view('cursos.detalle', [
+            return view('cursos.ver', [
                 'title' => $curso['titulo'],
                 'curso' => $curso,
                 'puedeEditar' => $puedeEditar
@@ -346,34 +374,39 @@ class CursoController extends Controller
         }
     }
 
-    // ==========================================
-    // MÉTODOS PARA ESTUDIANTES
-    // ==========================================
-
     /**
-     * Inscribir estudiante a curso
+     * Mostrar página de confirmación para eliminar curso
      */
-    public function inscribir(Request $request, $id)
+    public function confirmarEliminar(Request $request, $id)
     {
         try {
-            $user = auth();
-            if (!$user || !$user->hasRole('estudiante')) {
-                Session::flash('error', 'Solo los estudiantes pueden inscribirse a cursos.');
+            $curso = $this->cursoService->getCursoById($id);
+            if (!$curso) {
+                Session::flash('error', 'Curso no encontrado.');
                 return redirect(route('cursos'));
             }
 
-            $this->cursoService->inscribirEstudiante($id, $user->id);
+            // Verificar permisos
+            $user = auth();
+            if ($user && $user->hasRole('docente') && !$user->hasRole('administrador')) {
+                if ($curso['docente_id'] != $user->id) {
+                    Session::flash('error', 'No tienes permisos para eliminar este curso.');
+                    return redirect(route('cursos'));
+                }
+            }
 
-            Session::flash('success', 'Te has inscrito exitosamente al curso.');
-            return redirect(route('cursos.ver', ['id' => $id]));
+            return view('cursos.eliminar', [
+                'title' => 'Eliminar Curso',
+                'curso' => $curso
+            ]);
         } catch (Exception $e) {
-            Session::flash('error', $e->getMessage());
-            return redirect(route('cursos.ver', ['id' => $id]));
+            Session::flash('error', 'Error al cargar curso: ' . $e->getMessage());
+            return redirect(route('cursos'));
         }
     }
 
     // ==========================================
-    // MÉTODOS AJAX
+    // MÉTODOS AJAX SIMPLIFICADOS
     // ==========================================
 
     /**
@@ -417,42 +450,11 @@ class CursoController extends Controller
             $nivel = $request->input('nivel', '');
             $estado = $request->input('estado', '');
 
-            // Implementar lógica de búsqueda aquí
-            // Por ahora retornar todos los cursos
-            $cursos = $this->cursoService->getAllCursos();
-
-            // Filtrar por término de búsqueda si se proporciona
-            if (!empty($termino)) {
-                $cursos = array_filter($cursos, function($curso) use ($termino) {
-                    return stripos($curso['titulo'], $termino) !== false || 
-                           stripos($curso['descripcion'], $termino) !== false;
-                });
-            }
-
-            // Filtrar por categoría
-            if (!empty($categoria)) {
-                $cursos = array_filter($cursos, function($curso) use ($categoria) {
-                    return $curso['categoria_id'] == $categoria;
-                });
-            }
-
-            // Filtrar por nivel
-            if (!empty($nivel)) {
-                $cursos = array_filter($cursos, function($curso) use ($nivel) {
-                    return $curso['nivel'] == $nivel;
-                });
-            }
-
-            // Filtrar por estado
-            if (!empty($estado)) {
-                $cursos = array_filter($cursos, function($curso) use ($estado) {
-                    return $curso['estado'] == $estado;
-                });
-            }
+            $cursos = $this->cursoService->buscarCursos($termino, $categoria, $nivel, $estado);
 
             echo json_encode([
                 'success' => true,
-                'data' => array_values($cursos)
+                'data' => $cursos
             ]);
         } catch (Exception $e) {
             http_response_code(500);
@@ -465,156 +467,26 @@ class CursoController extends Controller
     }
 
     // ==========================================
-    // MÉTODOS PARA FAVORITOS Y CALIFICACIONES
+    // MÉTODOS AUXILIARES
     // ==========================================
 
     /**
-     * Toggle favorito para un curso
+     * Validar si una URL es de YouTube válida
      */
-    public function toggleFavorito(Request $request, int $id)
+    private function isValidYoutubeUrl(string $url): bool
     {
-        try {
-            $user = auth();
-            if (!$user) {
-                return Response::json(['error' => 'Debes iniciar sesión'], 401);
-            }
+        $patterns = [
+            '/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/v\/([a-zA-Z0-9_-]{11})/'
+        ];
 
-            $resultado = $this->cursoService->toggleFavorito($id, $user->id);
-            
-            return Response::json([
-                'success' => true,
-                'message' => $resultado['accion'] === 'agregado' ? 'Curso agregado a favoritos' : 'Curso eliminado de favoritos',
-                'data' => $resultado
-            ]);
-        } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 500);
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url)) {
+                return true;
+            }
         }
-    }
 
-    /**
-     * Calificar un curso
-     */
-    public function calificar(Request $request, int $id)
-    {
-        try {
-            $user = auth();
-            if (!$user) {
-                return Response::json(['error' => 'Debes iniciar sesión'], 401);
-            }
-
-            $calificacion = (int)$request->input('calificacion');
-            $comentario = $request->input('comentario');
-
-            if ($calificacion < 1 || $calificacion > 5) {
-                return Response::json(['error' => 'La calificación debe estar entre 1 y 5'], 400);
-            }
-
-            $resultado = $this->cursoService->calificarCurso($id, $user->id, $calificacion, $comentario);
-            
-            return Response::json([
-                'success' => true,
-                'message' => 'Calificación guardada exitosamente',
-                'data' => $resultado
-            ]);
-        } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Obtener calificaciones de un curso
-     */
-    public function getCalificaciones(int $id)
-    {
-        try {
-            $calificaciones = $this->cursoService->getCalificacionesCurso($id);
-            return Response::json(['success' => true, 'data' => $calificaciones]);
-        } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Mostrar mis cursos favoritos
-     */
-    public function misFavoritos()
-    {
-        try {
-            $user = auth();
-            if (!$user) {
-                return redirect(route('login'));
-            }
-
-            $favoritos = $this->cursoService->getFavoritosUsuario($user->id);
-            
-            return view('cursos.favoritos', [
-                'cursos' => $favoritos,
-                'title' => 'Mis Cursos Favoritos'
-            ]);
-        } catch (Exception $e) {
-            Session::flash('error', 'Error al cargar favoritos: ' . $e->getMessage());
-            return redirect(route('cursos'));
-        }
-    }
-
-    /**
-     * Ver progreso de un curso
-     */
-    public function verProgreso(int $id)
-    {
-        try {
-            $user = auth();
-            if (!$user) {
-                return redirect(route('login'));
-            }
-
-            $curso = $this->cursoService->getCurso($id);
-            if (!$curso) {
-                Session::flash('error', 'Curso no encontrado');
-                return redirect(route('cursos'));
-            }
-
-            $progreso = $this->cursoService->getProgresoEstudiante($id, $user->id);
-            
-            if (empty($progreso)) {
-                Session::flash('error', 'No estás inscrito en este curso');
-                return redirect(route('curso.show', ['id' => $id]));
-            }
-
-            return view('cursos.progreso', [
-                'curso' => $curso,
-                'progreso' => $progreso,
-                'title' => 'Progreso - ' . $curso['titulo']
-            ]);
-        } catch (Exception $e) {
-            Session::flash('error', 'Error al cargar progreso: ' . $e->getMessage());
-            return redirect(route('cursos'));
-        }
-    }
-
-    /**
-     * Completar módulo de curso
-     */
-    public function completarModulo(Request $request, int $cursoId, int $moduloId)
-    {
-        try {
-            $user = auth();
-            if (!$user) {
-                return Response::json(['error' => 'Debes iniciar sesión'], 401);
-            }
-
-            $exito = $this->cursoService->completarModulo($cursoId, $moduloId, $user->id);
-            
-            if ($exito) {
-                return Response::json([
-                    'success' => true,
-                    'message' => 'Módulo completado exitosamente'
-                ]);
-            } else {
-                return Response::json(['error' => 'No se pudo completar el módulo'], 500);
-            }
-        } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], 500);
-        }
+        return false;
     }
 }

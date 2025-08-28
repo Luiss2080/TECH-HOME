@@ -159,8 +159,14 @@ Router::get('/estudiantes', [EstudianteController::class, 'index'])
     ->middleware('role:administrador|has:admin.usuarios.ver');
 
     
+// ==================== RUTAS PARA MÓDULO DE CURSOS (OPTIMIZADAS) ====================
+
 Router::get('/cursos', [CursoController::class, 'cursos'])
     ->name('cursos')
+    ->middleware('role:administrador,docente,estudiante|has:cursos.ver');
+
+Router::get('/cursos/catalogo', [CursoController::class, 'catalogo'])
+    ->name('cursos.catalogo')
     ->middleware('role:administrador,docente,estudiante|has:cursos.ver');
 
 Router::get('/cursos/crear', [CursoController::class, 'crearCurso'])
@@ -179,6 +185,10 @@ Router::get('/cursos/{id}/editar', [CursoController::class, 'editarCurso'])
     ->name('cursos.editar')
     ->middleware('role:administrador,docente|has:cursos.editar');
 
+Router::get('/cursos/{id}/eliminar', [CursoController::class, 'confirmarEliminar'])
+    ->name('cursos.eliminar')
+    ->middleware('role:administrador,docente|has:cursos.eliminar');
+
 Router::put('/cursos/{id}', [CursoController::class, 'actualizarCurso'])
     ->name('cursos.update')
     ->middleware('role:administrador,docente|has:cursos.editar');
@@ -191,11 +201,7 @@ Router::post('/cursos/{id}/estado', [CursoController::class, 'cambiarEstado'])
     ->name('cursos.estado')
     ->middleware('role:administrador,docente|has:cursos.editar');
 
-Router::post('/cursos/{id}/inscribir', [CursoController::class, 'inscribir'])
-    ->name('cursos.inscribir')
-    ->middleware('role:estudiante');
-
-// Rutas AJAX para cursos
+// Rutas AJAX para cursos (simplificadas)
 Router::get('/ajax/cursos/estadisticas', [CursoController::class, 'ajaxEstadisticas'])
     ->name('cursos.ajax.estadisticas')
     ->middleware('role:administrador,docente|has:cursos.ver');
@@ -203,12 +209,6 @@ Router::get('/ajax/cursos/estadisticas', [CursoController::class, 'ajaxEstadisti
 Router::get('/ajax/cursos/buscar', [CursoController::class, 'buscarCursos'])
     ->name('cursos.ajax.buscar')
     ->middleware('role:administrador,docente,estudiante|has:cursos.ver');
-
-
-
-
-
-
 
 // ==================== RUTAS PARA MÓDULO DE LIBROS ====================
 

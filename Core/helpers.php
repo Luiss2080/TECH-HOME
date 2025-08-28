@@ -443,39 +443,30 @@ if (!function_exists('formatearTiempo')) {
 
 if (!function_exists('estadoCurso')) {
     /**
-     * Determina estado del curso según progreso
+     * Determina estado del curso (simplificado para videos de YouTube)
      */
-    function estadoCurso($progreso, $completado = false)
+    function estadoCurso($estado = 'Borrador')
     {
-        if ($completado) {
-            return [
-                'texto' => 'Completado',
-                'color' => '#10b981',
-                'clase' => 'completado'
-            ];
+        switch ($estado) {
+            case 'Publicado':
+                return [
+                    'texto' => 'Publicado',
+                    'color' => '#10b981',
+                    'clase' => 'publicado'
+                ];
+            case 'Archivado':
+                return [
+                    'texto' => 'Archivado',
+                    'color' => '#f59e0b',
+                    'clase' => 'archivado'
+                ];
+            default:
+                return [
+                    'texto' => 'Borrador',
+                    'color' => '#6b7280',
+                    'clase' => 'borrador'
+                ];
         }
-
-        if ($progreso >= 75) {
-            return [
-                'texto' => 'Casi Terminado',
-                'color' => '#f59e0b',
-                'clase' => 'casi-terminado'
-            ];
-        }
-
-        if ($progreso >= 1) {
-            return [
-                'texto' => 'En Progreso',
-                'color' => '#3b82f6',
-                'clase' => 'en-progreso'
-            ];
-        }
-
-        return [
-            'texto' => 'No Iniciado',
-            'color' => '#6b7280',
-            'clase' => 'no-iniciado'
-        ];
     }
 }
 
