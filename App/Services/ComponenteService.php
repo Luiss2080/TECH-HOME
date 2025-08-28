@@ -199,8 +199,12 @@ class ComponenteService
                 $componenteId,
                 'entrada',
                 $data['stock'],
+                0, // stock anterior
+                $data['stock'], // stock nuevo
                 'Stock inicial al crear componente',
-                null
+                'ajuste_manual',
+                null, // referencia_id
+                null  // usuario_id
             );
 
             DB::commit();
@@ -261,7 +265,11 @@ class ComponenteService
                     $id,
                     $tipoMovimiento,
                     $cantidad,
+                    $stockAnterior,
+                    $stockNuevo,
                     'Ajuste manual de stock',
+                    'ajuste_manual',
+                    null,
                     auth()->id ?? null
                 );
             }
@@ -332,6 +340,7 @@ class ComponenteService
             }
 
             $stockActual = $componente->stock;
+            $stockReservado = $componente->stock_reservado ?? 0;
             $nuevoStock = $stockActual;
 
             switch ($tipoMovimiento) {
@@ -339,8 +348,9 @@ class ComponenteService
                     $nuevoStock += $cantidad;
                     break;
                 case 'salida':
-                    if ($stockActual < $cantidad) {
-                        throw new Exception("Stock insuficiente. Stock actual: $stockActual");
+                    $stockDisponible = $stockActual - $stockReservado;
+                    if ($stockDisponible < $cantidad) {
+                        throw new Exception("Stock insuficiente. Stock disponible: $stockDisponible");
                     }
                     $nuevoStock -= $cantidad;
                     break;
@@ -355,7 +365,7 @@ class ComponenteService
             $stmt = $db->query("UPDATE componentes SET stock = ?, fecha_actualizacion = NOW() WHERE id = ?", [$nuevoStock, $componenteId]);
 
             // Registrar movimiento
-            $this->registrarMovimientoStock($componenteId, $tipoMovimiento, $cantidad, $motivo, $usuarioId);
+            $this->registrarMovimientoStock($componenteId, $tipoMovimiento, $cantidad, $stockActual, $nuevoStock, $motivo, 'ajuste_manual', null, $usuarioId);
 
             // Actualizar estado automático basado en stock
             $this->actualizarEstadoAutomatico($componenteId, $nuevoStock);
@@ -365,6 +375,8 @@ class ComponenteService
             return [
                 'stock_anterior' => $stockActual,
                 'nuevo_stock' => $nuevoStock,
+                'stock_reservado' => $stockReservado,
+                'stock_disponible' => max(0, $nuevoStock - $stockReservado),
                 'diferencia' => $nuevoStock - $stockActual
             ];
 
@@ -608,6 +620,308 @@ class ComponenteService
         }
     }
 
+    // =============== MÉTODOS ESPECÍFICOS PARA VENTAS ===============
+
+    /**
+     * Verificar disponibilidad para venta
+     */
+    public function verificarDisponibilidadVenta(int $componenteId, int $cantidad): array
+    {
+        try {
+            $componente = $this->obtenerComponentePorId($componenteId);
+            
+            if (!$componente) {
+                return [
+                    'disponible' => false,
+                    'mensaje' => 'Componente no encontrado',
+                    'stock_disponible' => 0
+                ];
+            }
+
+            if ($componente->estado === 'Descontinuado') {
+                return [
+                    'disponible' => false,
+                    'mensaje' => 'Componente descontinuado',
+                    'stock_disponible' => 0
+                ];
+            }
+
+            $stockDisponible = $componente->stock - ($componente->stock_reservado ?? 0);
+
+            // Si permite venta sin stock
+            if ($componente->permite_venta_sin_stock ?? false) {
+                return [
+                    'disponible' => true,
+                    'mensaje' => 'Disponible (pre-orden)',
+                    'stock_disponible' => $stockDisponible,
+                    'es_preorden' => true
+                ];
+            }
+
+            if ($stockDisponible >= $cantidad) {
+                return [
+                    'disponible' => true,
+                    'mensaje' => 'Stock suficiente',
+                    'stock_disponible' => $stockDisponible
+                ];
+            }
+
+            return [
+                'disponible' => false,
+                'mensaje' => "Stock insuficiente. Disponible: $stockDisponible",
+                'stock_disponible' => $stockDisponible
+            ];
+
+        } catch (Exception $e) {
+            return [
+                'disponible' => false,
+                'mensaje' => 'Error al verificar disponibilidad: ' . $e->getMessage(),
+                'stock_disponible' => 0
+            ];
+        }
+    }
+
+    /**
+     * Reservar stock para una venta
+     */
+    public function reservarStockVenta(int $componenteId, int $cantidad, int $ventaId, ?int $usuarioId = null): array
+    {
+        try {
+            $verificacion = $this->verificarDisponibilidadVenta($componenteId, $cantidad);
+            
+            if (!$verificacion['disponible']) {
+                return [
+                    'exito' => false,
+                    'mensaje' => $verificacion['mensaje']
+                ];
+            }
+
+            $db = DB::getInstance();
+            DB::beginTransaction();
+
+            // Actualizar stock reservado
+            $stmt = $db->query("
+                UPDATE componentes 
+                SET stock_reservado = IFNULL(stock_reservado, 0) + ? 
+                WHERE id = ?
+            ", [$cantidad, $componenteId]);
+
+            // Registrar reserva
+            $stmt = $db->query("
+                INSERT INTO stock_reservado 
+                (componente_id, cantidad, motivo, referencia_tipo, referencia_id, usuario_id, fecha_expiracion) 
+                VALUES (?, ?, 'Reserva para venta', 'venta_proceso', ?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE))
+            ", [$componenteId, $cantidad, $ventaId, $usuarioId]);
+
+            $reservaId = $db->getConnection()->lastInsertId();
+
+            DB::commit();
+
+            return [
+                'exito' => true,
+                'mensaje' => 'Stock reservado exitosamente',
+                'reserva_id' => $reservaId
+            ];
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return [
+                'exito' => false,
+                'mensaje' => 'Error al reservar stock: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Confirmar venta y reducir stock definitivamente
+     */
+    public function confirmarVenta(int $componenteId, int $cantidad, int $ventaId, int $usuarioId): array
+    {
+        try {
+            $db = DB::getInstance();
+            DB::beginTransaction();
+
+            $componente = $this->obtenerComponentePorId($componenteId);
+            $stockAnterior = $componente->stock;
+            $stockReservadoAnterior = $componente->stock_reservado ?? 0;
+
+            // Reducir stock real y reservado
+            $stmt = $db->query("
+                UPDATE componentes 
+                SET 
+                    stock = GREATEST(0, stock - ?),
+                    stock_reservado = GREATEST(0, IFNULL(stock_reservado, 0) - ?),
+                    fecha_actualizacion = NOW()
+                WHERE id = ?
+            ", [$cantidad, $cantidad, $componenteId]);
+
+            // Obtener nuevo stock
+            $stmt = $db->query("SELECT stock, stock_reservado FROM componentes WHERE id = ?", [$componenteId]);
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stockNuevo = $resultado['stock'];
+            $stockReservadoNuevo = $resultado['stock_reservado'] ?? 0;
+
+            // Registrar movimiento de stock
+            $this->registrarMovimientoStock(
+                $componenteId,
+                'salida',
+                $cantidad,
+                $stockAnterior,
+                $stockNuevo,
+                "Venta confirmada #$ventaId",
+                'venta',
+                $ventaId,
+                $usuarioId
+            );
+
+            // Marcar reserva como completada
+            $stmt = $db->query("
+                UPDATE stock_reservado 
+                SET estado = 'completado' 
+                WHERE componente_id = ? AND referencia_tipo = 'venta_proceso' AND referencia_id = ?
+            ", [$componenteId, $ventaId]);
+
+            // Actualizar estado automático
+            $this->actualizarEstadoAutomatico($componenteId, $stockNuevo);
+
+            DB::commit();
+
+            return [
+                'exito' => true,
+                'mensaje' => 'Venta confirmada exitosamente',
+                'stock_anterior' => $stockAnterior,
+                'stock_nuevo' => $stockNuevo,
+                'stock_disponible' => max(0, $stockNuevo - $stockReservadoNuevo)
+            ];
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return [
+                'exito' => false,
+                'mensaje' => 'Error al confirmar venta: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Liberar stock reservado (cancelar venta)
+     */
+    public function liberarStockReservado(int $componenteId, int $cantidad, int $ventaId): array
+    {
+        try {
+            $db = DB::getInstance();
+            DB::beginTransaction();
+
+            // Reducir stock reservado
+            $stmt = $db->query("
+                UPDATE componentes 
+                SET stock_reservado = GREATEST(0, IFNULL(stock_reservado, 0) - ?) 
+                WHERE id = ?
+            ", [$cantidad, $componenteId]);
+
+            // Marcar reserva como liberada
+            $stmt = $db->query("
+                UPDATE stock_reservado 
+                SET estado = 'liberado' 
+                WHERE componente_id = ? AND referencia_tipo = 'venta_proceso' AND referencia_id = ? AND estado = 'activo'
+            ", [$componenteId, $ventaId]);
+
+            DB::commit();
+
+            return [
+                'exito' => true,
+                'mensaje' => 'Stock liberado exitosamente'
+            ];
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return [
+                'exito' => false,
+                'mensaje' => 'Error al liberar stock: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Limpiar reservas expiradas
+     */
+    public function limpiarReservasExpiradas(): int
+    {
+        try {
+            $db = DB::getInstance();
+            DB::beginTransaction();
+
+            // Obtener reservas expiradas
+            $stmt = $db->query("
+                SELECT sr.id, sr.componente_id, sr.cantidad 
+                FROM stock_reservado sr 
+                WHERE sr.estado = 'activo' 
+                AND sr.fecha_expiracion < NOW()
+            ");
+            $reservasExpiradas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $totalLiberadas = 0;
+
+            foreach ($reservasExpiradas as $reserva) {
+                // Reducir stock reservado
+                $stmt = $db->query("
+                    UPDATE componentes 
+                    SET stock_reservado = GREATEST(0, IFNULL(stock_reservado, 0) - ?) 
+                    WHERE id = ?
+                ", [$reserva['cantidad'], $reserva['componente_id']]);
+
+                // Marcar como liberada
+                $stmt = $db->query("
+                    UPDATE stock_reservado 
+                    SET estado = 'liberado' 
+                    WHERE id = ?
+                ", [$reserva['id']]);
+
+                $totalLiberadas++;
+            }
+
+            DB::commit();
+            return $totalLiberadas;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            error_log("Error al limpiar reservas expiradas: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Obtener componentes más vendidos
+     */
+    public function obtenerComponentesMasVendidos(int $limite = 10): array
+    {
+        try {
+            $db = DB::getInstance();
+            $stmt = $db->query("
+                SELECT 
+                    c.id,
+                    c.nombre,
+                    c.precio,
+                    c.stock,
+                    IFNULL(SUM(dv.cantidad), 0) as total_vendido,
+                    IFNULL(SUM(dv.cantidad * dv.precio_unitario), 0) as ingresos_generados,
+                    cat.nombre as categoria_nombre
+                FROM componentes c
+                LEFT JOIN detalle_ventas dv ON dv.producto_id = c.id AND dv.tipo_producto = 'componente'
+                LEFT JOIN categorias cat ON c.categoria_id = cat.id
+                WHERE c.estado != 'Descontinuado'
+                GROUP BY c.id, c.nombre, c.precio, c.stock, cat.nombre
+                ORDER BY total_vendido DESC, ingresos_generados DESC
+                LIMIT ?
+            ", [$limite]);
+            
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        } catch (Exception $e) {
+            throw new Exception("Error al obtener componentes más vendidos: " . $e->getMessage());
+        }
+    }
+
     /**
      * Generar código de producto automático
      */
@@ -649,7 +963,7 @@ class ComponenteService
     /**
      * Registrar movimiento de stock
      */
-    private function registrarMovimientoStock(int $componenteId, string $tipo, int $cantidad, string $motivo, ?int $usuarioId): void
+    private function registrarMovimientoStock(int $componenteId, string $tipo, int $cantidad, int $stockAnterior, int $stockNuevo, string $motivo, string $referenciaType = 'ajuste_manual', ?int $referenciaId = null, ?int $usuarioId = null): void
     {
         try {
             $db = DB::getInstance();
@@ -659,9 +973,9 @@ class ComponenteService
 
             $stmt = $db->query("
                 INSERT INTO movimientos_stock 
-                (componente_id, tipo_movimiento, cantidad, motivo, usuario_id, fecha_movimiento) 
-                VALUES (?, ?, ?, ?, ?, NOW())
-            ", [$componenteId, $tipo, $cantidad, $motivo, $usuarioId]);
+                (componente_id, tipo_movimiento, cantidad, stock_anterior, stock_nuevo, motivo, referencia_tipo, referencia_id, usuario_id, fecha_movimiento) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ", [$componenteId, $tipo, $cantidad, $stockAnterior, $stockNuevo, $motivo, $referenciaType, $referenciaId, $usuarioId]);
 
         } catch (Exception $e) {
             // Log del error pero no fallar la operación principal

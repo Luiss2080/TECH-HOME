@@ -525,6 +525,27 @@ Router::get('/api/componentes/buscar', [ComponenteController::class, 'buscar'])
     ->name('api.componentes.buscar')
     ->middleware('role:administrador,docente,estudiante,vendedor|has:componentes.ver');
 
+// Nuevas rutas para integración con ventas
+Router::post('/api/componentes/{id}/verificar-disponibilidad', [ComponenteController::class, 'verificarDisponibilidad'])
+    ->name('api.componentes.verificar_disponibilidad')
+    ->middleware('role:administrador,vendedor|has:ventas.procesar');
+
+Router::post('/api/componentes/{id}/reservar-stock', [ComponenteController::class, 'reservarStock'])
+    ->name('api.componentes.reservar_stock')
+    ->middleware('role:administrador,vendedor|has:ventas.procesar');
+
+Router::post('/api/componentes/{id}/confirmar-venta', [ComponenteController::class, 'confirmarVenta'])
+    ->name('api.componentes.confirmar_venta')
+    ->middleware('role:administrador,vendedor|has:ventas.procesar');
+
+Router::post('/api/componentes/{id}/liberar-stock', [ComponenteController::class, 'liberarStock'])
+    ->name('api.componentes.liberar_stock')
+    ->middleware('role:administrador,vendedor|has:ventas.procesar');
+
+Router::get('/componentes/reporte-stock', [ComponenteController::class, 'reporteStock'])
+    ->name('componentes.reporte_stock')
+    ->middleware('role:administrador,vendedor|has:componentes.stock.reportes');
+
 Router::get('/docente/dashboard', [DocenteController::class, 'dashboard'])
     ->name('docente.dashboard')
     ->middleware('role:docente|has:docente.dashboard');

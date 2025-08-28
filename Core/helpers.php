@@ -507,3 +507,166 @@ if (!function_exists('validarAccesoLibro')) {
         return ['acceso' => true, 'razon' => null];
     }
 }
+
+// ==================== HELPERS ESPECÍFICOS PARA COMPONENTES ====================
+
+if (!function_exists('formatearPrecioComponente')) {
+    /**
+     * Formatea precio de componente con moneda
+     */
+    function formatearPrecioComponente($precio)
+    {
+        return 'Bs. ' . number_format($precio, 2, '.', ',');
+    }
+}
+
+if (!function_exists('estadoStockComponente')) {
+    /**
+     * Determina el estado del stock de un componente
+     */
+    function estadoStockComponente($stock, $stockMinimo, $stockReservado = 0)
+    {
+        $stockDisponible = max(0, $stock - $stockReservado);
+        
+        if ($stockDisponible <= 0) {
+            return [
+                'estado' => 'Agotado',
+                'color' => '#ef4444',
+                'icono' => 'exclamation-triangle',
+                'clase' => 'agotado'
+            ];
+        }
+        
+        if ($stockDisponible <= $stockMinimo) {
+            return [
+                'estado' => 'Stock Bajo',
+                'color' => '#f59e0b',
+                'icono' => 'exclamation-circle',
+                'clase' => 'stock-bajo'
+            ];
+        }
+        
+        return [
+            'estado' => 'Disponible',
+            'color' => '#10b981',
+            'icono' => 'check-circle',
+            'clase' => 'disponible'
+        ];
+    }
+}
+
+if (!function_exists('calcularStockDisponible')) {
+    /**
+     * Calcula el stock disponible descontando reservas
+     */
+    function calcularStockDisponible($stockTotal, $stockReservado = 0)
+    {
+        return max(0, $stockTotal - $stockReservado);
+    }
+}
+
+if (!function_exists('validarDisponibilidadVenta')) {
+    /**
+     * Valida si se puede vender una cantidad específica de un componente
+     */
+    function validarDisponibilidadVenta($componente, $cantidad)
+    {
+        // Si permite venta sin stock
+        if ($componente->permite_venta_sin_stock ?? false) {
+            return [
+                'valido' => true,
+                'mensaje' => 'Disponible (pre-orden)',
+                'es_preorden' => true
+            ];
+        }
+
+        $stockDisponible = calcularStockDisponible($componente->stock, $componente->stock_reservado ?? 0);
+
+        if ($stockDisponible >= $cantidad) {
+            return [
+                'valido' => true,
+                'mensaje' => 'Stock disponible',
+                'es_preorden' => false
+            ];
+        }
+
+        return [
+            'valido' => false,
+            'mensaje' => "Stock insuficiente. Disponible: $stockDisponible",
+            'stock_disponible' => $stockDisponible
+        ];
+    }
+}
+
+if (!function_exists('generarCodigoProducto')) {
+    /**
+     * Genera un código de producto automático
+     */
+    function generarCodigoProducto($categoriaNombre, $numero = null)
+    {
+        $prefijo = strtoupper(substr($categoriaNombre, 0, 3));
+        $numeroFinal = $numero ?? rand(1000, 9999);
+        return $prefijo . '-' . str_pad($numeroFinal, 4, '0', STR_PAD_LEFT);
+    }
+}
+
+if (!function_exists('calcularValorInventario')) {
+    /**
+     * Calcula el valor total de inventario
+     */
+    function calcularValorInventario($stock, $precio)
+    {
+        return $stock * $precio;
+    }
+}
+
+if (!function_exists('alertaStockBajo')) {
+    /**
+     * Determina si debe mostrar alerta de stock bajo
+     */
+    function alertaStockBajo($stock, $stockMinimo, $alertaActiva = true)
+    {
+        return $alertaActiva && $stock <= $stockMinimo;
+    }
+}
+
+if (!function_exists('formatearMovimientoStock')) {
+    /**
+     * Formatea un movimiento de stock para mostrar
+     */
+    function formatearMovimientoStock($movimiento)
+    {
+        $tipos = [
+            'entrada' => ['texto' => 'Entrada', 'color' => '#10b981', 'icono' => 'arrow-up'],
+            'salida' => ['texto' => 'Salida', 'color' => '#ef4444', 'icono' => 'arrow-down'],
+            'ajuste' => ['texto' => 'Ajuste', 'color' => '#3b82f6', 'icono' => 'edit'],
+            'reserva' => ['texto' => 'Reserva', 'color' => '#f59e0b', 'icono' => 'clock'],
+            'liberacion' => ['texto' => 'Liberación', 'color' => '#6b7280', 'icono' => 'unlock']
+        ];
+
+        return $tipos[$movimiento] ?? ['texto' => 'Desconocido', 'color' => '#6b7280', 'icono' => 'question'];
+    }
+}
+
+if (!function_exists('tiempoExpiracionReserva')) {
+    /**
+     * Calcula tiempo restante para expiración de reserva
+     */
+    function tiempoExpiracionReserva($fechaExpiracion)
+    {
+        $now = new DateTime();
+        $expiracion = new DateTime($fechaExpiracion);
+        
+        if ($now >= $expiracion) {
+            return ['expirado' => true, 'tiempo' => '0min'];
+        }
+        
+        $diff = $now->diff($expiracion);
+        
+        if ($diff->h > 0) {
+            return ['expirado' => false, 'tiempo' => $diff->h . 'h ' . $diff->i . 'min'];
+        }
+        
+        return ['expirado' => false, 'tiempo' => $diff->i . 'min'];
+    }
+}

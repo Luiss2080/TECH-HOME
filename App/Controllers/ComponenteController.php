@@ -451,6 +451,190 @@ class ComponenteController extends Controller
         }
     }
 
+    // =============== MÉTODOS PARA INTEGRACIÓN CON VENTAS ===============
+
+    /**
+     * Verificar disponibilidad para venta (AJAX)
+     */
+    public function verificarDisponibilidad(Request $request, $id)
+    {
+        try {
+            header('Content-Type: application/json');
+
+            $cantidad = (int)$request->input('cantidad', 1);
+
+            if ($cantidad <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cantidad debe ser mayor a 0'
+                ], 400);
+            }
+
+            $disponibilidad = $this->componenteService->verificarDisponibilidadVenta($id, $cantidad);
+
+            return response()->json([
+                'success' => true,
+                'data' => $disponibilidad
+            ]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al verificar disponibilidad: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reservar stock para venta (AJAX)
+     */
+    public function reservarStock(Request $request, $id)
+    {
+        try {
+            header('Content-Type: application/json');
+
+            // Validar datos
+            $rules = [
+                'cantidad' => 'required|integer|min:1',
+                'venta_id' => 'required|integer'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            $cantidad = (int)$request->input('cantidad');
+            $ventaId = (int)$request->input('venta_id');
+            $usuarioId = auth()->id ?? null;
+
+            $resultado = $this->componenteService->reservarStockVenta($id, $cantidad, $ventaId, $usuarioId);
+
+            return response()->json([
+                'success' => $resultado['exito'],
+                'message' => $resultado['mensaje'],
+                'data' => $resultado
+            ], $resultado['exito'] ? 200 : 400);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al reservar stock: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Confirmar venta y reducir stock (AJAX)
+     */
+    public function confirmarVenta(Request $request, $id)
+    {
+        try {
+            header('Content-Type: application/json');
+
+            // Validar datos
+            $rules = [
+                'cantidad' => 'required|integer|min:1',
+                'venta_id' => 'required|integer'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            $cantidad = (int)$request->input('cantidad');
+            $ventaId = (int)$request->input('venta_id');
+            $usuarioId = auth()->id ?? 1; // Usuario requerido para auditoría
+
+            $resultado = $this->componenteService->confirmarVenta($id, $cantidad, $ventaId, $usuarioId);
+
+            return response()->json([
+                'success' => $resultado['exito'],
+                'message' => $resultado['mensaje'],
+                'data' => $resultado
+            ], $resultado['exito'] ? 200 : 400);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al confirmar venta: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cancelar venta y liberar stock reservado (AJAX)
+     */
+    public function liberarStock(Request $request, $id)
+    {
+        try {
+            header('Content-Type: application/json');
+
+            // Validar datos
+            $rules = [
+                'cantidad' => 'required|integer|min:1',
+                'venta_id' => 'required|integer'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            $cantidad = (int)$request->input('cantidad');
+            $ventaId = (int)$request->input('venta_id');
+
+            $resultado = $this->componenteService->liberarStockReservado($id, $cantidad, $ventaId);
+
+            return response()->json([
+                'success' => $resultado['exito'],
+                'message' => $resultado['mensaje']
+            ], $resultado['exito'] ? 200 : 400);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al liberar stock: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reporte de stock y ventas
+     */
+    public function reporteStock()
+    {
+        try {
+            $estadisticas = $this->componenteService->obtenerEstadisticasComponentes();
+            $stockBajo = $this->componenteService->obtenerComponentesStockBajo();
+            $masVendidos = $this->componenteService->obtenerComponentesMasVendidos();
+
+            return view('componentes.reporte_stock', [
+                'title' => 'Reporte de Stock y Ventas',
+                'estadisticas' => $estadisticas,
+                'stock_bajo' => $stockBajo,
+                'mas_vendidos' => $masVendidos
+            ]);
+
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al generar reporte: ' . $e->getMessage());
+            return redirect(route('componentes'));
+        }
+    }
+
     /**
      * Procesar especificaciones técnicas del formulario
      */

@@ -4,6 +4,9 @@ $libros = $libros ?? [];
 $categorias = $categorias ?? [];
 ?>
 
+<!-- FontAwesome para iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <!-- Estilos específicos para el módulo CRUD -->
 <link rel="stylesheet" href="<?= asset('css/index.css'); ?>">
 
@@ -324,7 +327,7 @@ body.dark-theme .crud-stock-bar {
             <div class="crud-section-header">
                 <div class="crud-section-header-content">
                     <div class="crud-section-icon">
-                        <i class="fas fa-books"></i>
+                        <i class="fas fa-book"></i>
                     </div>
                     <div class="crud-section-title-group">
                         <h1 class="crud-section-title">Gestión de Libros</h1>
@@ -333,7 +336,7 @@ body.dark-theme .crud-stock-bar {
                 </div>
                 <div class="crud-section-header-actions">
                     <a href="<?= route('libros.crear'); ?>" class="crud-section-action-header">
-                        <i class="fas fa-book-plus"></i>
+                        <i class="fas fa-plus"></i>
                         Agregar Nuevo Libro
                     </a>
                     <a href="<?= route('libros.catalogo'); ?>" class="crud-btn-catalog">
@@ -349,7 +352,7 @@ body.dark-theme .crud-stock-bar {
             <div class="crud-stats-grid">
                 <div class="crud-stat-item">
                     <div class="crud-stat-icon bg-blue">
-                        <i class="fas fa-books"></i>
+                        <i class="fas fa-book"></i>
                     </div>
                     <div class="crud-stat-content">
                         <h4>Total Libros</h4>
@@ -614,7 +617,7 @@ body.dark-theme .crud-stock-bar {
                 <?php else: ?>
                     <div class="crud-empty-state">
                         <div class="crud-empty-state-icon">
-                            <i class="fas fa-books"></i>
+                            <i class="fas fa-book-open"></i>
                         </div>
                         <h3>No hay libros registrados</h3>
                         <p>Comienza agregando el primer libro al inventario para gestionar el catálogo y controlar el stock disponible.</p>

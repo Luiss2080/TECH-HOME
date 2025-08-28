@@ -515,7 +515,7 @@ class LaboratorioController extends Controller
      */
     public function laboratorios()
     {
-        return view('laboratorios.index', [
+        return view('admin.laboratorios.index', [
             'title' => 'Laboratorios Virtuales',
             'ruta' => '/laboratorios'
         ]);
