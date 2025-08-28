@@ -155,6 +155,15 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                             <a href="<?= route('usuarios') ?>" class="ithr-nav-link">
                                 <i class="fas fa-users-cog ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Usuarios</span>
+                                <span class="ithr-nav-badge"><?php
+                                    try {
+                                        // Obtener contador dinámico de usuarios activos
+                                        $contadorUsuarios = \App\Models\User::where('estado', '=', 1)->count();
+                                        echo $contadorUsuarios;
+                                    } catch (Exception $e) {
+                                        echo '0';
+                                    }
+                                ?></span>
                             </a>
                         </li>
                     </ul>
@@ -167,19 +176,62 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                             <a href="<?= route('libros') ?>" class="ithr-nav-link">
                                 <i class="fas fa-book ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Biblioteca</span>
+                                <span class="ithr-nav-badge"><?php
+                                    try {
+                                        // Obtener contador dinámico de libros disponibles
+                                        $contadorLibros = \App\Models\Libro::where('estado', '=', 'activo')->count();
+                                        echo $contadorLibros;
+                                    } catch (Exception $e) {
+                                        echo '0';
+                                    }
+                                ?></span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
                             <a href="<?= route('materiales') ?>" class="ithr-nav-link">
                                 <i class="fas fa-file-alt ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Materiales</span>
-                                <span class="ithr-nav-badge">450</span>
+                                <span class="ithr-nav-badge"><?php
+                                    try {
+                                        // Obtener contador dinámico de materiales disponibles
+                                        $contadorMateriales = \App\Models\Material::where('estado', '=', 'publicado')->count();
+                                        echo $contadorMateriales;
+                                    } catch (Exception $e) {
+                                        echo '0';
+                                    }
+                                ?></span>
                             </a>
                         </li>
                         <li class="ithr-nav-item">
                             <a href="<?= route('laboratorios') ?>" class="ithr-nav-link">
                                 <i class="fas fa-flask ithr-nav-icon"></i>
                                 <span class="ithr-nav-text">Laboratorios</span>
+                                <span class="ithr-nav-badge"><?php
+                                    try {
+                                        // Obtener contador dinámico de laboratorios activos
+                                        $contadorLaboratorios = \App\Models\Laboratorio::where('estado', '=', 'activo')->count();
+                                        echo $contadorLaboratorios;
+                                    } catch (Exception $e) {
+                                        echo '0';
+                                    }
+                                ?></span>
+                            </a>
+                        </li>
+                        <li class="ithr-nav-item">
+                            <a href="<?= route('componentes') ?>" class="ithr-nav-link">
+                                <i class="fas fa-microchip ithr-nav-icon"></i>
+                                <span class="ithr-nav-text">Componentes</span>
+                                <span class="ithr-nav-badge"><?php
+                                    try {
+                                        // Obtener contador dinámico de componentes disponibles
+                                        $contadorComponentes = \App\Models\Componente::where('estado', '!=', 'Descontinuado')
+                                            ->where('stock', '>', 0)
+                                            ->count();
+                                        echo $contadorComponentes;
+                                    } catch (Exception $e) {
+                                        echo '0';
+                                    }
+                                ?></span>
                             </a>
                         </li>
                     </ul>

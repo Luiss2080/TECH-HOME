@@ -215,7 +215,7 @@ class LibroService
     /**
      * Procesar descarga de libro
      */
-    public function procesarDescarga(int $libroId, int $usuarioId, string $ipAddress, string $userAgent = null): bool
+    public function procesarDescarga(int $libroId, int $usuarioId, string $ipAddress, ?string $userAgent = null): bool
     {
         try {
             $libro = Libro::find($libroId);
@@ -880,7 +880,16 @@ class LibroService
     public function getCategorias(): array
     {
         try {
-            return Categoria::all()->toArray();
+            $categorias = Categoria::all();
+            
+            // Si es un array de modelos, convertir cada modelo a array
+            if (is_array($categorias)) {
+                return array_map(function($categoria) {
+                    return $categoria->getAttributes();
+                }, $categorias);
+            }
+            
+            return [];
         } catch (Exception $e) {
             return [];
         }

@@ -447,7 +447,7 @@ class Curso extends Model
     /**
      * Calificar curso
      */
-    public function calificar(int $usuarioId, int $calificacion, string $comentario = null): bool
+    public function calificar(int $usuarioId, int $calificacion, ?string $comentario = null): bool
     {
         try {
             if ($calificacion < 1 || $calificacion > 5) {

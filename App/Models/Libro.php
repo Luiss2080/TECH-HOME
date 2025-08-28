@@ -400,7 +400,7 @@ class Libro extends Model
     /**
      * Calificar libro
      */
-    public function calificar(int $usuarioId, int $calificacion, string $comentario = null): bool
+    public function calificar(int $usuarioId, int $calificacion, ?string $comentario = null): bool
     {
         try {
             if ($calificacion < 1 || $calificacion > 5) {
@@ -450,7 +450,7 @@ class Libro extends Model
     /**
      * Registrar descarga
      */
-    public function registrarDescarga(int $usuarioId, string $ipAddress, string $userAgent = null): bool
+    public function registrarDescarga(int $usuarioId, string $ipAddress, ?string $userAgent = null): bool
     {
         try {
             if (!$this->estaDisponible()) {
