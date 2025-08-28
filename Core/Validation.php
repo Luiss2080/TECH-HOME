@@ -223,6 +223,41 @@ class Validation
         return true;
     }
 
+    private function validateSecurePassword(string $field, $value)
+    {
+        if ($value === null || $value === '') {
+            return; // Si está vacío, validateRequired se encargará
+        }
+
+        $errors = [];
+        
+        // Verificar longitud mínima
+        if (strlen($value) < 8) {
+            $errors[] = "debe tener al menos 8 caracteres";
+        }
+        
+        // Verificar que tenga al menos una mayúscula
+        if (!preg_match('/[A-Z]/', $value)) {
+            $errors[] = "debe contener al menos una letra mayúscula";
+        }
+        
+        // Verificar que tenga al menos un número
+        if (!preg_match('/[0-9]/', $value)) {
+            $errors[] = "debe contener al menos un número";
+        }
+        
+        // Verificar que tenga al menos una minúscula
+        if (!preg_match('/[a-z]/', $value)) {
+            $errors[] = "debe contener al menos una letra minúscula";
+        }
+
+        if (!empty($errors)) {
+            $camp = $field;
+            $errorMessage = "La contraseña " . implode(', ', $errors) . ".";
+            $this->addError($field, $errorMessage);
+        }
+    }
+
     private function addError(string $field, string $message)
     {
         $this->errors[$field][] = $message;

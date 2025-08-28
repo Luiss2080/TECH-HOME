@@ -179,9 +179,72 @@
         $errors = flashGet('errors') ?? [];
         $error = flashGet('error');
         $success = flashGet('success');
+        $blocked = flashGet('blocked') ?? [];
         ?>
         
-        <?php if (isset($errors['general'])): ?>
+        <?php if (!empty($blocked)): ?>
+            // Mensaje especial de bloqueo con countdown
+            let timeRemaining = <?= $blocked['time_remaining'] ?? 0 ?>;
+            
+            customSwal.fire({
+                icon: 'warning',
+                title: '🔒 Cuenta Bloqueada',
+                html: `
+                    <div style="text-align: left; margin: 20px 0;">
+                        <p><strong>⚠️ Tu cuenta está temporalmente bloqueada</strong></p>
+                        <ul style="margin: 15px 0; padding-left: 20px;">
+                            <li>Demasiados intentos fallidos (<?= $blocked['attempts_made'] ?? 3 ?>/3)</li>
+                            <li>Tiempo restante: <span id="countdown">${timeRemaining}</span> minutos</li>
+                            <li>Se desbloqueará automáticamente</li>
+                        </ul>
+                        <div style="background: #fee; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <strong>💡 Consejos de seguridad:</strong>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>Verifica que escribes correctamente tu email y contraseña</li>
+                                <li>Asegúrate de no tener CAPS LOCK activado</li>
+                                <li>Si olvidaste tu contraseña, usa "¿Olvidaste tu contraseña?"</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Entendido',
+                allowOutsideClick: false,
+                background: '#1f2937',
+                color: '#fff',
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown animate__faster'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp animate__faster'
+                },
+                didOpen: () => {
+                    // Countdown timer
+                    const countdownElement = document.getElementById('countdown');
+                    if (countdownElement && timeRemaining > 0) {
+                        const interval = setInterval(() => {
+                            timeRemaining--;
+                            countdownElement.textContent = timeRemaining;
+                            
+                            if (timeRemaining <= 0) {
+                                clearInterval(interval);
+                                countdownElement.textContent = '0';
+                                customSwal.update({
+                                    html: `
+                                        <div style="text-align: center; margin: 20px 0;">
+                                            <p><strong>✅ Tu cuenta ha sido desbloqueada</strong></p>
+                                            <p>Ya puedes intentar iniciar sesión nuevamente.</p>
+                                        </div>
+                                    `,
+                                    icon: 'success',
+                                    title: 'Cuenta Desbloqueada',
+                                    confirmButtonText: 'Intentar de nuevo'
+                                });
+                            }
+                        }, 60000); // Actualizar cada minuto
+                    }
+                }
+            });
+        <?php elseif (isset($errors['general'])): ?>
             <?php foreach ($errors['general'] as $errorMsg): ?>
                 customSwal.fire({
                     icon: 'error',

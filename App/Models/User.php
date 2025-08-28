@@ -17,6 +17,8 @@ class User extends Model
         'fecha_nacimiento',
         'avatar',
         'estado',
+        'intentos_fallidos',
+        'bloqueado_hasta',
         'fecha_creacion',
         'fecha_actualizacion'
     ];
@@ -315,10 +317,62 @@ class User extends Model
     public static function attempt($email, $password)
     {
         $user = self::where('email', '=', $email)->where('estado', '=', 1)->first();
-        if ($user && password_verify($password, $user->password)) {
+        
+        if (!$user) {
+            return false;
+        }
+
+        // Verificar si el usuario está bloqueado
+        if ($user->bloqueado_hasta && strtotime($user->bloqueado_hasta) > time()) {
+            return false;
+        }
+
+        if (password_verify($password, $user->password)) {
+            // Contraseña correcta - resetear intentos fallidos
+            $user->intentos_fallidos = 0;
+            $user->bloqueado_hasta = null;
+            $user->save();
             return $user;
         }
+
+        // Contraseña incorrecta - incrementar intentos fallidos
+        self::handleFailedLoginAttempt($user);
         return false;
+    }
+
+    /**
+     * Manejar intento de login fallido
+     */
+    private static function handleFailedLoginAttempt(User $user)
+    {
+        $user->intentos_fallidos = ($user->intentos_fallidos ?? 0) + 1;
+        
+        // Bloquear después de 3 intentos fallidos por 5 minutos
+        if ($user->intentos_fallidos >= 3) {
+            $user->bloqueado_hasta = date('Y-m-d H:i:s', time() + (5 * 60)); // 5 minutos
+        }
+        
+        $user->save();
+    }
+
+    /**
+     * Verificar si el usuario está bloqueado
+     */
+    public function isBlocked()
+    {
+        return $this->bloqueado_hasta && strtotime($this->bloqueado_hasta) > time();
+    }
+
+    /**
+     * Obtener tiempo restante de bloqueo en minutos
+     */
+    public function getBlockTimeRemaining()
+    {
+        if (!$this->isBlocked()) {
+            return 0;
+        }
+        
+        return ceil((strtotime($this->bloqueado_hasta) - time()) / 60);
     }
 
     // Scopes

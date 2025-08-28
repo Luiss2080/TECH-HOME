@@ -290,4 +290,282 @@ abstract class BaseEmailService implements MailServiceInterface
         
         return $this->sendMail($user->email, $subject, $body);
     }
+
+    /**
+     * Enviar código OTP por email
+     */
+    public function sendOTPEmail(string $email, string $codigo, string $nombreUsuario = '', int $expirationMinutes = 1): bool
+    {
+        $subject = '🔐 Código de Verificación - Tech Home Bolivia';
+        
+        $body = "
+        <html>
+        <head>
+            <style>
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    line-height: 1.6; 
+                    color: #333; 
+                    margin: 0; 
+                    padding: 0; 
+                    background: #f8f9fa;
+                }
+                .container { 
+                    max-width: 600px; 
+                    margin: 20px auto; 
+                    background: white; 
+                    border-radius: 15px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                    overflow: hidden;
+                }
+                .header { 
+                    background: linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #1f2937 100%); 
+                    color: white; 
+                    padding: 30px; 
+                    text-align: center; 
+                    position: relative;
+                }
+                .header::before {
+                    content: '🔐';
+                    font-size: 48px;
+                    display: block;
+                    margin-bottom: 15px;
+                }
+                .header h1 { 
+                    margin: 0; 
+                    font-size: 24px; 
+                    font-weight: bold; 
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                }
+                .header p { 
+                    margin: 8px 0 0 0; 
+                    opacity: 0.9; 
+                    font-size: 16px;
+                }
+                .content { 
+                    padding: 40px 30px; 
+                    background: white;
+                    text-align: center;
+                }
+                .otp-container {
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    border: 3px dashed #dc2626;
+                    border-radius: 20px;
+                    padding: 30px;
+                    margin: 30px 0;
+                    position: relative;
+                    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+                }
+                .otp-label {
+                    background: white;
+                    color: #dc2626;
+                    padding: 8px 20px;
+                    border-radius: 25px;
+                    font-weight: bold;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    display: inline-block;
+                    margin-bottom: 20px;
+                    border: 2px solid #dc2626;
+                }
+                .otp-code {
+                    font-size: 48px;
+                    font-weight: bold;
+                    color: #dc2626;
+                    background: white;
+                    padding: 20px 30px;
+                    border-radius: 15px;
+                    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.2);
+                    letter-spacing: 8px;
+                    font-family: 'Courier New', monospace;
+                    border: 3px solid #dc2626;
+                    display: inline-block;
+                    margin: 15px 0;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    animation: pulse 2s infinite;
+                }
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(1); }
+                }
+                .timer-container {
+                    background: #fff3cd;
+                    border: 2px solid #ffc107;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin: 25px 0;
+                    position: relative;
+                }
+                .timer-container::before {
+                    content: '⏰';
+                    font-size: 24px;
+                    position: absolute;
+                    top: -12px;
+                    left: 20px;
+                    background: white;
+                    padding: 0 10px;
+                }
+                .timer-text {
+                    color: #856404;
+                    font-weight: bold;
+                    margin: 0;
+                    font-size: 16px;
+                }
+                .timer-countdown {
+                    font-size: 32px;
+                    color: #dc2626;
+                    font-weight: bold;
+                    margin: 10px 0;
+                    font-family: 'Courier New', monospace;
+                }
+                .instructions {
+                    background: #e8f4f8;
+                    border-left: 5px solid #3498db;
+                    padding: 25px;
+                    margin: 25px 0;
+                    border-radius: 0 10px 10px 0;
+                    text-align: left;
+                }
+                .instructions h3 {
+                    color: #2980b9;
+                    margin-top: 0;
+                    font-size: 18px;
+                }
+                .instructions ol {
+                    margin: 15px 0;
+                    padding-left: 20px;
+                }
+                .instructions li {
+                    margin: 8px 0;
+                    font-size: 15px;
+                    line-height: 1.5;
+                }
+                .security-notice {
+                    background: #f8d7da;
+                    border: 2px solid #dc3545;
+                    border-radius: 10px;
+                    padding: 20px;
+                    margin: 25px 0;
+                    color: #721c24;
+                }
+                .security-notice h4 {
+                    margin-top: 0;
+                    color: #dc3545;
+                    font-size: 16px;
+                }
+                .security-notice ul {
+                    margin: 10px 0;
+                    text-align: left;
+                    padding-left: 20px;
+                }
+                .footer { 
+                    text-align: center; 
+                    color: #666; 
+                    font-size: 14px; 
+                    padding: 30px; 
+                    background: #2c3e50; 
+                    color: white; 
+                }
+                .footer p {
+                    margin: 5px 0;
+                }
+                .highlight {
+                    background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
+                    color: white;
+                    padding: 3px 8px;
+                    border-radius: 5px;
+                    font-weight: bold;
+                }
+                .welcome-text {
+                    font-size: 18px;
+                    color: #555;
+                    margin-bottom: 30px;
+                }
+                .device-info {
+                    background: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin: 20px 0;
+                    font-size: 14px;
+                    color: #6c757d;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1>Verificación de Seguridad</h1>
+                    <p>Tech Home Bolivia - Sistema 2FA</p>
+                </div>
+                
+                <div class='content'>
+                    <div class='welcome-text'>
+                        " . ($nombreUsuario ? "¡Hola <strong>" . htmlspecialchars($nombreUsuario) . "</strong>!" : "¡Hola!") . "
+                        <br>Se ha solicitado acceso a tu cuenta.
+                    </div>
+
+                    <div class='otp-container'>
+                        <div class='otp-label'>Tu Código de Verificación</div>
+                        <div class='otp-code'>" . $codigo . "</div>
+                        <p style='color: #6c757d; font-size: 14px; margin: 15px 0 0 0;'>
+                            ⚡ Usa este código para completar tu inicio de sesión
+                        </p>
+                    </div>
+
+                    <div class='timer-container'>
+                        <p class='timer-text'>⏱️ Este código expira en:</p>
+                        <div class='timer-countdown'>" . $expirationMinutes . " minuto" . ($expirationMinutes > 1 ? 's' : '') . "</div>
+                        <p style='margin: 0; font-size: 14px; color: #856404;'>
+                            Fecha de expiración: " . date('d/m/Y H:i:s', time() + ($expirationMinutes * 60)) . "
+                        </p>
+                    </div>
+
+                    <div class='instructions'>
+                        <h3>📝 Instrucciones de uso:</h3>
+                        <ol>
+                            <li><strong>Regresa a la página de inicio de sesión</strong> en tu navegador</li>
+                            <li><strong>Ingresa el código de 6 dígitos</strong> exactamente como se muestra arriba</li>
+                            <li><strong>Presiona 'Verificar'</strong> para completar tu acceso</li>
+                            <li>Si el código expira, solicita uno nuevo desde la página de login</li>
+                        </ol>
+                    </div>
+
+                    <div class='device-info'>
+                        <strong>🖥️ Información del acceso:</strong><br>
+                        📅 Fecha: " . date('d/m/Y H:i:s') . "<br>
+                        🌐 IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'No disponible') . "<br>
+                        💻 Navegador: " . (substr($_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido', 0, 50) . '...') . "
+                    </div>
+
+                    <div class='security-notice'>
+                        <h4>🔒 Aviso de Seguridad</h4>
+                        <ul>
+                            <li><strong>Este código es de un solo uso</strong> y expira en " . $expirationMinutes . " minuto" . ($expirationMinutes > 1 ? 's' : '') . "</li>
+                            <li><strong>No compartas este código</strong> con nadie</li>
+                            <li><strong>Si no iniciaste sesión</strong>, ignora este email y considera cambiar tu contraseña</li>
+                            <li><strong>Después de 3 intentos fallidos</strong>, tu cuenta será bloqueada temporalmente</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class='footer'>
+                    <p><strong>🤖 Tech Home Bolivia</strong></p>
+                    <p>Instituto de Robótica y Tecnología Avanzada</p>
+                    <p style='font-size: 12px; opacity: 0.8; margin-top: 15px;'>
+                        © " . date('Y') . " Tech Home Bolivia. Todos los derechos reservados.<br>
+                        Este es un email automático del sistema de seguridad. No responder.
+                    </p>
+                    <p style='font-size: 12px; margin-top: 10px;'>
+                        📧 Soporte: soporte@techhomebolivia.com | 📞 +591 123 456 789
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        ";
+        
+        return $this->sendMail($email, $subject, $body);
+    }
 }

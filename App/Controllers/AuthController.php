@@ -6,6 +6,7 @@ use Core\Controller;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\ActivationToken;
+use App\Models\CodigoOTP;
 use Core\DB;
 use Core\Request;
 use Core\Session;
@@ -37,7 +38,7 @@ class AuthController extends Controller
             'nombre' => 'required|string|min:2|max:50',
             'apellido' => 'required|string|min:2|max:50',
             'email' => 'required|email|max:150',
-            'password' => 'required|min:8|max:50',
+            'password' => 'required|secure_password|max:50',
             'password_confirmation' => 'required|same:password',
             'telefono' => 'nullable|string|max:20',
             'fecha_nacimiento' => 'nullable|date'
@@ -150,48 +151,438 @@ class AuthController extends Controller
 
     public function loginForm(Request $request)
     {
-        // Validar datos
+        // Validar datos del primer paso
         $validator = new Validation();
         $rules = [
             'email' => 'required|email|max:150',
             'password' => 'required|min:8|max:50'
         ];
+        
         if (!$validator->validate($request->all(), $rules)) {
             Session::flash('errors', $validator->errors());
             Session::flash('old', $request->except(['password']));
             return redirect(route('login'));
         }
 
-        $email = $request->all()['email'];
-        $password = $request->all()['password'];
+        $email = $request->input('email');
+        $password = $request->input('password');
 
-        // Autenticar usuario
+        // PASO 1: Verificar credenciales (email + password)
         $user = $this->attempt($email, $password);
-        if ($user) {
-            // Verificar si la cuenta está activa
-            if ($user->estado == 0) {
-                Session::flash('errors', ['general' => ['Tu cuenta no está activada. Revisa tu email para activar tu cuenta.']]);
-                Session::flash('old', $request->except(['password']));
-                return redirect(route('login'));
+        if (!$user) {
+            // Verificar si el usuario existe para mostrar mensaje específico de bloqueo
+            $existingUser = User::where('email', '=', $email)->where('estado', '=', 1)->first();
+            if ($existingUser && $existingUser->isBlocked()) {
+                $timeRemaining = $existingUser->getBlockTimeRemaining();
+                Session::flash('errors', ['general' => ["Tu cuenta está bloqueada por intentos fallidos. Intenta nuevamente en {$timeRemaining} minutos."]]);
+                Session::flash('blocked', [
+                    'time_remaining' => $timeRemaining,
+                    'unlock_time' => $existingUser->bloqueado_hasta,
+                    'attempts_made' => $existingUser->intentos_fallidos
+                ]);
+            } else {
+                Session::flash('errors', ['general' => ['Credenciales incorrectas']]);
             }
             
+            // Registrar intento fallido
+            $this->logFailedAttempt($email, 'Invalid credentials');
+            Session::flash('old', $request->except(['password']));
+            return redirect(route('login'));
+        }
+
+        // Verificar si la cuenta está activa
+        if ($user->estado == 0) {
+            Session::flash('errors', ['general' => ['Tu cuenta no está activada. Revisa tu email para activar tu cuenta.']]);
+            Session::flash('old', $request->except(['password']));
+            return redirect(route('login'));
+        }
+
+        // PASO 2: Credenciales correctas - Iniciar proceso 2FA
+        return $this->initiate2FA($user, $email);
+    }
+
+    /**
+     * Iniciar proceso de autenticación 2FA
+     */
+    private function initiate2FA(User $user, string $email)
+    {
+        try {
+            // Verificar si el usuario puede generar un nuevo código
+            $canGenerate = CodigoOTP::canGenerateNewCode($user->id);
+            if (!$canGenerate['can_generate']) {
+                if (isset($canGenerate['bloqueado'])) {
+                    Session::flash('error', $canGenerate['reason']);
+                    return redirect(route('login'));
+                }
+                
+                // Si hay código activo, ir directo a verificación
+                if (isset($canGenerate['codigo_existente'])) {
+                    Session::set('2fa_user_id', $user->id);
+                    Session::set('2fa_email', $email);
+                    Session::set('2fa_start_time', time());
+                    return redirect(route('auth.otp.verify'));
+                }
+            }
+
+            // Generar nuevo código OTP
+            $otpResult = CodigoOTP::generateOTP($user->id);
+            if (!$otpResult['success']) {
+                error_log('Error generando OTP para usuario ' . $user->id . ': ' . $otpResult['error']);
+                Session::flash('error', 'Error interno generando código de verificación. Intenta de nuevo.');
+                return redirect(route('login'));
+            }
+
+            // Enviar código por email
+            $emailService = mailService();
+            $emailSent = $emailService->sendOTPEmail(
+                $email, 
+                $otpResult['codigo'], 
+                $user->nombre . ' ' . $user->apellido,
+                1 // 1 minuto de expiración
+            );
+
+            if (!$emailSent) {
+                error_log('Error enviando email OTP a: ' . $email);
+                Session::flash('error', 'Error enviando código de verificación. Intenta de nuevo.');
+                return redirect(route('login'));
+            }
+
+            // Guardar datos de sesión 2FA
+            Session::set('2fa_user_id', $user->id);
+            Session::set('2fa_email', $email);
+            Session::set('2fa_start_time', time());
+            Session::set('2fa_attempts', 0);
+
+            // Log del proceso 2FA iniciado
+            $this->log2FAEvent($user->id, $email, '2FA_INITIATED', [
+                'codigo_enviado' => true,
+                'expira_en' => $otpResult['expira_en'],
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+            ]);
+
+            return redirect(route('auth.otp.verify'));
+
+        } catch (\Exception $e) {
+            error_log('Error en initiate2FA: ' . $e->getMessage());
+            Session::flash('error', 'Error interno. Intenta de nuevo más tarde.');
+            return redirect(route('login'));
+        }
+    }
+
+    /**
+     * Mostrar vista de verificación OTP
+     */
+    public function showOTPVerification()
+    {
+        // Verificar que hay una sesión 2FA activa
+        if (!Session::has('2fa_user_id') || !Session::has('2fa_email')) {
+            Session::flash('error', 'Sesión de verificación expirada. Inicia sesión nuevamente.');
+            return redirect(route('login'));
+        }
+
+        // Verificar timeout de sesión 2FA (5 minutos máximo)
+        $startTime = Session::get('2fa_start_time', 0);
+        if (time() - $startTime > 300) { // 5 minutos
+            Session::remove('2fa_user_id');
+            Session::remove('2fa_email');
+            Session::remove('2fa_start_time');
+            Session::flash('error', 'Sesión de verificación expirada. Inicia sesión nuevamente.');
+            return redirect(route('login'));
+        }
+
+        $email = Session::get('2fa_email');
+        
+        return view('auth.otp-verification', [
+            'title' => 'Verificación 2FA',
+            'email' => $email,
+            'timer_duration' => 60, // 60 segundos
+            'attempts_left' => max(0, 3 - Session::get('2fa_attempts', 0))
+        ], false);
+    }
+
+    /**
+     * Verificar código OTP
+     */
+    public function verifyOTP(Request $request)
+    {
+        // Verificar sesión 2FA
+        if (!Session::has('2fa_user_id') || !Session::has('2fa_email')) {
+            return Response::json([
+                'success' => false,
+                'message' => 'Sesión de verificación expirada.',
+                'redirect' => route('login')
+            ], 401);
+        }
+
+        $userId = Session::get('2fa_user_id');
+        $email = Session::get('2fa_email');
+
+        // Validar código OTP
+        $validator = new Validation();
+        $rules = [
+            'otp_code' => 'required|string|min:6|max:6'
+        ];
+
+        if (!$validator->validate($request->all(), $rules)) {
+            return $this->handle2FAError('Código inválido. Debe tener 6 dígitos.', $userId, $email);
+        }
+
+        $otpCode = $request->input('otp_code');
+
+        // Verificar código con el modelo
+        $verificationResult = CodigoOTP::validateOTP($userId, $otpCode);
+
+        if (!$verificationResult['success']) {
+            return $this->handle2FAError($verificationResult['error'], $userId, $email, $verificationResult);
+        }
+
+        // ¡CÓDIGO VÁLIDO! Completar inicio de sesión
+        return $this->complete2FALogin($userId, $email);
+    }
+
+    /**
+     * Manejar error en verificación 2FA
+     */
+    private function handle2FAError(string $message, int $userId, string $email, array $verificationResult = [])
+    {
+        // Incrementar contador de intentos
+        $attempts = Session::get('2fa_attempts', 0) + 1;
+        Session::set('2fa_attempts', $attempts);
+
+        // Log del intento fallido
+        $this->log2FAEvent($userId, $email, '2FA_FAILED', [
+            'attempt' => $attempts,
+            'error' => $message,
+            'locked' => isset($verificationResult['locked']) ? $verificationResult['locked'] : false
+        ]);
+
+        // Verificar si se excedieron los intentos
+        if ($attempts >= 3) {
+            // Limpiar sesión 2FA
+            $this->clear2FASession();
+            
+            Session::flash('error', 'Se excedieron los intentos de verificación. Tu cuenta ha sido bloqueada temporalmente.');
+            return redirect(route('login'));
+        }
+
+        // Si es una solicitud AJAX, responder con JSON
+        if ($this->isAjaxRequest()) {
+            return Response::json([
+                'success' => false,
+                'message' => $message,
+                'attempts_left' => 3 - $attempts,
+                'locked' => isset($verificationResult['locked']) ? $verificationResult['locked'] : false
+            ], 400);
+        }
+
+        // Si es solicitud normal, redirigir con error
+        Session::flash('error', $message);
+        return redirect(route('auth.otp.verify'));
+    }
+
+    /**
+     * Completar inicio de sesión 2FA
+     */
+    private function complete2FALogin(int $userId, string $email)
+    {
+        try {
+            // Obtener usuario
+            $user = User::find($userId);
+            if (!$user) {
+                throw new \Exception('Usuario no encontrado');
+            }
+
+            // Crear sesión de usuario
             Session::set('user', $user);
 
-            // Determinar a qué dashboard redirigir según el rol
+            // Log del login exitoso
+            $this->log2FAEvent($userId, $email, '2FA_SUCCESS', [
+                'login_completed' => true,
+                'session_created' => true
+            ]);
+
+            // Limpiar datos de 2FA
+            $this->clear2FASession();
+
+            // Determinar redirection
             $roles = $user->roles();
-            $route = route(Dashboard()); // fallback
-            // Si hay una URL de retorno guardada, usarla
+            $redirectRoute = route('home'); // fallback
+            
+            if (!empty($roles)) {
+                $firstRole = strtolower($roles[0]['nombre']);
+                switch ($firstRole) {
+                    case 'administrador':
+                        $redirectRoute = route('admin.dashboard');
+                        break;
+                    case 'estudiante':
+                        $redirectRoute = route('estudiantes');
+                        break;
+                    case 'docente':
+                        $redirectRoute = route('docente.dashboard');
+                        break;
+                }
+            }
+
+            // Si hay URL de retorno guardada, usarla
             if (Session::has('back')) {
-                $route = Session::get('back');
+                $redirectRoute = Session::get('back');
                 Session::remove('back');
             }
 
-            return redirect($route);
+            // Si es AJAX, responder con JSON
+            if ($this->isAjaxRequest()) {
+                return Response::json([
+                    'success' => true,
+                    'message' => '¡Inicio de sesión exitoso!',
+                    'redirect' => $redirectRoute
+                ]);
+            }
+
+            Session::flash('success', '¡Bienvenido! Has iniciado sesión correctamente.');
+            return redirect($redirectRoute);
+
+        } catch (\Exception $e) {
+            error_log('Error completando 2FA login: ' . $e->getMessage());
+            
+            // Limpiar sesión en caso de error
+            $this->clear2FASession();
+            
+            if ($this->isAjaxRequest()) {
+                return Response::json([
+                    'success' => false,
+                    'message' => 'Error completando el inicio de sesión.',
+                    'redirect' => route('login')
+                ], 500);
+            }
+
+            Session::flash('error', 'Error completando el inicio de sesión. Intenta de nuevo.');
+            return redirect(route('login'));
+        }
+    }
+
+    /**
+     * Reenviar código OTP
+     */
+    public function resendOTP(Request $request)
+    {
+        // Verificar sesión 2FA
+        if (!Session::has('2fa_user_id')) {
+            return Response::json([
+                'success' => false,
+                'message' => 'Sesión expirada'
+            ], 401);
         }
 
-        Session::flash('errors', ['general' => ['Credenciales incorrectas']]);
-        Session::flash('old', $request->except(['password']));
-        return redirect(route('login'));
+        $userId = Session::get('2fa_user_id');
+        $email = Session::get('2fa_email');
+
+        try {
+            $user = User::find($userId);
+            if (!$user) {
+                throw new \Exception('Usuario no encontrado');
+            }
+
+            // Generar nuevo código
+            $otpResult = CodigoOTP::resendOTP($userId);
+            if (!$otpResult['success']) {
+                return Response::json([
+                    'success' => false,
+                    'message' => $otpResult['reason'] ?? 'No se pudo generar un nuevo código'
+                ], 400);
+            }
+
+            // Enviar por email
+            $emailService = mailService();
+            $emailSent = $emailService->sendOTPEmail(
+                $email, 
+                $otpResult['codigo'], 
+                $user->nombre . ' ' . $user->apellido,
+                1
+            );
+
+            if (!$emailSent) {
+                throw new \Exception('Error enviando email');
+            }
+
+            // Log del reenvío
+            $this->log2FAEvent($userId, $email, '2FA_RESENT', [
+                'new_expiration' => $otpResult['expira_en']
+            ]);
+
+            // Reset attempts counter
+            Session::set('2fa_attempts', 0);
+
+            return Response::json([
+                'success' => true,
+                'message' => 'Código reenviado exitosamente'
+            ]);
+
+        } catch (\Exception $e) {
+            error_log('Error reenviando OTP: ' . $e->getMessage());
+            return Response::json([
+                'success' => false,
+                'message' => 'Error reenviando código. Intenta de nuevo.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Limpiar sesión 2FA
+     */
+    private function clear2FASession()
+    {
+        Session::remove('2fa_user_id');
+        Session::remove('2fa_email');
+        Session::remove('2fa_start_time');
+        Session::remove('2fa_attempts');
+    }
+
+    /**
+     * Verificar si es solicitud AJAX
+     */
+    private function isAjaxRequest(): bool
+    {
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+    }
+
+    /**
+     * Log de intento fallido
+     */
+    private function logFailedAttempt(string $email, string $reason)
+    {
+        try {
+            $db = DB::getInstance();
+            $query = "INSERT INTO intentos_login (email, ip_address, user_agent, exito, fecha_intento) 
+                      VALUES (?, ?, ?, 0, NOW())";
+            $db->query($query, [
+                $email,
+                $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
+            ]);
+            
+            error_log("Failed login attempt for: {$email} - Reason: {$reason}");
+        } catch (\Exception $e) {
+            error_log('Error logging failed attempt: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Log de eventos 2FA
+     */
+    private function log2FAEvent(int $userId, string $email, string $event, array $data = [])
+    {
+        $logData = [
+            'user_id' => $userId,
+            'email' => $email,
+            'event' => $event,
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'data' => $data
+        ];
+
+        error_log('2FA Event: ' . json_encode($logData));
     }
 
 
