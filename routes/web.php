@@ -219,6 +219,15 @@ Router::post('/cursos/{id}/estado', [CursoController::class, 'cambiarEstado'])
     ->name('cursos.estado')
     ->middleware('role:administrador,docente|has:cursos.editar');
 
+// Rutas para inscripciones y progreso
+Router::post('/cursos/{id}/inscribir', [CursoController::class, 'inscribirCurso'])
+    ->name('cursos.inscribir')
+    ->middleware('role:estudiante|has:cursos.inscribirse');
+
+Router::post('/cursos/{id}/progreso', [CursoController::class, 'actualizarProgreso'])
+    ->name('cursos.actualizar-progreso')
+    ->middleware('role:estudiante|has:cursos.progreso');
+
 // Rutas AJAX para cursos (simplificadas)
 Router::get('/ajax/cursos/estadisticas', [CursoController::class, 'ajaxEstadisticas'])
     ->name('cursos.ajax.estadisticas')

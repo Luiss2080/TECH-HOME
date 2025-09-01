@@ -141,7 +141,8 @@ class CursoService
                 'categoria_id' => $cursoData['categoria_id'],
                 'imagen_portada' => $cursoData['imagen_portada'] ?? null,
                 'nivel' => $cursoData['nivel'] ?? 'Principiante',
-                'estado' => $cursoData['estado'] ?? 'Borrador'
+                'estado' => $cursoData['estado'] ?? 'Borrador',
+                'es_gratuito' => $cursoData['es_gratuito'] ?? 1
             ]);
 
             $curso->save();
@@ -327,6 +328,136 @@ class CursoService
             }
 
             return array_values($cursos);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Verificar si un estudiante está inscrito en un curso
+     */
+    public function estaInscrito(int $estudianteId, int $cursoId): bool
+    {
+        try {
+            $db = DB::getInstance();
+            $query = "SELECT COUNT(*) as count FROM inscripciones WHERE estudiante_id = ? AND curso_id = ?";
+            $result = $db->query($query, [$estudianteId, $cursoId]);
+            $row = $result->fetch(PDO::FETCH_ASSOC);
+            return $row['count'] > 0;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Inscribir estudiante a un curso
+     */
+    public function inscribirEstudiante(int $estudianteId, int $cursoId): bool
+    {
+        try {
+            // Verificar que no esté ya inscrito
+            if ($this->estaInscrito($estudianteId, $cursoId)) {
+                return true; // Ya está inscrito
+            }
+
+            $db = DB::getInstance();
+            
+            // Insertar inscripción
+            $query = "INSERT INTO inscripciones (estudiante_id, curso_id, fecha_inscripcion) VALUES (?, ?, NOW())";
+            $db->query($query, [$estudianteId, $cursoId]);
+
+            // Crear registro inicial de progreso
+            $queryProgreso = "INSERT INTO progreso_estudiantes (estudiante_id, curso_id, progreso_porcentaje, tiempo_estudiado, completado) VALUES (?, ?, 0, 0, 0)";
+            $db->query($queryProgreso, [$estudianteId, $cursoId]);
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception('Error al inscribir estudiante: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Obtener progreso de un estudiante en un curso
+     */
+    public function getProgresoEstudiante(int $estudianteId, int $cursoId): ?array
+    {
+        try {
+            $db = DB::getInstance();
+            $query = "SELECT * FROM progreso_estudiantes WHERE estudiante_id = ? AND curso_id = ?";
+            $result = $db->query($query, [$estudianteId, $cursoId]);
+            $progreso = $result->fetch(PDO::FETCH_ASSOC);
+            
+            return $progreso ?: null;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Actualizar progreso de un estudiante
+     */
+    public function actualizarProgreso(int $estudianteId, int $cursoId, int $porcentaje, int $tiempoEstudiado): bool
+    {
+        try {
+            $db = DB::getInstance();
+            $completado = $porcentaje >= 100 ? 1 : 0;
+            
+            $query = "UPDATE progreso_estudiantes SET 
+                     progreso_porcentaje = ?, 
+                     tiempo_estudiado = ?, 
+                     completado = ?,
+                     fecha_actualizacion = NOW()
+                     WHERE estudiante_id = ? AND curso_id = ?";
+            
+            $db->query($query, [$porcentaje, $tiempoEstudiado, $completado, $estudianteId, $cursoId]);
+            
+            return true;
+        } catch (Exception $e) {
+            throw new Exception('Error al actualizar progreso: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Obtener estudiantes inscritos en un curso (para profesores)
+     */
+    public function getEstudiantesInscritosCurso(int $cursoId): array
+    {
+        try {
+            $db = DB::getInstance();
+            $query = "SELECT u.id, u.nombre, u.apellido, u.email, i.fecha_inscripcion, 
+                     p.progreso_porcentaje, p.tiempo_estudiado, p.completado, p.fecha_actualizacion
+                     FROM inscripciones i
+                     INNER JOIN usuarios u ON i.estudiante_id = u.id
+                     LEFT JOIN progreso_estudiantes p ON i.estudiante_id = p.estudiante_id AND i.curso_id = p.curso_id
+                     WHERE i.curso_id = ?
+                     ORDER BY i.fecha_inscripcion DESC";
+            
+            $result = $db->query($query, [$cursoId]);
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Obtener cursos en los que está inscrito un estudiante
+     */
+    public function getCursosInscritoEstudiante(int $estudianteId): array
+    {
+        try {
+            $db = DB::getInstance();
+            $query = "SELECT c.*, i.fecha_inscripcion, p.progreso_porcentaje, p.tiempo_estudiado, p.completado,
+                     cat.nombre as categoria_nombre, u.nombre as docente_nombre, u.apellido as docente_apellido
+                     FROM inscripciones i
+                     INNER JOIN cursos c ON i.curso_id = c.id
+                     LEFT JOIN progreso_estudiantes p ON i.estudiante_id = p.estudiante_id AND i.curso_id = p.curso_id
+                     LEFT JOIN categorias cat ON c.categoria_id = cat.id
+                     LEFT JOIN usuarios u ON c.docente_id = u.id
+                     WHERE i.estudiante_id = ?
+                     ORDER BY i.fecha_inscripcion DESC";
+            
+            $result = $db->query($query, [$estudianteId]);
+            return $result->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             return [];
         }

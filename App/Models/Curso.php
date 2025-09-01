@@ -19,7 +19,8 @@ class Curso extends Model
         'categoria_id',
         'imagen_portada',
         'nivel',
-        'estado'
+        'estado',
+        'es_gratuito'
     ];
     protected $hidden = [];
     protected $timestamps = true;

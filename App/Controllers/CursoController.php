@@ -143,7 +143,8 @@ class CursoController extends Controller
                 'categoria_id' => (int)$request->input('categoria_id'),
                 'imagen_portada' => $request->input('imagen_portada'),
                 'nivel' => $request->input('nivel'),
-                'estado' => $request->input('estado') ?: 'Borrador'
+                'estado' => $request->input('estado') ?: 'Borrador',
+                'es_gratuito' => $request->input('es_gratuito') ? 1 : 0
             ];
 
             // Si es docente, solo puede crear cursos asignados a sí mismo
@@ -255,7 +256,8 @@ class CursoController extends Controller
                 'categoria_id' => (int)$request->input('categoria_id'),
                 'imagen_portada' => $request->input('imagen_portada'),
                 'nivel' => $request->input('nivel'),
-                'estado' => $request->input('estado')
+                'estado' => $request->input('estado'),
+                'es_gratuito' => $request->input('es_gratuito') ? 1 : 0
             ];
 
             // Si es docente, mantener la asignación a sí mismo
@@ -320,16 +322,42 @@ class CursoController extends Controller
 
             $user = auth();
             $puedeEditar = false;
+            $estaInscrito = false;
+            $puedeInscribirse = false;
+            $progreso = null;
             
             if ($user) {
                 $puedeEditar = $user->hasRole('administrador') || 
                               ($user->hasRole('docente') && $curso['docente_id'] == $user->id);
+                
+                // Verificar si es estudiante y está inscrito
+                if ($user->hasRole('estudiante')) {
+                    $estaInscrito = $this->cursoService->estaInscrito($user->id, $id);
+                    
+                    // Si es curso gratuito y no está inscrito, inscribirlo automáticamente
+                    if (!$estaInscrito && $curso['es_gratuito'] == 1) {
+                        $this->cursoService->inscribirEstudiante($user->id, $id);
+                        $estaInscrito = true;
+                        Session::flash('success', '¡Te has inscrito automáticamente a este curso gratuito!');
+                    }
+                    
+                    // Si está inscrito, obtener su progreso
+                    if ($estaInscrito) {
+                        $progreso = $this->cursoService->getProgresoEstudiante($user->id, $id);
+                    }
+                    
+                    // Puede inscribirse si no está inscrito y el curso está publicado
+                    $puedeInscribirse = !$estaInscrito && $curso['estado'] === 'Publicado';
+                }
             }
 
             return view('cursos.ver', [
                 'title' => $curso['titulo'],
                 'curso' => $curso,
-                'puedeEditar' => $puedeEditar
+                'puedeEditar' => $puedeEditar,
+                'estaInscrito' => $estaInscrito,
+                'puedeInscribirse' => $puedeInscribirse,
+                'progreso' => $progreso
             ]);
         } catch (Exception $e) {
             Session::flash('error', 'Error al cargar curso: ' . $e->getMessage());
@@ -371,6 +399,83 @@ class CursoController extends Controller
         } catch (Exception $e) {
             Session::flash('error', 'Error al cambiar estado: ' . $e->getMessage());
             return redirect(route('cursos'));
+        }
+    }
+
+    /**
+     * Inscribir estudiante a un curso
+     */
+    public function inscribirCurso(Request $request, $id)
+    {
+        try {
+            $user = auth();
+            if (!$user || !$user->hasRole('estudiante')) {
+                Session::flash('error', 'Solo los estudiantes pueden inscribirse a cursos.');
+                return redirect(route('cursos.ver', ['id' => $id]));
+            }
+
+            $curso = $this->cursoService->getCursoById($id);
+            if (!$curso) {
+                Session::flash('error', 'Curso no encontrado.');
+                return redirect(route('cursos'));
+            }
+
+            if ($curso['estado'] !== 'Publicado') {
+                Session::flash('error', 'El curso no está disponible para inscripción.');
+                return redirect(route('cursos.ver', ['id' => $id]));
+            }
+
+            // Verificar si ya está inscrito
+            if ($this->cursoService->estaInscrito($user->id, $id)) {
+                Session::flash('info', 'Ya estás inscrito en este curso.');
+                return redirect(route('cursos.ver', ['id' => $id]));
+            }
+
+            // Para cursos de pago, aquí se debería procesar el pago
+            if ($curso['es_gratuito'] == 0) {
+                // TODO: Implementar procesamiento de pago
+                Session::flash('info', 'Los cursos de pago aún no están disponibles. Próximamente...');
+                return redirect(route('cursos.ver', ['id' => $id]));
+            }
+
+            // Inscribir al estudiante
+            $this->cursoService->inscribirEstudiante($user->id, $id);
+
+            Session::flash('success', '¡Te has inscrito exitosamente al curso!');
+            return redirect(route('cursos.ver', ['id' => $id]));
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al inscribirse: ' . $e->getMessage());
+            return redirect(route('cursos.ver', ['id' => $id]));
+        }
+    }
+
+    /**
+     * Actualizar progreso del estudiante
+     */
+    public function actualizarProgreso(Request $request, $id)
+    {
+        try {
+            $user = auth();
+            if (!$user || !$user->hasRole('estudiante')) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            // Verificar que está inscrito
+            if (!$this->cursoService->estaInscrito($user->id, $id)) {
+                return response()->json(['error' => 'No estás inscrito en este curso'], 403);
+            }
+
+            $porcentaje = (int)$request->input('progreso', 0);
+            $tiempoEstudiado = (int)$request->input('tiempo_estudiado', 0);
+
+            $this->cursoService->actualizarProgreso($user->id, $id, $porcentaje, $tiempoEstudiado);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Progreso actualizado correctamente'
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
