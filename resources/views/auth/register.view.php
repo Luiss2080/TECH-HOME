@@ -179,11 +179,40 @@ $errors = flashGet('errors') ?? [];
                         <label class="form-label">Contraseña</label>
                         <div class="input-wrapper">
                             <input type="password" class="form-input" id="password" name="password"
-                                placeholder="Mínimo 8 caracteres..." required>
+                                placeholder="Mínimo 8 caracteres, mayúscula y número..." required>
                             <i class="fas fa-lock input-icon"></i>
                             <i class="fas fa-eye password-toggle" data-target="password"></i>
-                            <div class="tooltip">Debe tener al menos 8 caracteres</div>
+                            <div class="tooltip">Debe tener al menos 8 caracteres, una mayúscula y un número</div>
                         </div>
+                        
+                        <!-- Indicador de seguridad de contraseña -->
+                        <div class="password-strength" id="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-progress" id="strength-progress"></div>
+                            </div>
+                            <div class="strength-text" id="strength-text">Ingresa tu contraseña</div>
+                        </div>
+
+                        <!-- Lista de requisitos -->
+                        <div class="password-requirements">
+                            <div class="requirement" id="req-length">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span>Mínimo 8 caracteres</span>
+                            </div>
+                            <div class="requirement" id="req-uppercase">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span>Una letra mayúscula</span>
+                            </div>
+                            <div class="requirement" id="req-lowercase">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span>Una letra minúscula</span>
+                            </div>
+                            <div class="requirement" id="req-number">
+                                <i class="fas fa-circle requirement-icon"></i>
+                                <span>Un número</span>
+                            </div>
+                        </div>
+
                         <?php if (isset($errors['password'])): ?>
                             <?php foreach ($errors['password'] as $error): ?>
                                 <div class="invalid-feedback"><?= $error ?></div>
@@ -283,6 +312,83 @@ $errors = flashGet('errors') ?? [];
         // Validación en tiempo real de contraseñas
         const password = document.getElementById('password');
         const passwordConfirmation = document.getElementById('password_confirmation');
+        const strengthProgress = document.getElementById('strength-progress');
+        const strengthText = document.getElementById('strength-text');
+
+        // Elementos de requisitos
+        const reqLength = document.getElementById('req-length');
+        const reqUppercase = document.getElementById('req-uppercase');
+        const reqLowercase = document.getElementById('req-lowercase');
+        const reqNumber = document.getElementById('req-number');
+
+        function checkPasswordStrength(password) {
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password)
+            };
+
+            // Actualizar indicadores visuales de requisitos
+            updateRequirement(reqLength, requirements.length);
+            updateRequirement(reqUppercase, requirements.uppercase);
+            updateRequirement(reqLowercase, requirements.lowercase);
+            updateRequirement(reqNumber, requirements.number);
+
+            // Calcular puntuación de fortaleza
+            const score = Object.values(requirements).filter(Boolean).length;
+            
+            let strength = '';
+            let color = '';
+            let percentage = 0;
+
+            switch(score) {
+                case 0:
+                case 1:
+                    strength = 'Muy débil';
+                    color = '#dc3545';
+                    percentage = 25;
+                    break;
+                case 2:
+                    strength = 'Débil';
+                    color = '#fd7e14';
+                    percentage = 50;
+                    break;
+                case 3:
+                    strength = 'Buena';
+                    color = '#ffc107';
+                    percentage = 75;
+                    break;
+                case 4:
+                    strength = 'Excelente';
+                    color = '#28a745';
+                    percentage = 100;
+                    break;
+            }
+
+            // Actualizar barra de progreso
+            strengthProgress.style.width = percentage + '%';
+            strengthProgress.style.backgroundColor = color;
+            strengthText.textContent = strength;
+            strengthText.style.color = color;
+
+            return score === 4;
+        }
+
+        function updateRequirement(element, isMet) {
+            const icon = element.querySelector('.requirement-icon');
+            if (isMet) {
+                element.classList.add('met');
+                element.classList.remove('unmet');
+                icon.classList.remove('fa-circle');
+                icon.classList.add('fa-check-circle');
+            } else {
+                element.classList.add('unmet');
+                element.classList.remove('met');
+                icon.classList.remove('fa-check-circle');
+                icon.classList.add('fa-circle');
+            }
+        }
 
         function validatePasswords() {
             if (password.value && passwordConfirmation.value) {
@@ -296,7 +402,10 @@ $errors = flashGet('errors') ?? [];
             }
         }
 
-        password.addEventListener('input', validatePasswords);
+        password.addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+            validatePasswords();
+        });
         passwordConfirmation.addEventListener('input', validatePasswords);
 
         // Auto-dismiss alerts
@@ -488,6 +597,78 @@ $errors = flashGet('errors') ?? [];
 
         .animate__fadeOutUp {
             animation-name: fadeOutUp;
+        }
+
+        /* Estilos para indicador de seguridad de contraseña */
+        .password-strength {
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+
+        .strength-bar {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .strength-progress {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .password-requirements {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .requirement-icon {
+            margin-right: 8px;
+            font-size: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .requirement.unmet {
+            color: #6b7280;
+        }
+
+        .requirement.unmet .requirement-icon {
+            color: #9ca3af;
+        }
+
+        .requirement.met {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .requirement.met .requirement-icon {
+            color: #10b981;
+        }
+
+        /* Responsive para los requisitos */
+        @media (max-width: 768px) {
+            .password-requirements {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </body>
