@@ -317,7 +317,7 @@ class User extends Model
     public static function attempt($email, $password)
     {
         $user = self::where('email', '=', $email)->where('estado', '=', 1)->first();
-        
+
         if (!$user) {
             return false;
         }
@@ -346,12 +346,12 @@ class User extends Model
     private static function handleFailedLoginAttempt(User $user)
     {
         $user->intentos_fallidos = ($user->intentos_fallidos ?? 0) + 1;
-        
+
         // Bloquear después de 3 intentos fallidos por 5 minutos
         if ($user->intentos_fallidos >= 3) {
             $user->bloqueado_hasta = date('Y-m-d H:i:s', time() + (5 * 60)); // 5 minutos
         }
-        
+
         $user->save();
     }
 
@@ -371,7 +371,7 @@ class User extends Model
         if (!$this->isBlocked()) {
             return 0;
         }
-        
+
         return ceil((strtotime($this->bloqueado_hasta) - time()) / 60);
     }
 
@@ -421,5 +421,20 @@ class User extends Model
             default:
                 return 'home';
         }
+    }
+    public function checkPasswordHistory($newPassword): bool
+    {
+        // directamente consultamos en base de datos que no este registrado en las 5 últimas contraseñas
+        $db = \Core\DB::getInstance();
+        $db = $db->query("SELECT ph.* FROM password_history ph WHERE ph.usuario_id = ? ORDER BY ph.fecha_cambio DESC LIMIT 5", [$this->id]);
+        $result = $db->fetchAll();
+        $all = array_column($result, 'password');
+        // verificar si la nueva contraseña ya fue utilizada pero como esta encriptada no podemos compararla directamente
+        foreach ($all as $oldPassword) {
+            if (password_verify($newPassword, $oldPassword)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

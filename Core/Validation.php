@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use App\Models\User;
+
 class Validation
 {
     protected array $errors = [];
@@ -57,13 +59,13 @@ class Validation
     private function validateRequired(string $field, $value)
     {
         $isEmpty = false;
-        
+
         if ($value === null || $value === '') {
             $isEmpty = true;
         } elseif (is_array($value) && empty($value)) {
             $isEmpty = true;
         }
-        
+
         if ($isEmpty) {
             $camp = $field;
             $this->addError($field, "El campo $camp es obligatorio.");
@@ -230,27 +232,35 @@ class Validation
         }
 
         $errors = [];
-        
+
         // Verificar longitud mínima
         if (strlen($value) < 8) {
             $errors[] = "debe tener al menos 8 caracteres";
         }
-        
+
         // Verificar que tenga al menos una mayúscula
         if (!preg_match('/[A-Z]/', $value)) {
             $errors[] = "debe contener al menos una letra mayúscula";
         }
-        
+
         // Verificar que tenga al menos un número
         if (!preg_match('/[0-9]/', $value)) {
             $errors[] = "debe contener al menos un número";
         }
-        
+
         // Verificar que tenga al menos una minúscula
         if (!preg_match('/[a-z]/', $value)) {
             $errors[] = "debe contener al menos una letra minúscula";
         }
-
+        // obtenemos el email
+        $email = $this->data['email'] ?? null;
+        if ($email) {
+            // verificar si el usario esta registrado
+            $existingUser = User::where('email', '=', $email)->first();
+            if ($existingUser && $existingUser->checkPasswordHistory($value)) {
+                $errors[] = "no debe haber sido utilizada en las últimas 5 contraseñas";
+            }
+        }
         if (!empty($errors)) {
             $camp = $field;
             $errorMessage = "La contraseña " . implode(', ', $errors) . ".";

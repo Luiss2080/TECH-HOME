@@ -38,7 +38,7 @@ class AuthController extends Controller
             'nombre' => 'required|string|min:2|max:50',
             'apellido' => 'required|string|min:2|max:50',
             'email' => 'required|email|max:150',
-            'password' => 'required|secure_password|max:50',
+            'password' => 'required|securePassword|max:50',
             'password_confirmation' => 'required|same:password',
             'telefono' => 'nullable|string|max:20',
             'fecha_nacimiento' => 'nullable|date'
@@ -749,7 +749,7 @@ class AuthController extends Controller
         $rules = [
             'token' => 'required|string',
             'email' => 'required|email',
-            'password' => 'required|min:8|max:50',
+            'password' => 'required|securePassword|max:50',
             'password_confirmation' => 'required|same:password'
         ];
 
