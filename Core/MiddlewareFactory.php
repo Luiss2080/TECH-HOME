@@ -4,6 +4,7 @@ namespace Core;
 
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Middleware\RateLimitMiddleware;
 
 class MiddlewareFactory
 {
@@ -16,6 +17,7 @@ class MiddlewareFactory
         'auth' => AuthMiddleware::class,
         'role' => RoleMiddleware::class,
         'has' => RoleMiddleware::class, // has usa la misma clase que role
+        'rateLimit' => RateLimitMiddleware::class,
     ];
 
     /**
@@ -101,6 +103,10 @@ class MiddlewareFactory
                 // Auth no necesita parámetros, pero si los hay, los ignoramos
                 return new $middlewareClass();
 
+            case 'rateLimit':
+                // RateLimit necesita parámetros específicos
+                return self::createRateLimitMiddleware($parameters);
+
             default:
                 // Para middleware personalizados, pasar parámetros como array
                 $paramArray = self::parseParameters($parameters);
@@ -169,6 +175,26 @@ class MiddlewareFactory
         });
 
         return new RoleMiddleware([], $permissions);
+    }
+
+    /**
+     * Crea una instancia de RateLimitMiddleware con parámetros específicos
+     * Formato: 'action,maxAttempts,timeoutMinutes'
+     * Ejemplo: 'login,5,15' -> 5 intentos cada 15 minutos
+     *
+     * @param string $parameters
+     * @return RateLimitMiddleware
+     */
+    protected static function createRateLimitMiddleware($parameters)
+    {
+        $paramArray = self::parseParameters($parameters);
+        
+        // Asegurar que tenemos al menos el action
+        if (empty($paramArray[0])) {
+            throw new \Exception("RateLimit middleware requiere al menos el parámetro 'action'");
+        }
+
+        return new RateLimitMiddleware();
     }
 
     /**

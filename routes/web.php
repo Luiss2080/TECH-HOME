@@ -18,7 +18,9 @@ Router::get('/', [HomeController::class, 'index'])
     ->name('home');
 
 Router::get('/login', [AuthController::class, 'login'])->name('login');
-Router::post('/login', [AuthController::class, 'loginForm'])->name('login.loginForm');
+Router::post('/login', [AuthController::class, 'loginForm'])
+    ->name('login.loginForm')
+    ->middleware('rateLimit:login,5,15'); // Máximo 5 intentos cada 15 minutos
 
 // Rutas de registro
 Router::get('/register', [AuthController::class, 'register'])->name('register');
@@ -32,6 +34,22 @@ Router::post('/reset-password', [AuthController::class, 'updatePassword'])->name
 
 // Ruta para activación de cuenta
 Router::get('/account/activation', [AuthController::class, 'activateAccount'])->name('account.activation');
+
+// ==================== RUTAS PARA 2FA (AUTENTICACIÓN DE DOS FACTORES) ====================
+
+// Vista de verificación OTP
+Router::get('/auth/otp-verify', [AuthController::class, 'showOTPVerification'])
+    ->name('auth.otp.verify');
+
+// Verificar código OTP
+Router::post('/auth/otp-verify', [AuthController::class, 'verifyOTP'])
+    ->name('auth.verify.otp')
+    ->middleware('rateLimit:otp,3,5'); // Máximo 3 intentos cada 5 minutos
+
+// Reenviar código OTP
+Router::post('/auth/otp-resend', [AuthController::class, 'resendOTP'])
+    ->name('auth.resend.otp')
+    ->middleware('rateLimit:otp,2,1'); // Máximo 2 reenvíos por minuto
 
 Router::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
