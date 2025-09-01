@@ -132,6 +132,14 @@ class DB
         }
         return $this->connection->rowCount();
     }
+    public function lastInsertId(): string
+    {
+        if (!$this->connection) {
+            throw new DatabaseException("No hay conexión a la base de datos.");
+        }
+
+        return $this->connection->lastInsertId();
+    }
 }
 
 
