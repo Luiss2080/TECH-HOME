@@ -85,10 +85,10 @@ class AuthController extends Controller
                 $user->assignRole($guestRole->id);
             }
             DB::commit();
-            
+
             // Crear token de activación
             $activationToken = ActivationToken::createToken($user->email);
-            
+
             // Enviar email de bienvenida con token
             try {
                 $emailService = mailService();
@@ -157,7 +157,7 @@ class AuthController extends Controller
             'email' => 'required|email|max:150',
             'password' => 'required|min:8|max:50'
         ];
-        
+
         if (!$validator->validate($request->all(), $rules)) {
             Session::flash('errors', $validator->errors());
             Session::flash('old', $request->except(['password']));
@@ -183,7 +183,7 @@ class AuthController extends Controller
             } else {
                 Session::flash('errors', ['general' => ['Credenciales incorrectas']]);
             }
-            
+
             // Registrar intento fallido
             $this->logFailedAttempt($email, 'Invalid credentials');
             Session::flash('old', $request->except(['password']));
@@ -214,7 +214,7 @@ class AuthController extends Controller
                     Session::flash('error', $canGenerate['reason']);
                     return redirect(route('login'));
                 }
-                
+
                 // Si hay código activo, ir directo a verificación
                 if (isset($canGenerate['codigo_existente'])) {
                     Session::set('2fa_user_id', $user->id);
@@ -235,8 +235,8 @@ class AuthController extends Controller
             // Enviar código por email
             $emailService = mailService();
             $emailSent = $emailService->sendOTPEmail(
-                $email, 
-                $otpResult['codigo'], 
+                $email,
+                $otpResult['codigo'],
                 $user->nombre . ' ' . $user->apellido,
                 1 // 1 minuto de expiración
             );
@@ -261,7 +261,6 @@ class AuthController extends Controller
             ]);
 
             return redirect(route('auth.otp.verify'));
-
         } catch (\Exception $e) {
             error_log('Error en initiate2FA: ' . $e->getMessage());
             Session::flash('error', 'Error interno. Intenta de nuevo más tarde.');
@@ -291,7 +290,7 @@ class AuthController extends Controller
         }
 
         $email = Session::get('2fa_email');
-        
+
         return view('auth.otp-verification', [
             'title' => 'Verificación 2FA',
             'email' => $email,
@@ -307,7 +306,7 @@ class AuthController extends Controller
     {
         // Verificar sesión 2FA
         if (!Session::has('2fa_user_id') || !Session::has('2fa_email')) {
-            return Response::json([
+            return response()->json([
                 'success' => false,
                 'message' => 'Sesión de verificación expirada.',
                 'redirect' => route('login')
@@ -360,14 +359,14 @@ class AuthController extends Controller
         if ($attempts >= 3) {
             // Limpiar sesión 2FA
             $this->clear2FASession();
-            
+
             Session::flash('error', 'Se excedieron los intentos de verificación. Tu cuenta ha sido bloqueada temporalmente.');
             return redirect(route('login'));
         }
 
         // Si es una solicitud AJAX, responder con JSON
         if ($this->isAjaxRequest()) {
-            return Response::json([
+            return response()->json([
                 'success' => false,
                 'message' => $message,
                 'attempts_left' => 3 - $attempts,
@@ -407,7 +406,7 @@ class AuthController extends Controller
             // Determinar redirection
             $roles = $user->roles();
             $redirectRoute = route('home'); // fallback
-            
+
             if (!empty($roles)) {
                 $firstRole = strtolower($roles[0]['nombre']);
                 switch ($firstRole) {
@@ -431,7 +430,7 @@ class AuthController extends Controller
 
             // Si es AJAX, responder con JSON
             if ($this->isAjaxRequest()) {
-                return Response::json([
+                return response()->json([
                     'success' => true,
                     'message' => '¡Inicio de sesión exitoso!',
                     'redirect' => $redirectRoute
@@ -440,15 +439,14 @@ class AuthController extends Controller
 
             Session::flash('success', '¡Bienvenido! Has iniciado sesión correctamente.');
             return redirect($redirectRoute);
-
         } catch (\Exception $e) {
             error_log('Error completando 2FA login: ' . $e->getMessage());
-            
+
             // Limpiar sesión en caso de error
             $this->clear2FASession();
-            
+
             if ($this->isAjaxRequest()) {
-                return Response::json([
+                return response()->json([
                     'success' => false,
                     'message' => 'Error completando el inicio de sesión.',
                     'redirect' => route('login')
@@ -467,7 +465,7 @@ class AuthController extends Controller
     {
         // Verificar sesión 2FA
         if (!Session::has('2fa_user_id')) {
-            return Response::json([
+            return response()->json([
                 'success' => false,
                 'message' => 'Sesión expirada'
             ], 401);
@@ -485,7 +483,7 @@ class AuthController extends Controller
             // Generar nuevo código
             $otpResult = CodigoOTP::resendOTP($userId);
             if (!$otpResult['success']) {
-                return Response::json([
+                return response()->json([
                     'success' => false,
                     'message' => $otpResult['reason'] ?? 'No se pudo generar un nuevo código'
                 ], 400);
@@ -494,8 +492,8 @@ class AuthController extends Controller
             // Enviar por email
             $emailService = mailService();
             $emailSent = $emailService->sendOTPEmail(
-                $email, 
-                $otpResult['codigo'], 
+                $email,
+                $otpResult['codigo'],
                 $user->nombre . ' ' . $user->apellido,
                 1
             );
@@ -512,14 +510,13 @@ class AuthController extends Controller
             // Reset attempts counter
             Session::set('2fa_attempts', 0);
 
-            return Response::json([
+            return response()->json([
                 'success' => true,
                 'message' => 'Código reenviado exitosamente'
             ]);
-
         } catch (\Exception $e) {
             error_log('Error reenviando OTP: ' . $e->getMessage());
-            return Response::json([
+            return response()->json([
                 'success' => false,
                 'message' => 'Error reenviando código. Intenta de nuevo.'
             ], 500);
@@ -542,8 +539,8 @@ class AuthController extends Controller
      */
     private function isAjaxRequest(): bool
     {
-        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 
     /**
@@ -560,7 +557,7 @@ class AuthController extends Controller
                 $_SERVER['REMOTE_ADDR'] ?? 'unknown',
                 $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
             ]);
-            
+
             error_log("Failed login attempt for: {$email} - Reason: {$reason}");
         } catch (\Exception $e) {
             error_log('Error logging failed attempt: ' . $e->getMessage());
@@ -595,7 +592,7 @@ class AuthController extends Controller
         Session::destroy();
         return redirect(route('login'));
     }
-    
+
     /**
      * Activar cuenta con token
      */

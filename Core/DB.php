@@ -86,7 +86,7 @@ class DB
     {
         return new QueryBuilder($this, $table, $modelClass);
     }
-    public function getConnection()
+    public function getConnection(): PDO
     {
         return $this->connection;
     }
@@ -124,6 +124,13 @@ class DB
         
         // No hacer nada si no hay transacción activa
         return true;
+    }
+    public function rowCount(): int
+    {
+        if (!$this->connection) {
+            throw new DatabaseException("No hay conexión a la base de datos.");
+        }
+        return $this->connection->rowCount();
     }
 }
 
