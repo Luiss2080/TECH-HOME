@@ -25,37 +25,70 @@ class ComponenteController extends Controller
     public function componentes()
     {
         try {
+            // Datos de prueba para evitar problemas con el service
+            $componentes = [];
+            $categorias = [];
+            $marcas = [];
+            $estadisticas = [
+                'total_componentes' => 0,
+                'agotados' => 0,
+                'stock_bajo' => 0,
+                'valor_inventario' => 0
+            ];
+            
             $filtros = [
                 'busqueda' => $_GET['busqueda'] ?? '',
                 'categoria_id' => $_GET['categoria_id'] ?? '',
                 'estado' => $_GET['estado'] ?? '',
                 'marca' => $_GET['marca'] ?? '',
-                'stock_bajo' => isset($_GET['stock_bajo']) ? (bool)$_GET['stock_bajo'] : false,
-                'pagina' => (int)($_GET['pagina'] ?? 1),
-                'por_pagina' => (int)($_GET['por_pagina'] ?? 20)
+                'stock_bajo' => false
             ];
+            
+            // Intentar cargar datos reales si no hay problemas
+            try {
+                $filtrosCompletos = [
+                    'busqueda' => $_GET['busqueda'] ?? '',
+                    'categoria_id' => $_GET['categoria_id'] ?? '',
+                    'estado' => $_GET['estado'] ?? '',
+                    'marca' => $_GET['marca'] ?? '',
+                    'stock_bajo' => isset($_GET['stock_bajo']) ? (bool)$_GET['stock_bajo'] : false,
+                    'pagina' => (int)($_GET['pagina'] ?? 1),
+                    'por_pagina' => (int)($_GET['por_pagina'] ?? 20)
+                ];
 
-            $data = $this->componenteService->listarComponentes($filtros);
+                $data = $this->componenteService->listarComponentes($filtrosCompletos);
+                
+                $componentes = $data['componentes'] ?? [];
+                $categorias = $data['categorias'] ?? [];
+                $marcas = $data['marcas'] ?? [];
+                $estadisticas = $data['estadisticas'] ?? $estadisticas;
+                $filtros = $filtrosCompletos;
+            } catch (Exception $serviceError) {
+                Session::flash('error', 'Error en el servicio: ' . $serviceError->getMessage());
+            }
             
             return view('componentes.index', [
                 'title' => 'Gestión de Componentes',
-                'componentes' => $data['componentes'],
-                'categorias' => $data['categorias'],
-                'marcas' => $data['marcas'],
-                'paginacion' => $data['paginacion'],
+                'componentes' => $componentes,
+                'categorias' => $categorias,
+                'marcas' => $marcas,
                 'filtros' => $filtros,
-                'estadisticas' => $data['estadisticas']
+                'estadisticas' => $estadisticas
             ]);
         } catch (Exception $e) {
-            Session::flash('error', 'Error al cargar componentes: ' . $e->getMessage());
+            Session::flash('error', 'Error crítico al cargar componentes: ' . $e->getMessage());
             return view('componentes.index', [
                 'title' => 'Gestión de Componentes',
                 'componentes' => [],
                 'categorias' => [],
                 'marcas' => [],
-                'paginacion' => null,
-                'filtros' => $filtros,
-                'estadisticas' => []
+                'filtros' => [],
+                'estadisticas' => [
+                    'total_componentes' => 0,
+                    'agotados' => 0,
+                    'stock_bajo' => 0,
+                    'valor_inventario' => 0
+                ]
             ]);
         }
     }
