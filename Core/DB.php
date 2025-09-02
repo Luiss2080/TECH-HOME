@@ -25,6 +25,7 @@ class DB
                 $config = [
                     'driver' => $_ENV['DB_DRIVER'] ?? '',
                     'host' => $_ENV['DB_HOST'] ?? '',
+                    'port' => $_ENV['DB_PORT'] ?? '3306',
                     'database' => $_ENV['DB_NAME'] ?? '',
                     'username' => $_ENV['DB_USER'] ?? '',
                     'password' => $_ENV['DB_PASS'] ?? '',
@@ -45,7 +46,7 @@ class DB
     {
         try {
             $this->connection = new PDO(
-                "{$this->config['driver']}:host={$this->config['host']};dbname={$this->config['database']};charset={$this->config['charset']}",
+                "{$this->config['driver']}:host={$this->config['host']};port={$this->config['port']};dbname={$this->config['database']};charset={$this->config['charset']}",
                 $this->config['username'],
                 $this->config['password'],
                 [
