@@ -155,15 +155,11 @@ class DocenteService
      */
     public function getEstudiantes(int $docenteId): array
     {
-        return [
-            [
-                'id' => 1,
-                'nombre' => 'María González',
-                'email' => 'maria@ejemplo.com',
-                'curso' => 'Arduino Básico',
-                'progreso' => 85
-            ]
-        ];
+        try {
+            return DocenteModelo::getStudentsByDocente($docenteId);
+        } catch (Exception $e) {
+            throw new Exception("Error al obtener estudiantes: " . $e->getMessage());
+        }
     }
 
     /**
@@ -171,15 +167,11 @@ class DocenteService
      */
     public function getMateriales(int $docenteId): array
     {
-        return [
-            [
-                'id' => 1,
-                'nombre' => 'Guía Arduino.pdf',
-                'tipo' => 'PDF',
-                'curso' => 'Arduino Básico',
-                'descargas' => 87
-            ]
-        ];
+        try {
+            return DocenteModelo::getMaterialesByDocente($docenteId);
+        } catch (Exception $e) {
+            throw new Exception("Error al obtener materiales: " . $e->getMessage());
+        }
     }
 
     /**
@@ -250,8 +242,47 @@ class DocenteService
      */
     public function crearCurso(array $data): int
     {
-        // En implementación real: insertar en base de datos
-        return rand(1, 1000);
+        try {
+            return DocenteModelo::crearCurso($data);
+        } catch (Exception $e) {
+            throw new Exception("Error al crear curso: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Crear nuevo material
+     */
+    public function crearMaterial(array $data): int
+    {
+        try {
+            return DocenteModelo::crearMaterial($data);
+        } catch (Exception $e) {
+            throw new Exception("Error al crear material: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Calificar estudiante
+     */
+    public function calificarEstudiante(int $estudianteId, int $cursoId, float $nota): bool
+    {
+        try {
+            return DocenteModelo::calificarEstudiante($estudianteId, $cursoId, $nota);
+        } catch (Exception $e) {
+            throw new Exception("Error al calificar estudiante: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Obtener notas de un curso
+     */
+    public function getNotasCurso(int $cursoId): array
+    {
+        try {
+            return DocenteModelo::getNotasCurso($cursoId);
+        } catch (Exception $e) {
+            throw new Exception("Error al obtener notas: " . $e->getMessage());
+        }
     }
 
     /**

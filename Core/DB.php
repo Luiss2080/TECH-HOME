@@ -25,7 +25,7 @@ class DB
                 $config = [
                     'driver' => $_ENV['DB_DRIVER'] ?? '',
                     'host' => $_ENV['DB_HOST'] ?? '',
-                    'port' => $_ENV['DB_PORT'] ?? '3306',
+                    'port' => $_ENV['DB_PORT'] ?? '3307',
                     'database' => $_ENV['DB_NAME'] ?? '',
                     'username' => $_ENV['DB_USER'] ?? '',
                     'password' => $_ENV['DB_PASS'] ?? '',

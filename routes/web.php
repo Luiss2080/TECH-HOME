@@ -649,6 +649,10 @@ Router::get('/docente/materiales/subir', [DocenteController::class, 'subirMateri
     ->name('docente.materiales.subir')
     ->middleware('role:docente|has:docente.materiales.crear');
 
+Router::post('/docente/materiales', [DocenteController::class, 'guardarMaterial'])
+    ->name('docente.materiales.store')
+    ->middleware('role:docente|has:docente.materiales.crear');
+
 // Tareas y evaluaciones
 Router::get('/docente/tareas/revision', [DocenteController::class, 'tareasRevision'])
     ->name('docente.tareas.revision')

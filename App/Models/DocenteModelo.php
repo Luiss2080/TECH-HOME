@@ -488,7 +488,11 @@ class DocenteModelo
         
         $query = "SELECT DISTINCT u.id, u.nombre, u.apellido, u.email,
                          p.progreso_porcentaje, p.ultima_actividad,
-                         c.titulo as curso_actual
+                         c.titulo as curso_actual,
+                         CASE 
+                           WHEN p.ultima_actividad >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 
+                           ELSE 0 
+                         END as activo
                   FROM usuarios u
                   INNER JOIN progreso_estudiantes p ON u.id = p.estudiante_id
                   INNER JOIN cursos c ON p.curso_id = c.id
@@ -502,10 +506,11 @@ class DocenteModelo
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $estudiantes[] = [
                 'id' => $row['id'],
-                'nombre_completo' => $row['nombre'] . ' ' . $row['apellido'],
+                'nombre' => $row['nombre'] . ' ' . $row['apellido'],
                 'email' => $row['email'],
                 'progreso' => round($row['progreso_porcentaje'], 1),
-                'curso_actual' => $row['curso_actual'],
+                'curso' => $row['curso_actual'],
+                'activo' => (bool)$row['activo'],
                 'ultima_actividad' => $row['ultima_actividad']
             ];
         }
@@ -587,5 +592,184 @@ class DocenteModelo
         $stmt->execute([$docenteId, $days]);
         
         return (int)($stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
+    }
+
+    // =========================================
+    // NUEVOS MÉTODOS PARA FUNCIONALIDADES
+    // =========================================
+
+    /**
+     * Obtiene materiales del docente
+     */
+    public static function getMaterialesByDocente(int $docenteId): array
+    {
+        $db = self::getDB();
+        
+        $query = "SELECT m.*, c.nombre as categoria_nombre
+                  FROM materiales m
+                  LEFT JOIN categorias c ON m.categoria_id = c.id
+                  WHERE m.docente_id = ?
+                  ORDER BY m.fecha_creacion DESC";
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute([$docenteId]);
+        
+        $materiales = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $materiales[] = [
+                'id' => $row['id'],
+                'nombre' => $row['titulo'],
+                'tipo' => strtoupper($row['tipo']),
+                'categoria' => $row['categoria_nombre'] ?? 'Sin categoría',
+                'tamaño' => $row['tamaño_archivo'],
+                'descargas' => $row['descargas'],
+                'fecha_creacion' => $row['fecha_creacion']
+            ];
+        }
+        
+        return $materiales;
+    }
+
+    /**
+     * Crear nuevo material
+     */
+    public static function crearMaterial(array $data): int
+    {
+        $db = self::getDB();
+        
+        $query = "INSERT INTO materiales (titulo, descripcion, tipo, archivo, categoria_id, docente_id, tamaño_archivo, publico)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute([
+            $data['titulo'],
+            $data['descripcion'] ?? '',
+            $data['tipo'],
+            $data['archivo'] ?? '',
+            $data['categoria_id'],
+            $data['docente_id'],
+            $data['tamaño_archivo'] ?? 0,
+            $data['publico'] ?? 1
+        ]);
+        
+        return $db->lastInsertId();
+    }
+
+    /**
+     * Crear nuevo curso
+     */
+    public static function crearCurso(array $data): int
+    {
+        $db = self::getDB();
+        
+        $query = "INSERT INTO cursos (titulo, descripcion, categoria_id, docente_id, nivel, duracion_estimada, precio, es_gratuito, estado)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Borrador')";
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute([
+            $data['titulo'],
+            $data['descripcion'],
+            $data['categoria_id'],
+            $data['docente_id'],
+            $data['nivel'],
+            $data['duracion_estimada'],
+            $data['precio'] ?? 0,
+            $data['es_gratuito'] ?? 0
+        ]);
+        
+        return $db->lastInsertId();
+    }
+
+    /**
+     * Calificar estudiante
+     */
+    public static function calificarEstudiante(int $estudianteId, int $cursoId, float $nota): bool
+    {
+        $db = self::getDB();
+        
+        // Verificar si ya existe una nota
+        $queryCheck = "SELECT id FROM notas WHERE estudiante_id = ? AND curso_id = ?";
+        $stmtCheck = $db->prepare($queryCheck);
+        $stmtCheck->execute([$estudianteId, $cursoId]);
+        
+        if ($stmtCheck->fetch()) {
+            // Actualizar nota existente
+            $query = "UPDATE notas SET nota = ?, fecha_calificacion = NOW() 
+                      WHERE estudiante_id = ? AND curso_id = ?";
+            $stmt = $db->prepare($query);
+            return $stmt->execute([$nota, $estudianteId, $cursoId]);
+        } else {
+            // Crear nueva nota
+            $query = "INSERT INTO notas (estudiante_id, curso_id, nota, fecha_calificacion)
+                      VALUES (?, ?, ?, NOW())";
+            $stmt = $db->prepare($query);
+            return $stmt->execute([$estudianteId, $cursoId, $nota]);
+        }
+    }
+
+    /**
+     * Obtener notas de un curso
+     */
+    public static function getNotasCurso(int $cursoId): array
+    {
+        $db = self::getDB();
+        
+        $query = "SELECT n.*, u.nombre, u.apellido, u.email, c.titulo as curso
+                  FROM notas n
+                  INNER JOIN usuarios u ON n.estudiante_id = u.id
+                  INNER JOIN cursos c ON n.curso_id = c.id
+                  WHERE n.curso_id = ?
+                  ORDER BY n.fecha_calificacion DESC";
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute([$cursoId]);
+        
+        $notas = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $notas[] = [
+                'id' => $row['id'],
+                'estudiante_id' => $row['estudiante_id'],
+                'estudiante' => $row['nombre'] . ' ' . $row['apellido'],
+                'email' => $row['email'],
+                'curso' => $row['curso'],
+                'nota' => (float)$row['nota'],
+                'fecha_calificacion' => $row['fecha_calificacion']
+            ];
+        }
+        
+        return $notas;
+    }
+
+    /**
+     * Obtener notas de todos los cursos del docente
+     */
+    public static function getNotasDocente(int $docenteId): array
+    {
+        $db = self::getDB();
+        
+        $query = "SELECT n.*, u.nombre, u.apellido, u.email, c.titulo as curso
+                  FROM notas n
+                  INNER JOIN usuarios u ON n.estudiante_id = u.id
+                  INNER JOIN cursos c ON n.curso_id = c.id
+                  WHERE c.docente_id = ?
+                  ORDER BY n.fecha_calificacion DESC";
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute([$docenteId]);
+        
+        $notas = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $notas[] = [
+                'id' => $row['id'],
+                'estudiante_id' => $row['estudiante_id'],
+                'estudiante' => $row['nombre'] . ' ' . $row['apellido'],
+                'email' => $row['email'],
+                'curso' => $row['curso'],
+                'nota' => (float)$row['nota'],
+                'fecha_calificacion' => $row['fecha_calificacion']
+            ];
+        }
+        
+        return $notas;
     }
 }

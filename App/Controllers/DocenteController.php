@@ -318,14 +318,78 @@ class DocenteController extends Controller
         try {
             $docenteId = Session::get('user_id');
             $cursos = $this->docenteService->getCursos($docenteId);
+            $categorias = $this->docenteService->getCategoriasCursos();
             
             return view('docente.materiales.subir', [
                 'title' => 'Subir Material - Panel Docente',
-                'cursos' => $cursos
+                'cursos' => $cursos,
+                'categorias' => $categorias
             ]);
         } catch (Exception $e) {
             Session::flash('error', 'Error al cargar formulario: ' . $e->getMessage());
             return redirect(route('docente.materiales'));
+        }
+    }
+
+    /**
+     * Guardar nuevo material
+     */
+    public function guardarMaterial(Request $request)
+    {
+        try {
+            // Validaciones
+            $rules = [
+                'titulo' => 'required|min:5|max:200',
+                'descripcion' => 'required|min:10|max:500',
+                'tipo' => 'required|in:pdf,video,codigo,guia,dataset',
+                'categoria_id' => 'required|numeric',
+                'archivo' => 'file|max:10240'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->errors());
+                Session::flash('old', $request->all());
+                return redirect(route('docente.materiales.subir'));
+            }
+
+            $docenteId = $this->getDocenteId();
+            
+            // Manejar archivo si existe
+            $archivo = '';
+            $tamaño = 0;
+            if (isset($_FILES['archivo']) && $_FILES['archivo']['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES['archivo'];
+                $archivo = '/materiales/' . uniqid() . '_' . $file['name'];
+                $tamaño = $file['size'];
+                
+                // Mover el archivo a la carpeta de destino
+                $uploadDir = BASE_PATH . 'public/materiales/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                
+                $destinationPath = $uploadDir . basename($archivo);
+                if (!move_uploaded_file($file['tmp_name'], $destinationPath)) {
+                    throw new Exception('Error al subir el archivo');
+                }
+            }
+            
+            $materialData = array_merge($request->all(), [
+                'docente_id' => $docenteId,
+                'archivo' => $archivo,
+                'tamaño_archivo' => $tamaño
+            ]);
+            
+            $materialId = $this->docenteService->crearMaterial($materialData);
+
+            Session::flash('success', 'Material subido exitosamente.');
+            return redirect(route('docente.materiales'));
+            
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al subir material: ' . $e->getMessage());
+            Session::flash('old', $request->all());
+            return redirect(route('docente.materiales.subir'));
         }
     }
 
@@ -466,6 +530,93 @@ class DocenteController extends Controller
             return view('docente.reportes.progreso', [
                 'title' => 'Progreso de Estudiantes - Panel Docente',
                 'progreso' => []
+            ]);
+        }
+    }
+
+    // =========================================
+    // CALIFICACIONES
+    // =========================================
+
+    /**
+     * Ver calificaciones
+     */
+    public function calificaciones()
+    {
+        try {
+            $docenteId = $this->getDocenteId();
+            $cursos = $this->docenteService->getCursos($docenteId);
+            
+            return view('docente.calificaciones.index', [
+                'title' => 'Calificaciones - Panel Docente',
+                'cursos' => $cursos
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar calificaciones: ' . $e->getMessage());
+            return view('docente.calificaciones.index', [
+                'title' => 'Calificaciones - Panel Docente',
+                'cursos' => []
+            ]);
+        }
+    }
+
+    /**
+     * Calificar estudiante
+     */
+    public function calificarEstudiante(Request $request)
+    {
+        try {
+            $rules = [
+                'estudiante_id' => 'required|numeric',
+                'curso_id' => 'required|numeric',
+                'nota' => 'required|numeric|min:0|max:100'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->errors());
+                return redirect(back());
+            }
+
+            $result = $this->docenteService->calificarEstudiante(
+                $request->input('estudiante_id'),
+                $request->input('curso_id'),
+                $request->input('nota')
+            );
+
+            if ($result) {
+                Session::flash('success', 'Estudiante calificado exitosamente.');
+            } else {
+                Session::flash('error', 'Error al calificar estudiante.');
+            }
+
+            return redirect(back());
+            
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al calificar: ' . $e->getMessage());
+            return redirect(back());
+        }
+    }
+
+    /**
+     * Ver notas de un curso específico
+     */
+    public function notasCurso(int $cursoId)
+    {
+        try {
+            $notas = $this->docenteService->getNotasCurso($cursoId);
+            
+            return view('docente.calificaciones.notas', [
+                'title' => 'Notas del Curso - Panel Docente',
+                'notas' => $notas,
+                'curso_id' => $cursoId
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar notas: ' . $e->getMessage());
+            return view('docente.calificaciones.notas', [
+                'title' => 'Notas del Curso - Panel Docente',
+                'notas' => [],
+                'curso_id' => $cursoId
             ]);
         }
     }
