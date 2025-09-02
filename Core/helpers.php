@@ -670,3 +670,6 @@ if (!function_exists('tiempoExpiracionReserva')) {
         return ['expirado' => false, 'tiempo' => $diff->i . 'min'];
     }
 }
+
+// Incluir helpers de permisos adaptados a la estructura existente
+require_once __DIR__ . '/permission_helpers_adapted.php';

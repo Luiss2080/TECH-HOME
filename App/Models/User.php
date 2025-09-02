@@ -145,6 +145,14 @@ class User extends Model
     }
 
     /**
+     * Verificar si el usuario tiene un permiso específico (alias de hasPermissionTo)
+     */
+    public function hasPermission($permission)
+    {
+        return $this->hasPermissionTo($permission);
+    }
+
+    /**
      * Verificar si el usuario NO puede realizar una acción
      */
     public function cannot($permission)

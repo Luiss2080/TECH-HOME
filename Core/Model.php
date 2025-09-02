@@ -45,8 +45,11 @@ class Model
         }
 
         if ($this->timestamps && !$this->exists) {
-            $this->attributes['created_at'] = $this->attributes['created_at'] ?? date('Y-m-d H:i:s');
-            $this->attributes['updated_at'] = $this->attributes['updated_at'] ?? date('Y-m-d H:i:s');
+            $createdAt = method_exists($this, 'getCreatedAtColumn') ? $this->getCreatedAtColumn() : 'created_at';
+            $updatedAt = method_exists($this, 'getUpdatedAtColumn') ? $this->getUpdatedAtColumn() : 'updated_at';
+            
+            $this->attributes[$createdAt] = $this->attributes[$createdAt] ?? date('Y-m-d H:i:s');
+            $this->attributes[$updatedAt] = $this->attributes[$updatedAt] ?? date('Y-m-d H:i:s');
         }
 
         return $this;
@@ -67,8 +70,11 @@ class Model
         $attributes = $this->getAttributesForSave();
 
         if ($this->timestamps) {
-            $attributes['created_at'] = date('Y-m-d H:i:s');
-            $attributes['updated_at'] = date('Y-m-d H:i:s');
+            $createdAt = method_exists($this, 'getCreatedAtColumn') ? $this->getCreatedAtColumn() : 'created_at';
+            $updatedAt = method_exists($this, 'getUpdatedAtColumn') ? $this->getUpdatedAtColumn() : 'updated_at';
+            
+            $attributes[$createdAt] = date('Y-m-d H:i:s');
+            $attributes[$updatedAt] = date('Y-m-d H:i:s');
         }
 
         $columns = implode(', ', array_keys($attributes));
@@ -88,7 +94,8 @@ class Model
         $attributes = $this->getAttributesForSave();
 
         if ($this->timestamps) {
-            $attributes['updated_at'] = date('Y-m-d H:i:s');
+            $updatedAt = method_exists($this, 'getUpdatedAtColumn') ? $this->getUpdatedAtColumn() : 'updated_at';
+            $attributes[$updatedAt] = date('Y-m-d H:i:s');
         }
 
         $updates = [];
@@ -137,6 +144,22 @@ class Model
     protected function newQuery()
     {
         return DB::getInstance()->table($this->table, static::class);
+    }
+
+    /**
+     * Obtener nombre de columna para created_at (puede ser sobrescrito en modelos hijos)
+     */
+    protected function getCreatedAtColumn()
+    {
+        return 'created_at';
+    }
+
+    /**
+     * Obtener nombre de columna para updated_at (puede ser sobrescrito en modelos hijos)
+     */
+    protected function getUpdatedAtColumn()
+    {
+        return 'updated_at';
     }
     protected function getAttributesForSave()
     {

@@ -26,6 +26,108 @@ class Curso extends Model
     protected $timestamps = true;
     protected $softDeletes = false;
 
+    // Definir nombres personalizados para timestamps
+    protected $createdAtColumn = 'fecha_creacion';
+    protected $updatedAtColumn = 'fecha_actualizacion';
+
+    /**
+     * Override para usar nombres de columna personalizados para timestamps
+     */
+    public function getCreatedAtColumn()
+    {
+        return $this->createdAtColumn ?? 'created_at';
+    }
+
+    /**
+     * Override para usar nombres de columna personalizados para timestamps
+     */
+    public function getUpdatedAtColumn()
+    {
+        return $this->updatedAtColumn ?? 'updated_at';
+    }
+
+    /**
+     * Override del método save para manejar timestamps personalizados
+     */
+    public function save()
+    {
+        $db = \Core\DB::getInstance();
+        
+        if ($this->exists) {
+            return $this->performUpdateCurso($db);
+        }
+
+        return $this->performInsertCurso($db);
+    }
+
+    protected function performInsertCurso($db)
+    {
+        $attributes = $this->getAttributesForSave();
+
+        if ($this->timestamps) {
+            $attributes['fecha_creacion'] = date('Y-m-d H:i:s');
+            $attributes['fecha_actualizacion'] = date('Y-m-d H:i:s');
+        }
+
+        $columns = implode(', ', array_keys($attributes));
+        $placeholders = implode(', ', array_fill(0, count($attributes), '?'));
+
+        $sql = "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})";
+        $db->query($sql, array_values($attributes));
+
+        // Usar getAttributes() y actualizar manualmente
+        $allAttributes = $this->getAttributes();
+        $allAttributes[$this->primaryKey] = $db->getConnection()->lastInsertId();
+        $this->exists = true;
+
+        return $this;
+    }
+
+    protected function performUpdateCurso($db)
+    {
+        $attributes = $this->getAttributesForSave();
+
+        if ($this->timestamps) {
+            $attributes['fecha_actualizacion'] = date('Y-m-d H:i:s');
+        }
+
+        $updates = [];
+        foreach ($attributes as $key => $value) {
+            $updates[] = "{$key} = ?";
+        }
+
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $updates) .
+            " WHERE {$this->primaryKey} = ?";
+
+        $allAttributes = $this->getAttributes();
+        $values = array_values($attributes);
+        $values[] = $allAttributes[$this->primaryKey];
+
+        $db->query($sql, $values);
+
+        return $this;
+    }
+
+    /**
+     * Override de getAttributesForSave para manejar timestamps personalizados
+     */
+    protected function getAttributesForSave()
+    {
+        $attributes = [];
+
+        // Usar getAttributes() método público en lugar de acceso directo
+        $allAttributes = $this->getAttributes();
+
+        // Solo incluir campos fillable
+        foreach ($this->fillable as $field) {
+            if (array_key_exists($field, $allAttributes)) {
+                $attributes[$field] = $allAttributes[$field];
+            }
+        }
+
+        return $attributes;
+    }
+
     // ==========================================
     // RELACIONES BÁSICAS
     // ==========================================
