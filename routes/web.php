@@ -754,3 +754,138 @@ Router::get('/estudiante/perfil', [EstudianteController::class, 'perfil'])
 Router::post('/estudiante/perfil', [EstudianteController::class, 'actualizarPerfil'])
     ->name('estudiante.perfil.actualizar')
     ->middleware('role:estudiante');
+
+// ==================== RUTAS ADICIONALES PARA ADMINISTRADOR ====================
+// Gestión de Roles para Administrador - Nuevas funcionalidades agregadas 2025-09-02
+
+// ==================== GESTIÓN DE CURSOS PARA ADMIN ====================
+
+// Lista de cursos para administrador
+Router::get('/admin/cursos', [AdminController::class, 'cursosAdmin'])
+    ->name('admin.cursos')
+    ->middleware('role:administrador|has:admin.cursos.ver');
+
+// Crear nuevo curso desde admin
+Router::get('/admin/cursos/crear', [AdminController::class, 'crearCursoAdmin'])
+    ->name('admin.cursos.crear')
+    ->middleware('role:administrador|has:admin.cursos.crear');
+
+Router::post('/admin/cursos', [AdminController::class, 'guardarCursoAdmin'])
+    ->name('admin.cursos.store')
+    ->middleware('role:administrador|has:admin.cursos.crear');
+
+// Eliminar curso desde admin
+Router::delete('/admin/cursos/{id}', [AdminController::class, 'eliminarCursoAdmin'])
+    ->name('admin.cursos.eliminar')
+    ->middleware('role:administrador|has:admin.cursos.eliminar');
+
+// ==================== GESTIÓN DE SUSCRIPCIONES ====================
+
+// Lista de suscripciones
+Router::get('/admin/suscripciones', [AdminController::class, 'suscripciones'])
+    ->name('admin.suscripciones')
+    ->middleware('role:administrador|has:admin.suscripciones.ver');
+
+// Crear nueva suscripción
+Router::get('/admin/suscripciones/crear', [AdminController::class, 'crearSuscripcion'])
+    ->name('admin.suscripciones.crear')
+    ->middleware('role:administrador|has:admin.suscripciones.crear');
+
+Router::post('/admin/suscripciones', [AdminController::class, 'guardarSuscripcion'])
+    ->name('admin.suscripciones.store')
+    ->middleware('role:administrador|has:admin.suscripciones.crear');
+
+// Acciones sobre suscripciones
+Router::post('/admin/suscripciones/{id}/cancelar', [AdminController::class, 'cancelarSuscripcion'])
+    ->name('admin.suscripciones.cancelar')
+    ->middleware('role:administrador|has:admin.suscripciones.editar');
+
+Router::post('/admin/suscripciones/{id}/suspender', [AdminController::class, 'suspenderSuscripcion'])
+    ->name('admin.suscripciones.suspender')
+    ->middleware('role:administrador|has:admin.suscripciones.editar');
+
+Router::post('/admin/suscripciones/{id}/reactivar', [AdminController::class, 'reactivarSuscripcion'])
+    ->name('admin.suscripciones.reactivar')
+    ->middleware('role:administrador|has:admin.suscripciones.editar');
+
+// ==================== REPORTES DE ACCESO ====================
+
+// Dashboard de reportes de acceso
+Router::get('/admin/reportes/acceso', [AdminController::class, 'reportesAcceso'])
+    ->name('admin.reportes.acceso')
+    ->middleware('role:administrador|has:admin.reportes.acceso');
+
+// Reportes por usuario específico
+Router::get('/admin/reportes/usuarios', [AdminController::class, 'reportesPorUsuario'])
+    ->name('admin.reportes.usuarios')
+    ->middleware('role:administrador|has:admin.reportes.acceso');
+
+// Reportes por recurso específico
+Router::get('/admin/reportes/recursos', [AdminController::class, 'reportesPorRecurso'])
+    ->name('admin.reportes.recursos')
+    ->middleware('role:administrador|has:admin.reportes.acceso');
+
+// Exportar reportes
+Router::get('/admin/reportes/export/{tipo}', [AdminController::class, 'exportarReportes'])
+    ->name('admin.reportes.export')
+    ->middleware('role:administrador|has:admin.reportes.export');
+
+// API para obtener estadísticas de reportes (AJAX)
+Router::get('/api/admin/reportes/estadisticas', [AdminController::class, 'estadisticasReportes'])
+    ->name('api.admin.reportes.estadisticas')
+    ->middleware('role:administrador|has:admin.reportes.acceso');
+
+// ==================== BLOQUEAR/DESBLOQUEAR USUARIOS ====================
+
+// Lista de usuarios bloqueados
+Router::get('/admin/usuarios/bloqueados', [AdminController::class, 'usuariosBloqueados'])
+    ->name('admin.usuarios.bloqueados')
+    ->middleware('role:administrador|has:admin.usuarios.bloquear');
+
+// Bloquear usuario (AJAX)
+Router::post('/admin/usuarios/bloquear', [AdminController::class, 'bloquearUsuario'])
+    ->name('admin.usuarios.bloquear')
+    ->middleware('role:administrador|has:admin.usuarios.bloquear');
+
+// Desbloquear usuario (AJAX)
+Router::post('/admin/usuarios/{id}/desbloquear', [AdminController::class, 'desbloquearUsuario'])
+    ->name('admin.usuarios.desbloquear')
+    ->middleware('role:administrador|has:admin.usuarios.bloquear');
+
+// ==================== RUTAS API ADICIONALES ====================
+
+// API para gestión de suscripciones (AJAX)
+Router::get('/api/admin/suscripciones/estadisticas', [AdminController::class, 'estadisticasSuscripciones'])
+    ->name('api.admin.suscripciones.estadisticas')
+    ->middleware('role:administrador|has:admin.suscripciones.ver');
+
+// API para verificar estado de suscripciones
+Router::post('/api/admin/suscripciones/verificar-vencimientos', [AdminController::class, 'verificarVencimientos'])
+    ->name('api.admin.suscripciones.verificar_vencimientos')
+    ->middleware('role:administrador|has:admin.suscripciones.ver');
+
+// API para obtener datos de cursos (AJAX)
+Router::get('/api/admin/cursos/estadisticas', [AdminController::class, 'estadisticasCursos'])
+    ->name('api.admin.cursos.estadisticas')
+    ->middleware('role:administrador|has:admin.cursos.ver');
+
+// ==================== RUTAS ADICIONALES DE UTILIDAD ====================
+
+// Búsqueda global para administradores
+Router::get('/admin/buscar', [AdminController::class, 'busquedaGlobal'])
+    ->name('admin.buscar')
+    ->middleware('role:administrador');
+
+// Dashboard mejorado con nuevas estadísticas
+Router::get('/admin/dashboard/widgets', [AdminController::class, 'widgetsDashboard'])
+    ->name('admin.dashboard.widgets')
+    ->middleware('role:administrador');
+
+// Notificaciones para administradores
+Router::get('/admin/notificaciones', [AdminController::class, 'notificaciones'])
+    ->name('admin.notificaciones')
+    ->middleware('role:administrador');
+
+Router::post('/admin/notificaciones/{id}/marcar-leida', [AdminController::class, 'marcarNotificacionLeida'])
+    ->name('admin.notificaciones.marcar_leida')
+    ->middleware('role:administrador');
