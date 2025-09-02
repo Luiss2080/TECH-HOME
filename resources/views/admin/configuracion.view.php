@@ -135,6 +135,46 @@ $title = $title ?? 'Configuración - Panel de Administración';
                     <i class="fas fa-chevron-right"></i>
                 </div>
             </div>
+
+            <!-- Configuración de Logs del Sistema -->
+            <div class="config-card logs-card">
+                <div class="config-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="config-content">
+                    <h3 class="config-title">Logs del Sistema</h3>
+                    <p class="config-description">Visualización y análisis de logs de actividad</p>
+                    <div class="config-stats">
+                        <span class="config-stat">
+                            <i class="fas fa-history"></i>
+                            Registros Activos
+                        </span>
+                    </div>
+                </div>
+                <div class="config-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <!-- Configuración de Notificaciones -->
+            <div class="config-card notifications-card">
+                <div class="config-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="config-content">
+                    <h3 class="config-title">Notificaciones</h3>
+                    <p class="config-description">Gestión de notificaciones y alertas del sistema</p>
+                    <div class="config-stats">
+                        <span class="config-stat">
+                            <i class="fas fa-envelope"></i>
+                            Sistema de Alertas
+                        </span>
+                    </div>
+                </div>
+                <div class="config-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -221,6 +261,39 @@ $title = $title ?? 'Configuración - Panel de Administración';
 </div>
 
 <style>
+/* ============================================
+   CONFIGURACIÓN - MODO CLARO Y OSCURO
+   ============================================ */
+
+/* Variables CSS para tema claro */
+:root {
+    --config-bg-primary: #ffffff;
+    --config-bg-secondary: #f8fafc;
+    --config-bg-gradient: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+    --config-border: #e2e8f0;
+    --config-text-primary: #1f2937;
+    --config-text-secondary: #6b7280;
+    --config-text-muted: #9ca3af;
+    --config-shadow: rgba(0, 0, 0, 0.1);
+    --config-shadow-hover: rgba(0, 0, 0, 0.15);
+    --config-hover-bg: #f8fafc;
+}
+
+/* Variables CSS para tema oscuro */
+body.ithr-dark-mode,
+body.dark-theme {
+    --config-bg-primary: rgba(30, 41, 59, 0.95);
+    --config-bg-secondary: rgba(15, 23, 42, 0.9);
+    --config-bg-gradient: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.9) 100%);
+    --config-border: rgba(71, 85, 105, 0.3);
+    --config-text-primary: #f8fafc;
+    --config-text-secondary: #cbd5e1;
+    --config-text-muted: #94a3b8;
+    --config-shadow: rgba(0, 0, 0, 0.3);
+    --config-shadow-hover: rgba(0, 0, 0, 0.4);
+    --config-hover-bg: rgba(30, 41, 59, 0.8);
+}
+
 .config-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -229,8 +302,8 @@ $title = $title ?? 'Configuración - Panel de Administración';
 }
 
 .config-card {
-    background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
-    border: 1px solid #e2e8f0;
+    background: var(--config-bg-gradient);
+    border: 1px solid var(--config-border);
     border-radius: 12px;
     padding: 1.5rem;
     display: flex;
@@ -240,14 +313,16 @@ $title = $title ?? 'Configuración - Panel de Administración';
     color: inherit;
     transition: all 0.3s ease;
     cursor: pointer;
+    backdrop-filter: blur(10px);
 }
 
 .config-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px var(--config-shadow-hover);
     border-color: #3b82f6;
     text-decoration: none;
     color: inherit;
+    background: var(--config-hover-bg);
 }
 
 .config-icon {
@@ -291,6 +366,17 @@ $title = $title ?? 'Configuración - Panel de Administración';
     color: white;
 }
 
+/* Nuevos estilos para los paneles agregados */
+.logs-card .config-icon {
+    background: linear-gradient(135deg, #84cc16, #65a30d);
+    color: white;
+}
+
+.notifications-card .config-icon {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: white;
+}
+
 .config-content {
     flex: 1;
 }
@@ -299,12 +385,12 @@ $title = $title ?? 'Configuración - Panel de Administración';
     font-size: 1.125rem;
     font-weight: 600;
     margin: 0 0 0.5rem 0;
-    color: #1f2937;
+    color: var(--config-text-primary);
 }
 
 .config-description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--config-text-secondary);
     margin: 0 0 0.75rem 0;
     line-height: 1.4;
 }
@@ -317,20 +403,21 @@ $title = $title ?? 'Configuración - Panel de Administración';
 
 .config-stat {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--config-text-muted);
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
 
 .config-arrow {
-    color: #6b7280;
+    color: var(--config-text-muted);
     font-size: 1rem;
     transition: transform 0.3s ease;
 }
 
 .config-card:hover .config-arrow {
     transform: translateX(4px);
+    color: #3b82f6;
 }
 
 .quick-config-grid {
@@ -341,8 +428,8 @@ $title = $title ?? 'Configuración - Panel de Administración';
 }
 
 .quick-config-item {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--config-bg-primary);
+    border: 1px solid var(--config-border);
     border-radius: 8px;
     padding: 1rem;
     display: flex;
@@ -353,14 +440,16 @@ $title = $title ?? 'Configuración - Panel de Administración';
     color: inherit;
     cursor: pointer;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
 .quick-config-item:hover {
-    background: #f8fafc;
+    background: var(--config-hover-bg);
     border-color: #3b82f6;
     transform: translateY(-2px);
     text-decoration: none;
     color: inherit;
+    box-shadow: 0 4px 15px var(--config-shadow);
 }
 
 .quick-config-icon {
@@ -379,7 +468,7 @@ $title = $title ?? 'Configuración - Panel de Administración';
     font-size: 0.875rem;
     font-weight: 500;
     text-align: center;
-    color: #374151;
+    color: var(--config-text-primary);
 }
 
 .system-status-grid {
@@ -390,13 +479,14 @@ $title = $title ?? 'Configuración - Panel de Administración';
 }
 
 .status-item {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--config-bg-primary);
+    border: 1px solid var(--config-border);
     border-radius: 8px;
     padding: 1rem;
     display: flex;
     align-items: center;
     gap: 1rem;
+    backdrop-filter: blur(10px);
 }
 
 .status-good {
@@ -422,32 +512,84 @@ $title = $title ?? 'Configuración - Panel de Administración';
 }
 
 .status-good .status-icon {
-    background: #d1fae5;
-    color: #047857;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+body.ithr-dark-mode .status-good .status-icon,
+body.dark-theme .status-good .status-icon {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
 }
 
 .status-warning .status-icon {
-    background: #fef3c7;
-    color: #d97706;
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+body.ithr-dark-mode .status-warning .status-icon,
+body.dark-theme .status-warning .status-icon {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
 }
 
 .status-error .status-icon {
-    background: #fee2e2;
-    color: #dc2626;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+body.ithr-dark-mode .status-error .status-icon,
+body.dark-theme .status-error .status-icon {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
 }
 
 .status-content h4 {
     margin: 0 0 0.25rem 0;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #374151;
+    color: var(--config-text-primary);
 }
 
 .status-content p {
     margin: 0;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--config-text-secondary);
 }
+
+/* Animaciones suaves para cambios de tema */
+.config-card,
+.quick-config-item,
+.status-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .config-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .quick-config-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .system-status-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .config-card {
+        padding: 1rem;
+    }
+    
+    .config-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+</style>
 </style>
 
 <script>

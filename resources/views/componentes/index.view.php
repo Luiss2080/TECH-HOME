@@ -657,8 +657,8 @@ body.dark-theme .componente-stock-visual {
                         <select class="crud-form-control" id="componenteFilterCategoria">
                             <option value="">Todas las categorías</option>
                             <?php foreach ($categorias as $categoria): ?>
-                                <option value="<?= $categoria['id'] ?>" <?= ($filtros['categoria_id'] ?? '') == $categoria['id'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($categoria['nombre']) ?>
+                                <option value="<?= $categoria->id ?>" <?= ($filtros['categoria_id'] ?? '') == $categoria->id ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($categoria->nombre) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -725,10 +725,10 @@ body.dark-theme .componente-stock-visual {
                 <!-- Vista en Grid (por defecto) -->
                 <div class="componentes-grid" id="componentesGridView">
                     <?php foreach ($componentes as $componente): ?>
-                        <div class="componente-card" data-componente-id="<?= $componente['id'] ?>">
+                        <div class="componente-card" data-componente-id="<?= $componente->id ?>">
                             <div class="componente-imagen">
-                                <?php if (!empty($componente['imagen_principal'])): ?>
-                                    <img src="<?= asset('imagenes/componentes/' . $componente['imagen_principal']) ?>" alt="<?= htmlspecialchars($componente['nombre']) ?>">
+                                <?php if (!empty($componente->imagen_principal)): ?>
+                                    <img src="<?= asset('imagenes/componentes/' . $componente->imagen_principal) ?>" alt="<?= htmlspecialchars($componente->nombre) ?>">
                                 <?php else: ?>
                                     <div class="componente-imagen-placeholder">
                                         <i class="fas fa-microchip"></i>
@@ -738,8 +738,8 @@ body.dark-theme .componente-stock-visual {
                                 
                                 <!-- Badge de stock -->
                                 <?php 
-                                $stock = (int)($componente['stock'] ?? 0);
-                                $stockMinimo = (int)($componente['stock_minimo'] ?? 0);
+                                $stock = (int)($componente->stock ?? 0);
+                                $stockMinimo = (int)($componente->stock_minimo ?? 0);
                                 $stockClase = 'stock-disponible';
                                 $stockTexto = 'Disponible';
                                 
@@ -756,32 +756,32 @@ body.dark-theme .componente-stock-visual {
                                 </span>
                                 
                                 <!-- Código de producto -->
-                                <?php if (!empty($componente['codigo_producto'])): ?>
+                                <?php if (!empty($componente->codigo_producto)): ?>
                                     <div class="componente-codigo">
-                                        <?= htmlspecialchars($componente['codigo_producto']) ?>
+                                        <?= htmlspecialchars($componente->codigo_producto) ?>
                                     </div>
                                 <?php endif; ?>
                             </div>
                             
-                            <?php if (!empty($componente['categoria_nombre'])): ?>
-                                <div class="componente-categoria-badge categoria-<?= strtolower(str_replace(' ', '-', $componente['categoria_nombre'])) ?>">
-                                    <i class="<?= $componente['categoria_icono'] ?? 'fas fa-tag' ?>"></i>
-                                    <?= htmlspecialchars($componente['categoria_nombre']) ?>
+                            <?php if (!empty($componente->categoria_nombre)): ?>
+                                <div class="componente-categoria-badge categoria-<?= strtolower(str_replace(' ', '-', $componente->categoria_nombre)) ?>">
+                                    <i class="<?= $componente->categoria_icono ?? 'fas fa-tag' ?>"></i>
+                                    <?= htmlspecialchars($componente->categoria_nombre) ?>
                                 </div>
                             <?php endif; ?>
 
                             <div class="componente-info">
-                                <h3 class="componente-titulo"><?= htmlspecialchars($componente['nombre']) ?></h3>
-                                <p class="componente-descripcion"><?= htmlspecialchars($componente['descripcion'] ?? '') ?></p>
+                                <h3 class="componente-titulo"><?= htmlspecialchars($componente->nombre) ?></h3>
+                                <p class="componente-descripcion"><?= htmlspecialchars($componente->descripcion ?? '') ?></p>
                                 
                                 <div class="componente-meta">
                                     <div class="componente-meta-item">
                                         <i class="fas fa-industry"></i>
-                                        <span class="componente-marca"><?= htmlspecialchars($componente['marca'] ?? 'Sin marca') ?></span>
+                                        <span class="componente-marca"><?= htmlspecialchars($componente->marca ?? 'Sin marca') ?></span>
                                     </div>
                                     <div class="componente-meta-item">
                                         <i class="fas fa-barcode"></i>
-                                        <span><?= htmlspecialchars($componente['modelo'] ?? 'Sin modelo') ?></span>
+                                        <span><?= htmlspecialchars($componente->modelo ?? 'Sin modelo') ?></span>
                                     </div>
                                 </div>
 
@@ -812,29 +812,29 @@ body.dark-theme .componente-stock-visual {
 
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
                                     <div class="crud-action-buttons">
-                                        <a href="<?= route('componentes.ver', ['id' => $componente['id']]) ?>" 
+                                        <a href="<?= route('componentes.ver', ['id' => $componente->id]) ?>" 
                                            class="crud-btn-sm crud-btn-outline-primary" 
                                            title="Ver Componente">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="<?= route('componentes.editar', ['id' => $componente['id']]) ?>" 
+                                        <a href="<?= route('componentes.editar', ['id' => $componente->id]) ?>" 
                                            class="crud-btn-sm crud-btn-outline-info" 
                                            title="Editar Componente">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" 
                                                 class="crud-btn-sm crud-btn-outline-success componente-btn-ajustar-stock" 
-                                                data-componente-id="<?= $componente['id'] ?>" 
-                                                data-componente-nombre="<?= htmlspecialchars($componente['nombre']) ?>"
+                                                data-componente-id="<?= $componente->id ?>" 
+                                                data-componente-nombre="<?= htmlspecialchars($componente->nombre) ?>"
                                                 data-stock-actual="<?= $stock ?>"
                                                 title="Ajustar Stock">
                                             <i class="fas fa-boxes"></i>
                                         </button>
                                         <button type="button" 
                                                 class="crud-btn-sm crud-btn-outline-danger componente-btn-delete" 
-                                                data-componente-id="<?= $componente['id'] ?>" 
-                                                data-componente-nombre="<?= htmlspecialchars($componente['nombre']) ?>"
-                                                data-delete-url="<?= route('componentes.delete', ['id' => $componente['id']]) ?>"
+                                                data-componente-id="<?= $componente->id ?>" 
+                                                data-componente-nombre="<?= htmlspecialchars($componente->nombre) ?>"
+                                                data-delete-url="<?= route('componentes.delete', ['id' => $componente->id]) ?>"
                                                 title="Eliminar Componente">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -842,14 +842,14 @@ body.dark-theme .componente-stock-visual {
                                     
                                     <div class="componente-precio">
                                         <div class="precio-principal">
-                                            $<?= number_format($componente['precio'] ?? 0, 2) ?>
+                                            $<?= number_format($componente->precio ?? 0, 2) ?>
                                         </div>
                                         <div class="precio-unitario">por unidad</div>
                                     </div>
                                 </div>
                                 
                                 <div style="margin-top: 0.8rem;">
-                                    <span class="crud-badge componente-estado-<?= strtolower($componente['estado'] ?? 'disponible') ?>">
+                                    <span class="crud-badge componente-estado-<?= strtolower($componente->estado ?? 'disponible') ?>">
                                         <?php
                                         $iconosEstado = [
                                             'Disponible' => 'fas fa-check-circle',
@@ -857,8 +857,8 @@ body.dark-theme .componente-stock-visual {
                                             'Descontinuado' => 'fas fa-ban'
                                         ];
                                         ?>
-                                        <i class="<?= $iconosEstado[$componente['estado']] ?? 'fas fa-question-circle' ?>"></i>
-                                        <?= htmlspecialchars($componente['estado'] ?? 'Disponible') ?>
+                                        <i class="<?= $iconosEstado[$componente->estado] ?? 'fas fa-question-circle' ?>"></i>
+                                        <?= htmlspecialchars($componente->estado ?? 'Disponible') ?>
                                     </span>
                                 </div>
                             </div>
@@ -869,10 +869,10 @@ body.dark-theme .componente-stock-visual {
                 <!-- Vista en Lista (oculta por defecto) -->
                 <div class="componentes-list" id="componentesListView" style="display: none;">
                     <?php foreach ($componentes as $componente): ?>
-                        <div class="componente-list-item" data-componente-id="<?= $componente['id'] ?>">
+                        <div class="componente-list-item" data-componente-id="<?= $componente->id ?>">
                             <div class="componente-list-imagen">
-                                <?php if (!empty($componente['imagen_principal'])): ?>
-                                    <img src="<?= asset('imagenes/componentes/' . $componente['imagen_principal']) ?>" alt="<?= htmlspecialchars($componente['nombre']) ?>">
+                                <?php if (!empty($componente->imagen_principal)): ?>
+                                    <img src="<?= asset('imagenes/componentes/' . $componente->imagen_principal) ?>" alt="<?= htmlspecialchars($componente->nombre) ?>">
                                 <?php else: ?>
                                     <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--text-light), rgba(156, 163, 175, 0.3)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
                                         <i class="fas fa-microchip"></i>
@@ -882,28 +882,28 @@ body.dark-theme .componente-stock-visual {
                             
                             <div class="componente-list-info">
                                 <div>
-                                    <h3 class="componente-titulo" style="margin-bottom: 0.3rem;"><?= htmlspecialchars($componente['nombre']) ?></h3>
+                                    <h3 class="componente-titulo" style="margin-bottom: 0.3rem;"><?= htmlspecialchars($componente->nombre) ?></h3>
                                     <div class="componente-meta-item" style="margin-bottom: 0.5rem;">
                                         <i class="fas fa-industry"></i>
-                                        <span><?= htmlspecialchars($componente['marca'] ?? 'Sin marca') ?></span>
-                                        <?php if (!empty($componente['modelo'])): ?>
-                                            - <?= htmlspecialchars($componente['modelo']) ?>
+                                        <span><?= htmlspecialchars($componente->marca ?? 'Sin marca') ?></span>
+                                        <?php if (!empty($componente->modelo)): ?>
+                                            - <?= htmlspecialchars($componente->modelo) ?>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 
                                 <div class="text-center">
-                                    <?php if (!empty($componente['categoria_nombre'])): ?>
-                                        <span class="componente-categoria-badge categoria-<?= strtolower(str_replace(' ', '-', $componente['categoria_nombre'])) ?>">
-                                            <?= htmlspecialchars($componente['categoria_nombre']) ?>
+                                    <?php if (!empty($componente->categoria_nombre)): ?>
+                                        <span class="componente-categoria-badge categoria-<?= strtolower(str_replace(' ', '-', $componente->categoria_nombre)) ?>">
+                                            <?= htmlspecialchars($componente->categoria_nombre) ?>
                                         </span>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="text-center">
                                     <?php 
-                                    $stock = (int)($componente['stock'] ?? 0);
-                                    $stockMinimo = (int)($componente['stock_minimo'] ?? 0);
+                                    $stock = (int)($componente->stock ?? 0);
+                                    $stockMinimo = (int)($componente->stock_minimo ?? 0);
                                     $stockClase = 'stock-disponible';
                                     $stockTexto = 'Disponible';
                                     
@@ -925,33 +925,33 @@ body.dark-theme .componente-stock-visual {
                                 
                                 <div class="text-center">
                                     <div class="componente-precio">
-                                        <div class="precio-principal">$<?= number_format($componente['precio'] ?? 0, 2) ?></div>
+                                        <div class="precio-principal">$<?= number_format($componente->precio ?? 0, 2) ?></div>
                                         <div class="precio-unitario">por unidad</div>
                                     </div>
                                 </div>
                                 
                                 <div class="text-center">
-                                    <span class="crud-badge componente-estado-<?= strtolower($componente['estado'] ?? 'disponible') ?>">
-                                        <?= htmlspecialchars($componente['estado'] ?? 'Disponible') ?>
+                                    <span class="crud-badge componente-estado-<?= strtolower($componente->estado ?? 'disponible') ?>">
+                                        <?= htmlspecialchars($componente->estado ?? 'Disponible') ?>
                                     </span>
                                 </div>
                                 
                                 <div class="crud-action-buttons">
-                                    <a href="<?= route('componentes.ver', ['id' => $componente['id']]) ?>" 
+                                    <a href="<?= route('componentes.ver', ['id' => $componente->id]) ?>" 
                                        class="crud-btn-sm crud-btn-outline-primary" 
                                        title="Ver Componente">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="<?= route('componentes.editar', ['id' => $componente['id']]) ?>" 
+                                    <a href="<?= route('componentes.editar', ['id' => $componente->id]) ?>" 
                                        class="crud-btn-sm crud-btn-outline-info" 
                                        title="Editar Componente">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button type="button" 
                                             class="crud-btn-sm crud-btn-outline-danger componente-btn-delete" 
-                                            data-componente-id="<?= $componente['id'] ?>" 
-                                            data-componente-nombre="<?= htmlspecialchars($componente['nombre']) ?>"
-                                            data-delete-url="<?= route('componentes.delete', ['id' => $componente['id']]) ?>"
+                                            data-componente-id="<?= $componente->id ?>" 
+                                            data-componente-nombre="<?= htmlspecialchars($componente->nombre) ?>"
+                                            data-delete-url="<?= route('componentes.delete', ['id' => $componente->id]) ?>"
                                             title="Eliminar Componente">
                                         <i class="fas fa-trash"></i>
                                     </button>

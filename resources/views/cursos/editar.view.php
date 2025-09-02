@@ -17,6 +17,36 @@ if (!$curso) {
 <!-- Estilos específicos para el módulo CRUD - Editar -->
 <link rel="stylesheet" href="<?= asset('css/vistas.css'); ?>">
 
+<!-- Estilos adicionales para correcciones -->
+<style>
+/* Alineación en fila para Nivel y Estado */
+.crud-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    width: 100%;
+}
+
+/* Corrección de visibilidad para textos de ayuda en modo oscuro */
+body.ithr-dark-mode .crud-form-help,
+body.dark-theme .crud-form-help {
+    color: var(--text-secondary);
+}
+
+body.ithr-dark-mode .crud-form-help i,
+body.dark-theme .crud-form-help i {
+    color: var(--secondary-blue);
+}
+
+/* Responsivo para dispositivos móviles */
+@media (max-width: 768px) {
+    .crud-form-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+</style>
+
 <!-- Contenedor principal del CRUD de edición -->
 <div class="crud-edit-container">
     <div class="crud-edit-wrapper">
@@ -202,12 +232,12 @@ if (!$curso) {
                                 <option value="">Selecciona una categoría</option>
                                 <?php if (isset($categorias) && !empty($categorias)): ?>
                                     <?php foreach ($categorias as $categoria): ?>
-                                        <?php if ($categoria['tipo'] === 'curso'): ?>
-                                            <option value="<?= $categoria['id'] ?>" 
-                                                    <?= ($curso && $curso['categoria_id'] == $categoria['id']) || (flashGet('old') && flashGet('old')['categoria_id'] == $categoria['id']) ? 'selected' : '' ?>
-                                                    data-color="<?= $categoria['color'] ?? '#3498db' ?>"
-                                                    data-icon="<?= $categoria['icono'] ?? 'fas fa-tag' ?>">
-                                                <?= htmlspecialchars($categoria['nombre']) ?>
+                                        <?php if ($categoria->tipo === 'curso'): ?>
+                                            <option value="<?= $categoria->id ?>" 
+                                                    <?= ($curso && $curso['categoria_id'] == $categoria->id) || (flashGet('old') && flashGet('old')['categoria_id'] == $categoria->id) ? 'selected' : '' ?>
+                                                    data-color="<?= $categoria->color ?? '#3498db' ?>"
+                                                    data-icon="<?= $categoria->icono ?? 'fas fa-tag' ?>">
+                                                <?= htmlspecialchars($categoria->nombre) ?>
                                             </option>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
@@ -256,48 +286,49 @@ if (!$curso) {
                             <?php endif; ?>
                         </div>
 
-                        <div class="crud-form-group">
-                            <label class="crud-form-label">
-                                <i class="fas fa-signal"></i>
-                                Nivel de Dificultad
-                                <span class="crud-required">*</span>
-                            </label>
-                            <div class="nivel-selector">
-                                <?php $selectedNivel = $curso['nivel'] ?? (flashGet('old')['nivel'] ?? ''); ?>
-                                <div class="nivel-option nivel-principiante <?= $selectedNivel == 'Principiante' ? 'selected' : '' ?>">
-                                    <input type="radio" name="nivel" value="Principiante" id="nivelPrincipiante" 
-                                           <?= $selectedNivel == 'Principiante' ? 'checked' : '' ?>>
-                                    <label for="nivelPrincipiante">
-                                        <i class="fas fa-seedling"></i>
-                                        <span>Principiante</span>
-                                    </label>
-                                </div>
-                                <div class="nivel-option nivel-intermedio <?= $selectedNivel == 'Intermedio' ? 'selected' : '' ?>">
-                                    <input type="radio" name="nivel" value="Intermedio" id="nivelIntermedio" 
-                                           <?= $selectedNivel == 'Intermedio' ? 'checked' : '' ?>>
-                                    <label for="nivelIntermedio">
-                                        <i class="fas fa-chart-line"></i>
-                                        <span>Intermedio</span>
-                                    </label>
-                                </div>
-                                <div class="nivel-option nivel-avanzado <?= $selectedNivel == 'Avanzado' ? 'selected' : '' ?>">
-                                    <input type="radio" name="nivel" value="Avanzado" id="nivelAvanzado" 
-                                           <?= $selectedNivel == 'Avanzado' ? 'checked' : '' ?>>
-                                    <label for="nivelAvanzado">
-                                        <i class="fas fa-rocket"></i>
-                                        <span>Avanzado</span>
-                                    </label>
+                        <div class="crud-form-row">
+                            <div class="crud-form-group">
+                                <label class="crud-form-label">
+                                    <i class="fas fa-signal"></i>
+                                    Nivel de Dificultad
+                                    <span class="crud-required">*</span>
+                                </label>
+                                <div class="nivel-selector">
+                                    <?php $selectedNivel = $curso['nivel'] ?? (flashGet('old')['nivel'] ?? ''); ?>
+                                    <div class="nivel-option nivel-principiante <?= $selectedNivel == 'Principiante' ? 'selected' : '' ?>">
+                                        <input type="radio" name="nivel" value="Principiante" id="nivelPrincipiante" 
+                                               <?= $selectedNivel == 'Principiante' ? 'checked' : '' ?>>
+                                        <label for="nivelPrincipiante">
+                                            <i class="fas fa-seedling"></i>
+                                            <span>Principiante</span>
+                                        </label>
+                                    </div>
+                                    <div class="nivel-option nivel-intermedio <?= $selectedNivel == 'Intermedio' ? 'selected' : '' ?>">
+                                        <input type="radio" name="nivel" value="Intermedio" id="nivelIntermedio" 
+                                               <?= $selectedNivel == 'Intermedio' ? 'checked' : '' ?>>
+                                        <label for="nivelIntermedio">
+                                            <i class="fas fa-chart-line"></i>
+                                            <span>Intermedio</span>
+                                        </label>
+                                    </div>
+                                    <div class="nivel-option nivel-avanzado <?= $selectedNivel == 'Avanzado' ? 'selected' : '' ?>">
+                                        <input type="radio" name="nivel" value="Avanzado" id="nivelAvanzado" 
+                                               <?= $selectedNivel == 'Avanzado' ? 'checked' : '' ?>>
+                                        <label for="nivelAvanzado">
+                                            <i class="fas fa-rocket"></i>
+                                            <span>Avanzado</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="crud-form-group">
-                            <label class="crud-form-label">
-                                <i class="fas fa-toggle-on"></i>
-                                Estado del Curso
-                                <span class="crud-required">*</span>
-                            </label>
-                            <div class="estado-selector">
+                            <div class="crud-form-group">
+                                <label class="crud-form-label">
+                                    <i class="fas fa-toggle-on"></i>
+                                    Estado del Curso
+                                    <span class="crud-required">*</span>
+                                </label>
+                                <div class="estado-selector">
                                 <?php $selectedEstado = $curso['estado'] ?? (flashGet('old')['estado'] ?? ''); ?>
                                 <div class="estado-option estado-borrador <?= $selectedEstado == 'Borrador' ? 'selected' : '' ?>">
                                     <input type="radio" name="estado" value="Borrador" id="estadoBorrador" 
@@ -324,6 +355,7 @@ if (!$curso) {
                                     </label>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </form>
