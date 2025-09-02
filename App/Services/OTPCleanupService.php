@@ -55,7 +55,7 @@ class OTPCleanupService
             $query = "DELETE FROM codigos_otp WHERE expira_en < NOW() OR utilizado = 1";
             $result = $db->query($query);
             
-            $deletedCount = $result ? $db->rowCount() : 0;
+            $deletedCount = $result ? $result->rowCount() : 0;
             
             // Obtener estadísticas actuales
             $statsQuery = "SELECT 
@@ -98,7 +98,7 @@ class OTPCleanupService
             $query = "DELETE FROM rate_limit_attempts WHERE created_at < DATE_SUB(NOW(), INTERVAL 24 HOUR)";
             $result = $db->query($query);
             
-            $deletedCount = $result ? $db->rowCount() : 0;
+            $deletedCount = $result ? $result->rowCount() : 0;
             
             // Estadísticas de rate limiting
             $statsQuery = "SELECT 
@@ -147,7 +147,7 @@ class OTPCleanupService
                       OR activa = 0";
             $result = $db->query($query);
             
-            $deletedCount = $result ? $db->rowCount() : 0;
+            $deletedCount = $result ? $result->rowCount() : 0;
             
             // Estadísticas de sesiones activas
             $activeSessionsQuery = "SELECT 
@@ -190,7 +190,7 @@ class OTPCleanupService
             $query = "DELETE FROM intentos_login WHERE fecha_intento < DATE_SUB(NOW(), INTERVAL 7 DAY)";
             $result = $db->query($query);
             
-            $deletedCount = $result ? $db->rowCount() : 0;
+            $deletedCount = $result ? $result->rowCount() : 0;
             
             // Estadísticas de intentos fallidos recientes
             $recentFailsQuery = "SELECT 

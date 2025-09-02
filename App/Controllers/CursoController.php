@@ -442,7 +442,7 @@ class CursoController extends Controller
             $this->cursoService->inscribirEstudiante($user->id, $id);
 
             Session::flash('success', '¡Te has inscrito exitosamente al curso!');
-            return redirect(route('cursos.ver', ['id' => $id]));
+            return redirect(route('cursos.cursando', ['id' => $id]));
         } catch (Exception $e) {
             Session::flash('error', 'Error al inscribirse: ' . $e->getMessage());
             return redirect(route('cursos.ver', ['id' => $id]));
@@ -465,14 +465,26 @@ class CursoController extends Controller
                 return response()->json(['error' => 'No estás inscrito en este curso'], 403);
             }
 
-            $porcentaje = (int)$request->input('progreso', 0);
-            $tiempoEstudiado = (int)$request->input('tiempo_estudiado', 0);
+            // Si solo es actualización de acceso
+            if ($request->input('solo_acceso')) {
+                $this->cursoService->actualizarUltimoAcceso($user->id, $id);
+                return response()->json(['success' => true]);
+            }
 
-            $this->cursoService->actualizarProgreso($user->id, $id, $porcentaje, $tiempoEstudiado);
+            $porcentaje = (int)$request->input('progreso', 0);
+            $tiempoAdicional = (int)$request->input('tiempo_adicional', 0);
+
+            // Obtener progreso actual
+            $progresoActual = $this->cursoService->getProgresoEstudiante($user->id, $id);
+            $tiempoTotal = ($progresoActual['tiempo_estudiado'] ?? 0) + $tiempoAdicional;
+
+            $this->cursoService->actualizarProgreso($user->id, $id, $porcentaje, $tiempoTotal);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Progreso actualizado correctamente'
+                'message' => 'Progreso actualizado correctamente',
+                'nuevo_progreso' => $porcentaje,
+                'tiempo_total' => $tiempoTotal
             ]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -593,5 +605,52 @@ class CursoController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Vista de curso en progreso para estudiantes
+     */
+    public function cursando(Request $request, $id)
+    {
+        try {
+            $user = auth();
+            if (!$user || !$user->hasRole('estudiante')) {
+                Session::flash('error', 'Solo los estudiantes pueden acceder a esta sección.');
+                return redirect(route('cursos.ver', ['id' => $id]));
+            }
+
+            $curso = $this->cursoService->getCursoById((int)$id);
+            if (!$curso) {
+                Session::flash('error', 'Curso no encontrado.');
+                return redirect(route('cursos'));
+            }
+
+            // Verificar que el estudiante esté inscrito
+            if (!$this->cursoService->estaInscrito($user->id, (int)$id)) {
+                Session::flash('error', 'Debes estar inscrito en este curso para acceder.');
+                return redirect(route('cursos.ver', ['id' => $id]));
+            }
+
+            // Obtener progreso del estudiante
+            $progreso = $this->cursoService->getProgresoEstudiante($user->id, (int)$id);
+            
+            // Obtener otros cursos en los que está inscrito
+            $otrosCursos = $this->cursoService->getCursosInscrito($user->id, (int)$id);
+            
+            // Estadísticas del estudiante en este curso
+            $estadisticas = $this->cursoService->getEstadisticasEstudiante($user->id, (int)$id);
+
+            return view('cursos.cursando', [
+                'title' => 'Cursando: ' . $curso['titulo'],
+                'curso' => $curso,
+                'progreso' => $progreso,
+                'otrosCursos' => $otrosCursos,
+                'estadisticas' => $estadisticas,
+                'user' => $user
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar el curso: ' . $e->getMessage());
+            return redirect(route('cursos'));
+        }
     }
 }
