@@ -146,7 +146,10 @@ class CursoService
             ]);
 
             $curso->save();
-            return $curso->getKey();
+            
+            // Obtener el ID directamente de la base de datos
+            $db = DB::getInstance();
+            return (int) $db->getConnection()->lastInsertId();
         } catch (Exception $e) {
             throw new Exception('Error al crear curso: ' . $e->getMessage());
         }
@@ -179,16 +182,29 @@ class CursoService
                 }
             }
 
-            // Actualizar campos permitidos
+            // Actualizar usando SQL directo para evitar problemas con el modelo
+            $db = DB::getInstance();
+            $setParts = [];
+            $values = [];
+            
             $camposPermitidos = ['titulo', 'descripcion', 'video_url', 'docente_id', 'categoria_id', 'imagen_portada', 'nivel', 'estado'];
             
             foreach ($cursoData as $field => $value) {
                 if ($value !== null && in_array($field, $camposPermitidos)) {
-                    $curso->$field = $value;
+                    $setParts[] = "$field = ?";
+                    $values[] = $value;
                 }
             }
+            
+            if (!empty($setParts)) {
+                $setParts[] = "fecha_actualizacion = ?";
+                $values[] = date('Y-m-d H:i:s');
+                $values[] = $id;
+                
+                $sql = "UPDATE cursos SET " . implode(', ', $setParts) . " WHERE id = ?";
+                $db->query($sql, $values);
+            }
 
-            $curso->save();
             return true;
         } catch (Exception $e) {
             throw new Exception('Error al actualizar curso: ' . $e->getMessage());
@@ -229,8 +245,10 @@ class CursoService
                 throw new Exception('Estado inválido');
             }
 
-            $curso->estado = $status;
-            $curso->save();
+            // Actualizar usando SQL directo
+            $db = DB::getInstance();
+            $sql = "UPDATE cursos SET estado = ?, fecha_actualizacion = ? WHERE id = ?";
+            $db->query($sql, [$status, date('Y-m-d H:i:s'), $id]);
 
             return true;
         } catch (Exception $e) {
