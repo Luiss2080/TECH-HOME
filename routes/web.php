@@ -626,6 +626,26 @@ Router::post('/docente/cursos', [DocenteController::class, 'guardarCurso'])
     ->name('docente.cursos.guardar')
     ->middleware('role:docente|has:docente.cursos.crear');
 
+// Ver curso específico del docente
+Router::get('/docente/cursos/{id}', [DocenteController::class, 'verCurso'])
+    ->name('docente.cursos.ver')
+    ->middleware('role:docente|has:docente.cursos.ver');
+
+// Editar curso del docente
+Router::get('/docente/cursos/{id}/editar', [DocenteController::class, 'editarCurso'])
+    ->name('docente.cursos.editar')
+    ->middleware('role:docente|has:docente.cursos.editar');
+
+// Actualizar curso del docente
+Router::put('/docente/cursos/{id}', [DocenteController::class, 'actualizarCurso'])
+    ->name('docente.cursos.actualizar')
+    ->middleware('role:docente|has:docente.cursos.editar');
+
+// Eliminar curso del docente
+Router::delete('/docente/cursos/{id}', [DocenteController::class, 'eliminarCurso'])
+    ->name('docente.cursos.eliminar')
+    ->middleware('role:docente|has:docente.cursos.eliminar');
+
 // Gestión de estudiantes
 Router::get('/docente/estudiantes', [DocenteController::class, 'estudiantes'])
     ->name('docente.estudiantes')

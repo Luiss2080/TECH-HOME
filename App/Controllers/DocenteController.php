@@ -257,6 +257,137 @@ class DocenteController extends Controller
         }
     }
 
+    /**
+     * Ver detalles de un curso específico del docente
+     */
+    public function verCurso($id)
+    {
+        try {
+            $docenteId = $this->getDocenteId();
+            $curso = $this->docenteService->getCursoById($id, $docenteId);
+            
+            if (!$curso) {
+                Session::flash('error', 'Curso no encontrado o no tienes permisos para verlo.');
+                return redirect(route('docente.cursos'));
+            }
+            
+            return view('docente.cursos.ver', [
+                'title' => 'Ver Curso: ' . $curso['titulo'],
+                'curso' => $curso
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar curso: ' . $e->getMessage());
+            return redirect(route('docente.cursos'));
+        }
+    }
+
+    /**
+     * Mostrar formulario de edición de curso
+     */
+    public function editarCurso($id)
+    {
+        try {
+            $docenteId = $this->getDocenteId();
+            $curso = $this->docenteService->getCursoById($id, $docenteId);
+            
+            if (!$curso) {
+                Session::flash('error', 'Curso no encontrado o no tienes permisos para editarlo.');
+                return redirect(route('docente.cursos'));
+            }
+            
+            $categorias = $this->docenteService->getCategoriasCursos();
+            
+            return view('docente.cursos.editar', [
+                'title' => 'Editar Curso: ' . $curso['titulo'],
+                'curso' => $curso,
+                'categorias' => $categorias
+            ]);
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al cargar curso: ' . $e->getMessage());
+            return redirect(route('docente.cursos'));
+        }
+    }
+
+    /**
+     * Actualizar curso del docente
+     */
+    public function actualizarCurso(Request $request, $id)
+    {
+        try {
+            $docenteId = $this->getDocenteId();
+            
+            // Verificar que el curso pertenece al docente
+            $curso = $this->docenteService->getCursoById($id, $docenteId);
+            if (!$curso) {
+                Session::flash('error', 'Curso no encontrado o no tienes permisos para editarlo.');
+                return redirect(route('docente.cursos'));
+            }
+            
+            // Validaciones
+            $rules = [
+                'titulo' => 'required|min:5|max:200',
+                'descripcion' => 'required|min:20|max:1000',
+                'categoria_id' => 'required|numeric',
+                'nivel' => 'required|in:Principiante,Intermedio,Avanzado',
+                'estado' => 'required|in:Borrador,Publicado,Archivado'
+            ];
+
+            $validator = new Validation();
+            if (!$validator->validate($request->all(), $rules)) {
+                Session::flash('errors', $validator->errors());
+                Session::flash('old', $request->all());
+                return redirect(route('docente.cursos.editar', $id));
+            }
+
+            $cursoData = $request->all();
+            $resultado = $this->docenteService->actualizarCurso($id, $cursoData);
+            
+            if ($resultado) {
+                Session::flash('success', 'Curso actualizado exitosamente.');
+                return redirect(route('docente.cursos.ver', $id));
+            } else {
+                Session::flash('error', 'Error al actualizar el curso.');
+                return redirect(route('docente.cursos.editar', $id));
+            }
+            
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al actualizar curso: ' . $e->getMessage());
+            Session::flash('old', $request->all());
+            return redirect(route('docente.cursos.editar', $id));
+        }
+    }
+
+    /**
+     * Eliminar curso del docente
+     */
+    public function eliminarCurso($id)
+    {
+        try {
+            $docenteId = $this->getDocenteId();
+            
+            // Verificar que el curso pertenece al docente
+            $curso = $this->docenteService->getCursoById($id, $docenteId);
+            if (!$curso) {
+                Session::flash('error', 'Curso no encontrado o no tienes permisos para eliminarlo.');
+                return redirect(route('docente.cursos'));
+            }
+            
+            $resultado = $this->docenteService->eliminarCurso($id);
+            
+            if ($resultado) {
+                Session::flash('success', 'Curso eliminado exitosamente.');
+            } else {
+                Session::flash('error', 'Error al eliminar el curso.');
+            }
+            
+            return redirect(route('docente.cursos'));
+            
+        } catch (Exception $e) {
+            Session::flash('error', 'Error al eliminar curso: ' . $e->getMessage());
+            return redirect(route('docente.cursos'));
+        }
+    }
+
     // =========================================
     // GESTIÓN DE ESTUDIANTES
     // =========================================
