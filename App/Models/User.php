@@ -426,7 +426,7 @@ class User extends Model
     {
         // directamente consultamos en base de datos que no este registrado en las 5 últimas contraseñas
         $db = \Core\DB::getInstance();
-        $db = $db->query("SELECT ph.* FROM password_history ph WHERE ph.usuario_id = ? ORDER BY ph.fecha_cambio DESC LIMIT 5", [$this->id]);
+       $db = $db->query("SELECT ph.* FROM password_history ph WHERE ph.usuario_id = ? ORDER BY ph.fecha_creacion DESC LIMIT 5", [$this->id]);
         $result = $db->fetchAll();
         $all = array_column($result, 'password');
         // verificar si la nueva contraseña ya fue utilizada pero como esta encriptada no podemos compararla directamente

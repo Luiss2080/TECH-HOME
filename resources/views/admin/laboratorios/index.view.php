@@ -485,7 +485,7 @@ body.dark-theme .crud-progress-circle {
                     <div class="crud-stat-content">
                         <h4>En Progreso</h4>
                         <div class="crud-stat-number">
-                            <?= count(array_filter($laboratorios, fn($l) => $l['estado'] === 'En Progreso')) ?>
+                            <?= count(array_filter($laboratorios, function($l) { return $l['estado'] === 'En Progreso'; })) ?>
                         </div>
                     </div>
                 </div>
@@ -496,7 +496,7 @@ body.dark-theme .crud-progress-circle {
                     <div class="crud-stat-content">
                         <h4>Completados</h4>
                         <div class="crud-stat-number">
-                            <?= count(array_filter($laboratorios, fn($l) => $l['estado'] === 'Completado')) ?>
+                            <?= count(array_filter($laboratorios, function($l) { return $l['estado'] === 'Completado'; })) ?>
                         </div>
                     </div>
                 </div>
@@ -507,7 +507,7 @@ body.dark-theme .crud-progress-circle {
                     <div class="crud-stat-content">
                         <h4>Destacados</h4>
                         <div class="crud-stat-number">
-                            <?= count(array_filter($laboratorios, fn($l) => isset($l['destacado']) && $l['destacado'] == 1)) ?>
+                            <?= count(array_filter($laboratorios, function($l) { return isset($l['destacado']) && $l['destacado'] == 1; })) ?>
                         </div>
                     </div>
                 </div>
@@ -581,6 +581,7 @@ body.dark-theme .crud-progress-circle {
         <div class="crud-section-card">
             <div class="crud-table-container">
                 <?php if (!empty($laboratorios)): ?>
+                    <!-- DEBUG: Encontrados <?= count($laboratorios) ?> laboratorios en la vista -->
                     <table class="crud-data-table">
                         <thead>
                             <tr>
@@ -738,6 +739,7 @@ body.dark-theme .crud-progress-circle {
                         </tbody>
                     </table>
                 <?php else: ?>
+                    <!-- DEBUG: La variable $laboratorios está vacía. Tipo: <?= gettype($laboratorios) ?>, Count: <?= is_array($laboratorios) ? count($laboratorios) : 'N/A' ?> -->
                     <div class="crud-empty-state">
                         <div class="crud-empty-state-icon">
                             <i class="fas fa-flask"></i>

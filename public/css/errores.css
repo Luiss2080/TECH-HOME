@@ -587,9 +587,25 @@
 body.ithr-dark-mode .error-404-hero,
 body.dark-theme .error-404-hero {
     background: linear-gradient(135deg, 
-        rgba(239, 68, 68, 0.15) 0%, 
-        rgba(220, 38, 38, 0.15) 50%, 
-        rgba(185, 28, 28, 0.15) 100%);
+        rgba(0, 0, 0, 0.95) 0%, 
+        rgba(20, 20, 20, 0.9) 50%, 
+        rgba(40, 40, 40, 0.85) 100%),
+        linear-gradient(135deg, 
+        rgba(239, 68, 68, 0.1) 0%, 
+        rgba(220, 38, 38, 0.1) 50%, 
+        rgba(185, 28, 28, 0.1) 100%);
+}
+
+/* Modo claro para error 404 */
+body:not(.ithr-dark-mode):not(.dark-theme) .error-404-hero {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.95) 0%, 
+        rgba(248, 250, 252, 0.9) 50%, 
+        rgba(241, 245, 249, 0.85) 100%),
+        linear-gradient(135deg, 
+        rgba(239, 68, 68, 0.08) 0%, 
+        rgba(220, 38, 38, 0.08) 50%, 
+        rgba(185, 28, 28, 0.08) 100%);
 }
 
 body.ithr-dark-mode .nav-card,
@@ -1439,9 +1455,25 @@ body.dark-theme .search-input {
 body.ithr-dark-mode .error-403-hero,
 body.dark-theme .error-403-hero {
     background: linear-gradient(135deg, 
-        rgba(245, 158, 11, 0.15) 0%, 
-        rgba(220, 38, 38, 0.15) 50%, 
-        rgba(185, 28, 28, 0.15) 100%);
+        rgba(0, 0, 0, 0.95) 0%, 
+        rgba(20, 20, 20, 0.9) 50%, 
+        rgba(40, 40, 40, 0.85) 100%),
+        linear-gradient(135deg, 
+        rgba(245, 158, 11, 0.1) 0%, 
+        rgba(220, 38, 38, 0.1) 50%, 
+        rgba(185, 28, 28, 0.1) 100%);
+}
+
+/* Modo claro específico para 403 */
+body:not(.ithr-dark-mode):not(.dark-theme) .error-403-hero {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.95) 0%, 
+        rgba(248, 250, 252, 0.9) 50%, 
+        rgba(241, 245, 249, 0.85) 100%),
+        linear-gradient(135deg, 
+        rgba(245, 158, 11, 0.08) 0%, 
+        rgba(220, 38, 38, 0.08) 50%, 
+        rgba(185, 28, 28, 0.08) 100%);
 }
 
 body.ithr-dark-mode .user-profile-card,
@@ -1458,5 +1490,5 @@ body.dark-theme .escalation-btn {
 
 body.ithr-dark-mode .shield-body,
 body.dark-theme .shield-body {
-    background: linear-gradient(145deg, #d97706, #b45309);
+    background: linear-gradient(145deg, #d97706, #b45309);
 }

@@ -291,6 +291,48 @@ $isDocente = $user && $user->hasRole('docente') && !$user->hasRole('administrado
         font-size: 2rem;
     }
 }
+
+/* ============================================
+   MODO OSCURO - TEMA DARK PARA CONTENEDORES
+   ============================================ */
+body.ithr-dark-mode .curso-video-preview,
+body.dark-theme .curso-video-preview {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border-color: rgba(71, 85, 105, 0.4);
+}
+
+body.ithr-dark-mode .video-placeholder,
+body.dark-theme .video-placeholder {
+    color: var(--text-secondary);
+}
+
+body.ithr-dark-mode .video-placeholder h4,
+body.dark-theme .video-placeholder h4 {
+    color: var(--text-primary);
+}
+
+body.ithr-dark-mode .portada-generator,
+body.dark-theme .portada-generator {
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.8));
+    border-color: rgba(71, 85, 105, 0.4);
+    color: var(--text-primary);
+}
+
+body.ithr-dark-mode .portada-generator:hover,
+body.dark-theme .portada-generator:hover {
+    border-color: var(--secondary-blue);
+    background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.9));
+}
+
+body.ithr-dark-mode .portada-generator h4,
+body.dark-theme .portada-generator h4 {
+    color: var(--text-primary);
+}
+
+body.ithr-dark-mode .portada-generator p,
+body.dark-theme .portada-generator p {
+    color: var(--text-secondary);
+}
 </style>
 
 <!-- Contenedor principal del CRUD de creación -->
@@ -457,12 +499,12 @@ $isDocente = $user && $user->hasRole('docente') && !$user->hasRole('administrado
                                 <option value="">Selecciona una categoría</option>
                                 <?php if (isset($categorias) && !empty($categorias)): ?>
                                     <?php foreach ($categorias as $categoria): ?>
-                                        <?php if ($categoria['tipo'] === 'curso'): ?>
-                                            <option value="<?= $categoria['id'] ?>" 
-                                                    <?= ($old['categoria_id'] ?? '') == $categoria['id'] ? 'selected' : '' ?>
-                                                    data-color="<?= $categoria['color'] ?? '#3498db' ?>"
-                                                    data-icon="<?= $categoria['icono'] ?? 'fas fa-tag' ?>">
-                                                <?= htmlspecialchars($categoria['nombre']) ?>
+                                        <?php if ($categoria->tipo === 'curso'): ?>
+                                            <option value="<?= $categoria->id ?>" 
+                                                    <?= ($old['categoria_id'] ?? '') == $categoria->id ? 'selected' : '' ?>
+                                                    data-color="<?= $categoria->color ?? '#3498db' ?>"
+                                                    data-icon="<?= $categoria->icono ?? 'fas fa-tag' ?>">
+                                                <?= htmlspecialchars($categoria->nombre) ?>
                                             </option>
                                         <?php endif; ?>
                                     <?php endforeach; ?>

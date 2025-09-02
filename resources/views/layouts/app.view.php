@@ -484,13 +484,23 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                          ============================================ -->
                                 <div class="user-details">
                                     <h4 id="user-name">
-                                        <?php echo htmlspecialchars(($_SESSION['usuario_nombre'] ?? '') . ' ' . ($_SESSION['usuario_apellido'] ?? '')); ?>
+                                        <?php 
+                                        $user = auth();
+                                        echo $user ? htmlspecialchars($user->nombre . ' ' . $user->apellido) : 'Usuario';
+                                        ?>
                                     </h4>
                                     <span class="user-role" id="user-role">
-                                        <?php echo htmlspecialchars($_SESSION['usuario_rol'] ?? 'Usuario'); ?>
+                                        <?php 
+                                        if ($user) {
+                                            $roles = $user->roles();
+                                            echo htmlspecialchars(!empty($roles) ? $roles[0]['nombre'] : 'Usuario');
+                                        } else {
+                                            echo 'Usuario';
+                                        }
+                                        ?>
                                     </span>
                                     <span class="user-email" id="user-email">
-                                        <?php echo htmlspecialchars($_SESSION['usuario_email'] ?? ''); ?>
+                                        <?php echo $user ? htmlspecialchars($user->email) : ''; ?>
                                     </span>
                                 </div>
                             <?php endif; ?>
