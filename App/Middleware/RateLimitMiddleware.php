@@ -288,7 +288,7 @@ class RateLimitMiddleware implements Middleware
             $result = $db->query($query, [$cleanupTime]);
             
             if ($result) {
-                $deletedRows = $db->rowCount();
+                $deletedRows = $result->rowCount(); // rowCount() es método del PDOStatement, no de DB
                 if ($deletedRows > 0) {
                     error_log("Rate Limit: Limpiados {$deletedRows} registros antiguos");
                 }

@@ -55,70 +55,280 @@ abstract class BaseEmailService implements MailServiceInterface
         $body = "
         <html>
         <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
             <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: #007bff; color: white; padding: 20px; text-align: center; }
-                .content { background: #f8f9fa; padding: 30px; border-radius: 5px; margin: 20px 0; }
-                .button { 
+                /* Reset y base */
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                
+                body { 
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Arial, sans-serif; 
+                    line-height: 1.6; 
+                    color: #1f2937;
+                    background-color: #f8fafc;
+                    margin: 0;
+                    padding: 20px;
+                }
+                
+                table { border-collapse: collapse; width: 100%; }
+                
+                .email-container { 
+                    max-width: 600px; 
+                    margin: 0 auto; 
+                    background-color: #ffffff;
+                    border-radius: 20px;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                }
+                
+                .header-section { 
+                    background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #b91c1c 100%);
+                    color: #ffffff; 
+                    padding: 40px 30px; 
+                    text-align: center;
+                }
+                
+                .header-section h1 {
+                    font-size: 32px;
+                    font-weight: 800;
+                    margin: 0 0 8px 0;
+                    color: #ffffff;
+                }
+                
+                .header-section p {
+                    font-size: 16px;
+                    font-weight: 500;
+                    margin: 0;
+                    color: #ffffff;
+                    opacity: 0.95;
+                }
+                
+                .content-section { 
+                    padding: 40px 30px;
+                    background-color: #ffffff;
+                }
+                
+                .content-section h2 {
+                    color: #1f2937;
+                    font-size: 28px;
+                    font-weight: 800;
+                    margin: 0 0 20px 0;
+                    text-align: center;
+                }
+                
+                .content-section p {
+                    color: #6b7280;
+                    font-size: 16px;
+                    margin: 0 0 16px 0;
+                    text-align: center;
+                    line-height: 1.6;
+                }
+                
+                .button-container {
+                    text-align: center;
+                    margin: 30px 0;
+                }
+                
+                .reset-button { 
                     display: inline-block; 
-                    background: #007bff; 
-                    color: white !important; 
-                    padding: 15px 30px; 
+                    background: linear-gradient(135deg, #dc2626, #ef4444);
+                    color: #ffffff !important; 
+                    padding: 18px 36px; 
                     text-decoration: none !important; 
-                    border-radius: 8px; 
-                    margin: 20px 0; 
-                    font-weight: bold;
+                    border-radius: 12px; 
+                    font-weight: 700;
                     font-size: 16px;
                     border: none;
-                    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+                    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+                    transition: all 0.3s ease;
                 }
-                .button:hover { 
-                    background: #0056b3; 
-                    color: white !important;
+                
+                .reset-button:hover { 
+                    background: linear-gradient(135deg, #b91c1c, #dc2626);
+                    color: #ffffff !important;
                     text-decoration: none !important;
-                    box-shadow: 0 4px 8px rgba(0,123,255,0.4);
+                    box-shadow: 0 12px 35px rgba(220, 38, 38, 0.4);
+                    transform: translateY(-2px);
                 }
-                a { color: #007bff; }
-                a.button { color: white !important; }
-                .footer { text-align: center; color: #666; font-size: 12px; padding: 20px; }
-                .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0; color: #856404; }
+                
+                .warning-box { 
+                    background-color: #fffbeb;
+                    border: 2px solid #fbbf24;
+                    border-left: 4px solid #f59e0b;
+                    border-radius: 12px;
+                    padding: 20px; 
+                    margin: 30px 0;
+                    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+                }
+                
+                .warning-box strong {
+                    color: #f59e0b;
+                    font-weight: 700;
+                    font-size: 16px;
+                    display: block;
+                    margin-bottom: 12px;
+                }
+                
+                .warning-box ul {
+                    margin: 12px 0 0 20px;
+                    padding: 0;
+                    list-style-type: disc;
+                }
+                
+                .warning-box li {
+                    color: #6b7280;
+                    margin-bottom: 8px;
+                    font-weight: 500;
+                    line-height: 1.5;
+                }
+                
+                .warning-box li strong {
+                    color: #1f2937;
+                    display: inline;
+                    margin: 0;
+                    font-size: inherit;
+                }
+                
+                .url-container {
+                    background-color: #f1f5f9;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 16px;
+                    margin: 20px 0;
+                    word-break: break-all;
+                    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+                    font-size: 14px;
+                    color: #1f2937;
+                    text-align: left;
+                }
+                
+                .footer-section { 
+                    background-color: #f8fafc;
+                    border-top: 1px solid #e2e8f0;
+                    text-align: center; 
+                    color: #6b7280; 
+                    font-size: 14px; 
+                    padding: 30px;
+                }
+                
+                .footer-section p {
+                    margin: 8px 0;
+                    font-weight: 500;
+                    color: #6b7280;
+                }
+                
+                /* Enlaces */
+                a { 
+                    color: #dc2626;
+                    text-decoration: none;
+                    font-weight: 600;
+                }
+                
+                a:hover {
+                    color: #b91c1c;
+                    text-decoration: underline;
+                }
+                
+                a.reset-button { 
+                    color: #ffffff !important; 
+                    text-decoration: none !important;
+                }
+                
+                /* Responsive */
+                @media only screen and (max-width: 600px) {
+                    body { padding: 10px; }
+                    
+                    .email-container { 
+                        border-radius: 16px;
+                        margin: 0;
+                    }
+                    
+                    .header-section { 
+                        padding: 30px 20px; 
+                    }
+                    
+                    .header-section h1 { 
+                        font-size: 28px; 
+                    }
+                    
+                    .content-section { 
+                        padding: 30px 20px; 
+                    }
+                    
+                    .content-section h2 { 
+                        font-size: 24px; 
+                    }
+                    
+                    .reset-button { 
+                        padding: 16px 28px; 
+                        font-size: 15px; 
+                    }
+                    
+                    .footer-section { 
+                        padding: 20px; 
+                    }
+                    
+                    .warning-box {
+                        padding: 16px;
+                        margin: 20px 0;
+                    }
+                    
+                    .url-container {
+                        padding: 12px;
+                        font-size: 12px;
+                    }
+                }
             </style>
         </head>
         <body>
-            <div class='container'>
-                <div class='header'>
-                    <h1>Tech Home Bolivia</h1>
-                    <p>Instituto de Robótica y Tecnología Avanzada</p>
-                </div>
-                
-                <div class='content'>
-                    <h2>Recuperación de Contraseña</h2>
-                    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.</p>
-                    <p>Haz clic en el siguiente botón para crear una nueva contraseña:</p>
-                    
-                    <div style='text-align: center;'>
-                        <a href='$resetUrl' class='button' style='color: white !important; text-decoration: none !important;'>Restablecer Contraseña</a>
-                    </div>
-                    
-                    <div class='warning'>
-                        <strong>⚠️ Importante:</strong>
-                        <ul>
-                            <li>Este enlace expirará en <strong>$tokenExpirationMinutes minutos</strong></li>
-                            <li>Solo puede ser usado una vez</li>
-                            <li>Si no solicitaste este cambio, ignora este email</li>
-                        </ul>
-                    </div>
-                    
-                    <p>Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
-                    <p style='word-break: break-all; background: #e9ecef; padding: 10px; border-radius: 3px;'>$resetUrl</p>
-                </div>
-                
-                <div class='footer'>
-                    <p>Este es un email automático, por favor no responder.</p>
-                    <p>&copy; " . date('Y') . " Tech Home Bolivia. Todos los derechos reservados.</p>
-                </div>
-            </div>
+            <table role='presentation' cellspacing='0' cellpadding='0' border='0' width='100%'>
+                <tr>
+                    <td align='center' style='padding: 20px;'>
+                        <table role='presentation' cellspacing='0' cellpadding='0' border='0' class='email-container'>
+                            <!-- Header -->
+                            <tr>
+                                <td class='header-section'>
+                                    <h1>Tech Home Bolivia</h1>
+                                    <p>Instituto de Robótica y Tecnología Avanzada</p>
+                                </td>
+                            </tr>
+                            
+                            <!-- Contenido Principal -->
+                            <tr>
+                                <td class='content-section'>
+                                    <h2>Recuperación de Contraseña</h2>
+                                    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.</p>
+                                    <p>Haz clic en el siguiente botón para crear una nueva contraseña:</p>
+                                    
+                                    <div class='button-container'>
+                                        <a href='$resetUrl' class='reset-button'>Restablecer Contraseña</a>
+                                    </div>
+                                    
+                                    <div class='warning-box'>
+                                        <strong>⚠️ Importante:</strong>
+                                        <ul>
+                                            <li>Este enlace expirará en <strong>$tokenExpirationMinutes minutos</strong></li>
+                                            <li>Solo puede ser usado una vez</li>
+                                            <li>Si no solicitaste este cambio, ignora este email</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <p>Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+                                    <div class='url-container'>$resetUrl</div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Footer -->
+                            <tr>
+                                <td class='footer-section'>
+                                    <p>Este es un email automático, por favor no responder.</p>
+                                    <p>&copy; " . date('Y') . " Tech Home Bolivia. Todos los derechos reservados.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </body>
         </html>
         ";
