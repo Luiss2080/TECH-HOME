@@ -10,6 +10,7 @@ class DB
     private static $instance = null;
     private $connection;
     private $config;
+    private $lastStatement = null; // Para almacenar el último statement ejecutado
 
     private function __construct(array $config)
     {
@@ -75,6 +76,9 @@ class DB
 
             // Ejecutar la consulta
             $stmt->execute($params);
+            
+            // Guardar el último statement para rowCount()
+            $this->lastStatement = $stmt;
 
             return $stmt;
         } catch (PDOException $e) {
@@ -125,12 +129,16 @@ class DB
         // No hacer nada si no hay transacción activa
         return true;
     }
+    /**
+     * Método de conveniencia para obtener rowCount del último statement
+     * @deprecated Use $statement->rowCount() directamente
+     */
     public function rowCount(): int
     {
-        if (!$this->connection) {
-            throw new DatabaseException("No hay conexión a la base de datos.");
+        if (!$this->lastStatement) {
+            throw new DatabaseException("No hay statement ejecutado para obtener rowCount.");
         }
-        return $this->connection->rowCount();
+        return $this->lastStatement->rowCount();
     }
     public function lastInsertId(): string
     {
