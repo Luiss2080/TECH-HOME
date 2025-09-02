@@ -1398,14 +1398,160 @@ body.dark-theme .crud-data-table tbody tr:hover {
 
 body.ithr-dark-mode .crud-modal-dialog,
 body.dark-theme .crud-modal-dialog {
-    background: var(--background-card);
+    background: linear-gradient(145deg, #1e293b, #334155);
+    border: 1px solid #475569;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+body.ithr-dark-mode .crud-modal-content,
+body.dark-theme .crud-modal-content {
+    background: linear-gradient(145deg, #1e293b, #334155);
+    border: 1px solid #475569;
+    color: #f1f5f9;
 }
 
 body.ithr-dark-mode .crud-modal-header,
-body.dark-theme .crud-modal-header,
+body.dark-theme .crud-modal-header {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-bottom: 2px solid #dc2626;
+    color: #f1f5f9;
+}
+
 body.ithr-dark-mode .crud-modal-footer,
 body.dark-theme .crud-modal-footer {
-    border-color: rgba(71, 85, 105, 0.3);
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-top: 1px solid #475569;
+}
+
+body.ithr-dark-mode .crud-modal-title,
+body.dark-theme .crud-modal-title {
+    color: #f1f5f9;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body.ithr-dark-mode .crud-modal-body,
+body.dark-theme .crud-modal-body {
+    color: #e2e8f0;
+    background: linear-gradient(135deg, #1e293b, #2d3748);
+}
+
+body.ithr-dark-mode .crud-modal-close,
+body.dark-theme .crud-modal-close {
+    color: #94a3b8;
+    background: rgba(71, 85, 105, 0.3);
+    border: 1px solid #475569;
+    transition: all 0.3s ease;
+}
+
+body.ithr-dark-mode .crud-modal-close:hover,
+body.dark-theme .crud-modal-close:hover {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+    transform: scale(1.05);
+}
+
+/* Estilos específicos para iconos y texto del modal en modo oscuro */
+body.ithr-dark-mode .crud-status-icon i,
+body.dark-theme .crud-status-icon i {
+    color: #dc2626;
+    text-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+}
+
+body.ithr-dark-mode .crud-user-status-info,
+body.dark-theme .crud-user-status-info {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+body.ithr-dark-mode .crud-text-info,
+body.dark-theme .crud-text-info {
+    color: #ef4444 !important;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Overlay mejorado para modo oscuro */
+body.ithr-dark-mode .crud-custom-modal-overlay,
+body.dark-theme .crud-custom-modal-overlay {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+    backdrop-filter: blur(12px);
+}
+
+/* Botones del modal en modo oscuro */
+body.ithr-dark-mode .crud-btn,
+body.dark-theme .crud-btn {
+    transition: all 0.3s ease;
+}
+
+body.ithr-dark-mode .crud-btn-clear,
+body.dark-theme .crud-btn-clear {
+    background: linear-gradient(135deg, #475569, #64748b);
+    color: #f1f5f9;
+    border: 1px solid #64748b;
+}
+
+body.ithr-dark-mode .crud-btn-clear:hover,
+body.dark-theme .crud-btn-clear:hover {
+    background: linear-gradient(135deg, #64748b, #94a3b8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.ithr-dark-mode .crud-btn-outline-info,
+body.dark-theme .crud-btn-outline-info {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+    border: 1px solid #ef4444;
+}
+
+body.ithr-dark-mode .crud-btn-outline-info:hover,
+body.dark-theme .crud-btn-outline-info:hover {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+/* Estilos específicos para el modal de ELIMINAR usuario en modo oscuro */
+body.ithr-dark-mode .crud-warning-icon i,
+body.dark-theme .crud-warning-icon i {
+    color: #dc2626;
+    text-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+    font-size: 2.5rem;
+}
+
+body.ithr-dark-mode .crud-text-danger,
+body.dark-theme .crud-text-danger {
+    color: #ef4444 !important;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body.ithr-dark-mode .crud-user-to-delete-info,
+body.dark-theme .crud-user-to-delete-info {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+body.ithr-dark-mode .crud-btn-outline-danger,
+body.dark-theme .crud-btn-outline-danger {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white;
+    border: 1px solid #ef4444;
+    font-weight: 600;
+}
+
+body.ithr-dark-mode .crud-btn-outline-danger:hover,
+body.dark-theme .crud-btn-outline-danger:hover {
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
 }
 
 /* ============================================
