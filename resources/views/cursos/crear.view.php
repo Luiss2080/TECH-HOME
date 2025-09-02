@@ -547,6 +547,12 @@ body.dark-theme .portada-generator p {
                                                 <?= !empty($docente['email']) ? ' (' . $docente['email'] . ')' : '' ?>
                                             </option>
                                         <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <option value="">No hay docentes disponibles - Contacta al administrador</option>
+                                        <!-- Debug info for development -->
+                                        <?php if (defined('DEBUG_MODE') && DEBUG_MODE): ?>
+                                            <option value="">Debug: docentes variable = <?= var_export($docentes, true) ?></option>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </select>

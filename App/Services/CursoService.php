@@ -270,9 +270,10 @@ class CursoService
     public function getAllDocentes(): array
     {
         $db = DB::getInstance();
-        $query = "SELECT u.* FROM usuarios u 
+        $query = "SELECT u.id, u.nombre, u.apellido, u.email 
+                  FROM usuarios u 
                   INNER JOIN model_has_roles mhr ON u.id = mhr.model_id 
-                  WHERE mhr.role_id = 2 AND mhr.model_type = 'App\\Models\\User' 
+                  WHERE mhr.role_id = 2 
                   AND u.estado = 1
                   ORDER BY u.nombre, u.apellido";
         
