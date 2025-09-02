@@ -437,4 +437,73 @@ class User extends Model
         }
         return false;
     }
+
+    /**
+     * Bloquear usuario
+     */
+    public function bloquear($motivo, $bloqueadoPor)
+    {
+        $this->bloqueado = 1;
+        $this->motivo_bloqueo = $motivo;
+        $this->fecha_bloqueo = date('Y-m-d H:i:s');
+        $this->bloqueado_por = $bloqueadoPor;
+        
+        return $this->save();
+    }
+
+    /**
+     * Desbloquear usuario
+     */
+    public function desbloquear()
+    {
+        $this->bloqueado = 0;
+        $this->motivo_bloqueo = null;
+        $this->fecha_bloqueo = null;
+        $this->bloqueado_por = null;
+        
+        return $this->save();
+    }
+
+    /**
+     * Verificar si el usuario está bloqueado
+     */
+    public function estaBloqueado()
+    {
+        return $this->bloqueado == 1;
+    }
+
+    /**
+     * Obtener información del bloqueo
+     */
+    public function getInfoBloqueo()
+    {
+        if (!$this->estaBloqueado()) {
+            return null;
+        }
+
+        return [
+            'motivo' => $this->motivo_bloqueo,
+            'fecha_bloqueo' => $this->fecha_bloqueo,
+            'bloqueado_por' => $this->bloqueado_por
+        ];
+    }
+
+    /**
+     * Obtener usuarios bloqueados
+     */
+    public static function bloqueados()
+    {
+        return static::where('bloqueado', '=', 1);
+    }
+
+    /**
+     * Obtener administrador que bloqueó este usuario
+     */
+    public function administradorQueBloqueo()
+    {
+        if ($this->bloqueado_por) {
+            return static::find($this->bloqueado_por);
+        }
+        return null;
+    }
 }
