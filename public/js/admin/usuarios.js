@@ -11,8 +11,173 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Inicializar modales de usuarios
+ * Inicializar modales de usuari/**
+ * Utilidad para debug
  */
+function debugUserModal(action, data) {
+    if (typeof console !== 'undefined' && console.log) {
+        console.log(`🐛 Debug Modal - ${action}:`, data);
+    }
+}
+
+// ============================================
+// FUNCIONES CRUD PERSONALIZADAS
+// ============================================
+
+/**
+ * Cerrar modal CRUD personalizado
+ */
+function crudCloseModal(modalId) {
+    console.log(`🔐 Cerrando modal CRUD: ${modalId}`);
+    
+    const modal = document.getElementById(modalId);
+    const overlay = document.getElementById('customModalOverlay');
+    
+    if (modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+    }
+    
+    if (overlay) {
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+    }
+    
+    // Remover clase del body si existe
+    document.body.classList.remove('crud-modal-open');
+}
+
+/**
+ * Abrir modal CRUD personalizado
+ */
+function crudOpenModal(modalId) {
+    console.log(`🔓 Abriendo modal CRUD: ${modalId}`);
+    
+    const modal = document.getElementById(modalId);
+    const overlay = document.getElementById('customModalOverlay');
+    
+    if (modal) {
+        modal.style.display = 'block';
+        modal.classList.add('show');
+    }
+    
+    if (overlay) {
+        overlay.style.display = 'block';
+        overlay.classList.add('active');
+    }
+    
+    // Agregar clase al body
+    document.body.classList.add('crud-modal-open');
+}
+
+/**
+ * Abrir modal de eliminación CRUD
+ */
+function crudOpenDeleteModal(userId, userName, deleteUrl) {
+    console.log(`🗑️ Abriendo modal CRUD de eliminación para usuario: ${userName} (ID: ${userId})`);
+    
+    try {
+        // Actualizar contenido del modal
+        document.getElementById('userNameToDelete').textContent = userName;
+        
+        // Configurar formulario
+        const form = document.getElementById('deleteUserForm');
+        if (form) {
+            form.action = deleteUrl;
+            console.log(`📋 Formulario configurado para: ${form.action}`);
+        } else {
+            throw new Error('Formulario de eliminación no encontrado');
+        }
+        
+        // Mostrar modal
+        crudOpenModal('deleteUserModal');
+        
+    } catch (error) {
+        console.error('❌ Error al abrir modal de eliminación:', error);
+        showErrorMessage('Error al abrir el modal de eliminación');
+    }
+}
+
+/**
+ * Abrir modal de cambio de estado CRUD
+ */
+function crudOpenStatusModal(userId, userName, currentStatus, statusUrl) {
+    console.log(`🔄 Abriendo modal CRUD de estado para usuario: ${userName} (Estado actual: ${currentStatus})`);
+    
+    try {
+        const isActive = currentStatus == '1';
+        const action = isActive ? 'desactivar' : 'activar';
+        const newStatus = isActive ? '0' : '1';
+        
+        // Actualizar contenido del modal
+        document.getElementById('userNameToToggle').textContent = userName;
+        document.getElementById('statusModalTitle').textContent = 
+            `¿${action.charAt(0).toUpperCase() + action.slice(1)} este usuario?`;
+        document.getElementById('statusModalDescription').textContent = 
+            `El usuario será ${action}do en el sistema.`;
+        
+        // Configurar botón
+        const confirmButton = document.getElementById('confirmStatusToggle');
+        if (confirmButton) {
+            confirmButton.innerHTML = `
+                <i class="fas fa-${isActive ? 'ban' : 'check'}"></i>
+                ${action.charAt(0).toUpperCase() + action.slice(1)} Usuario
+            `;
+            confirmButton.className = `crud-btn crud-btn-outline-${isActive ? 'warning' : 'success'}`;
+        }
+        
+        // Configurar formulario
+        const form = document.getElementById('toggleStatusForm');
+        if (form) {
+            form.action = statusUrl;
+            
+            // Agregar campo hidden para el nuevo estado
+            let statusInput = form.querySelector('input[name="estado"]');
+            if (!statusInput) {
+                statusInput = document.createElement('input');
+                statusInput.type = 'hidden';
+                statusInput.name = 'estado';
+                form.appendChild(statusInput);
+            }
+            statusInput.value = newStatus;
+            
+            console.log(`📋 Formulario de estado configurado: ${form.action}, nuevo estado: ${newStatus}`);
+        } else {
+            throw new Error('Formulario de cambio de estado no encontrado');
+        }
+        
+        // Mostrar modal
+        crudOpenModal('toggleStatusModal');
+        
+    } catch (error) {
+        console.error('❌ Error al abrir modal de estado:', error);
+        showErrorMessage('Error al abrir el modal de cambio de estado');
+    }
+}
+
+// Event listeners para el sistema CRUD
+document.addEventListener('DOMContentLoaded', function() {
+    // Overlay click para cerrar
+    const overlay = document.getElementById('customModalOverlay');
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            const activeModal = document.querySelector('.crud-modal.show');
+            if (activeModal) {
+                crudCloseModal(activeModal.id);
+            }
+        });
+    }
+    
+    // ESC para cerrar modales
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const activeModal = document.querySelector('.crud-modal.show');
+            if (activeModal) {
+                crudCloseModal(activeModal.id);
+            }
+        }
+    });
+});
 function initializeUserModals() {
     console.log('🔧 Inicializando modales de usuarios...');
     

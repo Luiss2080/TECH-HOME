@@ -7,6 +7,9 @@
     <title>Verificación 2FA - Tech Home Bolivia</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- CSS del sistema admin -->
+    <link rel="stylesheet" href="<?= asset('css/admin/admin.css') ?>">
+    
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css">
     
@@ -16,162 +19,164 @@
     <meta http-equiv="Expires" content="0">
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Root variables override para asegurar los colores */
+        :root {
+            --primary-red: #dc2626;
+            --primary-red-light: #ef4444;
+            --primary-red-dark: #b91c1c;
+            --text-dark: #1f2937;
+            --text-light: #f9fafb;
+            --border-radius: 20px;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        
+        /* Estilos específicos solo para OTP usando variables del admin.css */
+        .otp-page-container {
+            background: linear-gradient(135deg, var(--primary-red) 0%, #991b1b 30%, #7f1d1d 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             position: relative;
             overflow-x: hidden;
-        }
-
-        /* Fondo animado */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            overflow: hidden;
+            overflow-y: auto;
+            padding: 20px 10px;
         }
 
         .floating-shapes {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            animation: float 6s ease-in-out infinite;
+            opacity: 0.15;
+            animation: float 8s ease-in-out infinite;
         }
 
-        .shape-1 { width: 80px; height: 80px; top: 20%; left: 10%; animation-delay: 0s; }
-        .shape-2 { width: 60px; height: 60px; top: 70%; left: 80%; animation-delay: 1s; }
-        .shape-3 { width: 40px; height: 40px; top: 40%; left: 70%; animation-delay: 2s; }
-        .shape-4 { width: 100px; height: 100px; top: 60%; left: 20%; animation-delay: 3s; }
+        .shape-1 {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 80px;
+            height: 80px;
+            background: rgba(239, 68, 68, 0.3);
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .shape-3 {
+            width: 100px;
+            height: 100px;
+            background: rgba(254, 202, 202, 0.4);
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .shape-4 {
+            width: 60px;
+            height: 60px;
+            background: rgba(185, 28, 28, 0.25);
+            top: 10%;
+            right: 30%;
+            animation-delay: 1s;
+        }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(120deg); }
-            66% { transform: translateY(-10px) rotate(240deg); }
-        }
-
-        .otp-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 25px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 480px;
-            padding: 50px 40px;
-            text-align: center;
-            position: relative;
-            z-index: 10;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideInUp 0.8s ease-out;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg) scale(1); 
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            33% { 
+                transform: translateY(-30px) rotate(120deg) scale(1.1); 
+            }
+            66% { 
+                transform: translateY(20px) rotate(240deg) scale(0.9); 
             }
         }
 
-        .header-icon {
-            font-size: 64px;
-            color: #dc2626;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-            filter: drop-shadow(0 4px 8px rgba(220, 38, 38, 0.3));
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .otp-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .otp-subtitle {
-            color: #6b7280;
-            margin-bottom: 30px;
-            font-size: 16px;
-            line-height: 1.5;
-        }
-
-        .email-display {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            padding: 15px 20px;
+        .otp-digit {
+            width: 60px;
+            height: 70px;
+            border: 2px solid rgba(107, 114, 128, 0.2);
             border-radius: 12px;
-            margin-bottom: 30px;
-            border: 2px dashed #9ca3af;
-            display: inline-block;
-            font-weight: 600;
-            color: #374151;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #1f2937;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: 'Courier New', monospace;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
         }
 
-        .timer-container {
-            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
-            border: 2px solid #f59e0b;
-            border-radius: 15px;
-            padding: 20px;
+        .otp-digit:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .otp-digit.filled {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+        }
+
+        .otp-digit.error {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .otp-input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
+            flex-wrap: wrap;
         }
 
-        .timer-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, transparent 49%, rgba(255, 255, 255, 0.1) 50%, transparent 51%);
-            animation: shimmer 2s infinite;
+        /* Clases de estructura y espaciado */
+        .form-section {
+            margin-bottom: 25px;
         }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        .button-section {
+            margin-bottom: 30px;
         }
 
-        .timer-label {
-            color: #92400e;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .links-section {
+            margin-bottom: 25px;
         }
 
-        .timer-display {
-            font-size: 48px;
-            font-weight: bold;
-            color: #dc2626;
-            font-family: 'Courier New', monospace;
-            text-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
-            position: relative;
-            z-index: 2;
+        .security-section {
+            margin-top: 30px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .timer-section {
+            margin-bottom: 30px;
         }
 
         .timer-expired {
@@ -182,207 +187,6 @@
         @keyframes blink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0.5; }
-        }
-
-        .otp-input-container {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .otp-digit {
-            width: 60px;
-            height: 70px;
-            border: 3px solid #e5e7eb;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: #1f2937;
-            background: white;
-            transition: all 0.3s ease;
-            font-family: 'Courier New', monospace;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .otp-digit:focus {
-            outline: none;
-            border-color: #dc2626;
-            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.2), 0 4px 15px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .otp-digit.filled {
-            border-color: #10b981;
-            background: #f0fdf4;
-            color: #065f46;
-        }
-
-        .otp-digit.error {
-            border-color: #ef4444;
-            background: #fef2f2;
-            animation: shake 0.5s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            padding: 16px 32px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.5);
-        }
-
-        .btn-primary:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
-        }
-
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.5);
-        }
-
-        .resend-container {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .resend-text {
-            color: #6b7280;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .resend-link {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .resend-link:hover {
-            background: #dbeafe;
-            color: #1d4ed8;
-            transform: translateY(-1px);
-        }
-
-        .resend-link.disabled {
-            color: #9ca3af;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            color: #6b7280;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .back-link:hover {
-            color: #374151;
-            transform: translateX(-3px);
-        }
-
-        .back-link i {
-            margin-right: 8px;
-        }
-
-        .security-info {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 25px;
-            text-align: left;
-        }
-
-        .security-info h4 {
-            color: #1d4ed8;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .security-info ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .security-info li {
-            color: #374151;
-            font-size: 14px;
-            margin-bottom: 8px;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .security-info li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #10b981;
-            font-weight: bold;
         }
 
         .loading {
@@ -408,35 +212,189 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Responsive para inputs OTP */
         @media (max-width: 640px) {
-            .otp-container {
-                margin: 20px;
-                padding: 30px 25px;
-                max-width: 100%;
+            .otp-page-container {
+                padding: 10px 5px;
+                align-items: flex-start;
+                padding-top: 20px;
             }
-
+            
+            .otp-main-card {
+                padding: 30px 20px;
+                max-height: none;
+                margin: 0;
+            }
+            
             .otp-digit {
                 width: 45px;
                 height: 55px;
                 font-size: 24px;
             }
-
+            
             .otp-input-container {
                 gap: 8px;
             }
-
-            .timer-display {
-                font-size: 36px;
+            
+            .timer-container-custom {
+                padding: 15px;
             }
-
-            .otp-title {
-                font-size: 24px;
+            
+            .timer-container-custom div[style*="font-size: 48px"] {
+                font-size: 36px !important;
             }
+            
+            .header-section h1 {
+                font-size: 24px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .otp-digit {
+                width: 40px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .otp-input-container {
+                gap: 6px;
+            }
+        }
+
+        /* SweetAlert2 personalizado */
+        .swal-popup {
+            border-radius: 20px !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .swal-confirm-btn {
+            background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 12px 24px !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            margin: 0 5px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .swal-confirm-btn:hover {
+            background: linear-gradient(135deg, #b91c1c, #dc2626) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3) !important;
+        }
+
+        /* Clases adicionales para elementos específicos */
+        .otp-main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            z-index: 10;
+            margin: auto;
+        }
+        
+        .code-display {
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 2px dashed #9ca3af;
+            display: inline-block;
+        }
+
+        .icon-container i {
+            color: var(--primary-red) !important;
+            filter: drop-shadow(0 4px 8px rgba(220, 38, 38, 0.3));
+            animation: pulse 2s infinite;
+        }
+
+        .timer-container-custom {
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .timer-container-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 49%, rgba(255, 255, 255, 0.1) 50%, transparent 51%);
+            animation: shimmer 2s infinite;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-red-light)) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 16px 32px !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            width: 100% !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4) !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .btn-primary-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary-custom:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, var(--primary-red-dark), var(--primary-red)) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 12px 30px rgba(220, 38, 38, 0.5) !important;
+        }
+
+        .btn-primary-custom:disabled {
+            background: #9ca3af !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
     </style>
 </head>
 
-<body>
+<body class="otp-page-container">
     <!-- Fondo animado -->
     <div class="bg-animation">
         <div class="floating-shapes shape-1"></div>
@@ -445,88 +403,120 @@
         <div class="floating-shapes shape-4"></div>
     </div>
 
-    <div class="otp-container">
-        <div class="header-icon">
-            <i class="fas fa-shield-alt"></i>
-        </div>
-        
-        <h1 class="otp-title">Verificación de Seguridad</h1>
-        <p class="otp-subtitle">
-            Hemos enviado un código de verificación de 6 dígitos a tu email registrado
-        </p>
-        
-        <div class="email-display">
-            <i class="fas fa-envelope"></i>
-            <?= htmlspecialchars($email ?? '') ?>
-        </div>
-
-        <!-- Timer -->
-        <div class="timer-container">
-            <div class="timer-label">⏱️ Tiempo restante</div>
-            <div class="timer-display" id="timer">01:00</div>
-        </div>
-
-        <!-- Formulario OTP -->
-        <form method="POST" action="<?= route('auth.verify.otp') ?>" id="otpForm">
-            <?= CSRF() ?>
-            <input type="hidden" name="email" value="<?= htmlspecialchars($email ?? '') ?>">
-            
-            <!-- Campos OTP -->
-            <div class="otp-input-container">
-                <?php for ($i = 1; $i <= 6; $i++): ?>
-                    <input type="text" 
-                           class="otp-digit" 
-                           maxlength="1" 
-                           inputmode="numeric" 
-                           pattern="[0-9]*"
-                           name="otp_digit_<?= $i ?>"
-                           id="digit-<?= $i ?>"
-                           autocomplete="off"
-                           required>
-                <?php endfor; ?>
+    <div class="otp-main-card">
+        <!-- Sección de encabezado -->
+        <div class="header-section">
+            <div class="icon-container" style="margin-bottom: 20px;">
+                <i class="fas fa-shield-alt" style="font-size: 64px;"></i>
             </div>
-            <input type="hidden" name="otp_code" id="otp_code">
+            
+            <h1 style="color: var(--text-dark); font-size: 28px; font-weight: 700; margin-bottom: 15px;">Verificación de Seguridad</h1>
+            <p style="color: #6b7280; margin-bottom: 25px; line-height: 1.6; font-size: 16px;">
+                Hemos enviado un código de verificación de 6 dígitos a tu email registrado
+            </p>
+            
+            <div class="code-display">
+                <i class="fas fa-envelope" style="color: var(--primary-red); margin-right: 8px;"></i>
+                <span style="font-family: 'Courier New', monospace; font-weight: 600; color: #374151;"><?= htmlspecialchars($email ?? '') ?></span>
+            </div>
+        </div>
 
-            <div class="btn-group">
-                <button type="submit" class="btn btn-primary" id="verifyBtn">
-                    <i class="fas fa-check"></i>
-                    Verificar Código
-                </button>
+        <!-- Sección del timer -->
+        <div class="timer-section">
+            <div class="timer-container-custom">
+                <div style="color: #92400e; font-weight: bold; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; position: relative; z-index: 2;">
+                    ⏱️ Tiempo restante
+                </div>
+                <div style="font-size: 48px; font-weight: bold; color: var(--primary-red); font-family: 'Courier New', monospace; position: relative; z-index: 2;" id="timer">01:00</div>
+            </div>
+        </div>
+
+        <!-- Sección del formulario -->
+        <div class="form-section">
+            <form method="POST" action="<?= route('auth.verify.otp') ?>" id="otpForm">
+                <?= CSRF() ?>
+                <input type="hidden" name="email" value="<?= htmlspecialchars($email ?? '') ?>">
                 
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <span>Verificando...</span>
+                <!-- Campos OTP -->
+                <div class="otp-input-container">
+                    <?php for ($i = 1; $i <= 6; $i++): ?>
+                        <input type="text" 
+                               class="otp-digit" 
+                               maxlength="1" 
+                               inputmode="numeric" 
+                               pattern="[0-9]*"
+                               name="otp_digit_<?= $i ?>"
+                               id="digit-<?= $i ?>"
+                               autocomplete="off"
+                               required>
+                    <?php endfor; ?>
+                </div>
+                <input type="hidden" name="otp_code" id="otp_code">
+            </form>
+        </div>
+
+        <!-- Sección del botón -->
+        <div class="button-section">
+            <button type="submit" class="btn-primary-custom" id="verifyBtn" form="otpForm">
+                <i class="fas fa-check" style="margin-right: 8px;"></i>
+                Verificar Código
+            </button>
+            
+            <div class="loading" id="loading" style="margin-top: 15px;">
+                <div class="spinner"></div>
+                <span>Verificando...</span>
+            </div>
+        </div>
+
+        <!-- Sección de enlaces -->
+        <div class="links-section">
+            <!-- Reenviar código -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">¿No recibiste el código?</p>
+                <a href="#" style="color: var(--primary-red); text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 8px; transition: all 0.3s ease; display: inline-block;" id="resendLink" onclick="resendCode()">
+                    <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>
+                    Reenviar código
+                </a>
+                <div id="resendTimer" style="color: #6b7280; font-size: 14px; margin-top: 8px; display: none;">
+                    Podrás solicitar un nuevo código en: <span id="resendCountdown" style="font-family: 'Courier New', monospace; font-weight: bold;">30</span>s
                 </div>
             </div>
-        </form>
 
-        <!-- Reenviar código -->
-        <div class="resend-container">
-            <p class="resend-text">¿No recibiste el código?</p>
-            <a href="#" class="resend-link" id="resendLink" onclick="resendCode()">
-                <i class="fas fa-paper-plane"></i>
-                Reenviar código
-            </a>
-            <div id="resendTimer" class="resend-text" style="display: none;">
-                Podrás solicitar un nuevo código en: <span id="resendCountdown">30</span>s
+            <!-- Enlace de regreso -->
+            <div style="text-align: center;">
+                <a href="<?= route('login') ?>" style="display: inline-flex; align-items: center; color: #6b7280; text-decoration: none; font-size: 14px; transition: all 0.3s ease;">
+                    <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>
+                    Volver al inicio de sesión
+                </a>
             </div>
         </div>
 
-        <!-- Enlace de regreso -->
-        <a href="<?= route('login') ?>" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            Volver al inicio de sesión
-        </a>
-
-        <!-- Información de seguridad -->
-        <div class="security-info">
-            <h4><i class="fas fa-info-circle"></i> Información de seguridad</h4>
-            <ul>
-                <li>Este código expira en 60 segundos</li>
-                <li>Solo puede ser utilizado una vez</li>
-                <li>Después de 3 intentos fallidos tu cuenta será bloqueada temporalmente</li>
-                <li>Si no solicitaste este acceso, cambia tu contraseña inmediatamente</li>
-            </ul>
+        <!-- Sección de información de seguridad -->
+        <div class="security-section">
+            <div style="background: rgba(220, 38, 38, 0.05); border: 1px solid rgba(220, 38, 38, 0.2); border-radius: 12px; padding: 20px; text-align: left;">
+                <h4 style="color: var(--primary-red); font-weight: 600; margin-bottom: 15px; display: flex; align-items: center;">
+                    <i class="fas fa-info-circle" style="margin-right: 8px;"></i> 
+                    Información de seguridad
+                </h4>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="color: #374151; font-size: 14px; margin-bottom: 8px; display: flex; align-items: flex-start;">
+                        <span style="color: #10b981; font-weight: bold; margin-right: 12px; margin-top: 2px;">✓</span>
+                        Este código expira en 60 segundos
+                    </li>
+                    <li style="color: #374151; font-size: 14px; margin-bottom: 8px; display: flex; align-items: flex-start;">
+                        <span style="color: #10b981; font-weight: bold; margin-right: 12px; margin-top: 2px;">✓</span>
+                        Solo puede ser utilizado una vez
+                    </li>
+                    <li style="color: #374151; font-size: 14px; margin-bottom: 8px; display: flex; align-items: flex-start;">
+                        <span style="color: #10b981; font-weight: bold; margin-right: 12px; margin-top: 2px;">✓</span>
+                        Después de 3 intentos fallidos tu cuenta será bloqueada temporalmente
+                    </li>
+                    <li style="color: #374151; font-size: 14px; margin-bottom: 0; display: flex; align-items: flex-start;">
+                        <span style="color: #10b981; font-weight: bold; margin-right: 12px; margin-top: 2px;">✓</span>
+                        Si no solicitaste este acceso, cambia tu contraseña inmediatamente
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -878,32 +868,6 @@
         console.log('🔐 OTP Verification page loaded');
         console.log('⏱️ Timer duration:', TIMER_DURATION, 'seconds');
     </script>
-
-    <!-- Estilos personalizados para SweetAlert2 -->
-    <style>
-        .swal-popup {
-            border-radius: 15px !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
-        }
-        
-        .swal-confirm-btn {
-            background: linear-gradient(45deg, #dc2626, #b91c1c) !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 8px !important;
-            padding: 12px 24px !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-            margin: 0 5px !important;
-            transition: all 0.3s ease !important;
-        }
-        
-        .swal-confirm-btn:hover {
-            background: linear-gradient(45deg, #b91c1c, #991b1b) !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4) !important;
-        }
-    </style>
 </body>
 
 </html>

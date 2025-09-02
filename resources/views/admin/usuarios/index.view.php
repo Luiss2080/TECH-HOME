@@ -405,8 +405,7 @@ $roles = $roles ?? [];
 <!-- Overlay personalizado -->
 <div class="crud-custom-modal-overlay" id="crudCustomModalOverlay"></div>
 
-<!-- JavaScript específico para usuarios CRUD -->
-<script src="<?= asset('js/admin/usuarios.js'); ?>"></script>
+<!-- JavaScript específico para usuarios CRUD directamente aquí (sin archivo externo) -->
 
 <script>
 // Funcionalidad de filtros modernizada
