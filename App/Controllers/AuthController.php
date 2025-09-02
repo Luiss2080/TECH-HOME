@@ -393,6 +393,7 @@ class AuthController extends Controller
 
             // Crear sesión de usuario
             Session::set('user', $user);
+            Session::set('user_id', $user->id);
 
             // Log del login exitoso
             $this->log2FAEvent($userId, $email, '2FA_SUCCESS', [
@@ -414,18 +415,29 @@ class AuthController extends Controller
                         $redirectRoute = route('admin.dashboard');
                         break;
                     case 'estudiante':
-                        $redirectRoute = route('estudiantes');
+                        $redirectRoute = route('estudiante.dashboard');
                         break;
                     case 'docente':
                         $redirectRoute = route('docente.dashboard');
                         break;
+                    case 'invitado':
+                        $redirectRoute = route('home');
+                        break;
                 }
             }
 
-            // Si hay URL de retorno guardada, usarla
+            // Si hay URL de retorno guardada, usarla solo si no es una ruta genérica
             if (Session::has('back')) {
-                $redirectRoute = Session::get('back');
+                $backUrl = Session::get('back');
                 Session::remove('back');
+                
+                // Solo usar la URL de retorno si no es home, login, register, o rutas genéricas
+                $genericRoutes = ['/', '/login', '/register', '/auth/otp-verify', '', '/TECH-HOME', '/TECH-HOME/', '/TECH-HOME/login', '/TECH-HOME/register'];
+                $parsedUrl = parse_url($backUrl, PHP_URL_PATH);
+                
+                if (!in_array($parsedUrl, $genericRoutes) && $parsedUrl !== null) {
+                    $redirectRoute = $backUrl;
+                }
             }
 
             // Si es AJAX, responder con JSON
@@ -589,6 +601,8 @@ class AuthController extends Controller
     }
     public function logout()
     {
+        // Limpiar cualquier URL de retorno antes del destroy
+        Session::remove('back');
         Session::destroy();
         return redirect(route('login'));
     }
