@@ -211,9 +211,17 @@
                                         </button>
                                     <?php endif; ?>
                                 <?php elseif ($estaInscrito): ?>
-                                    <div class="alert alert-success text-center">
+                                    <div class="alert alert-success text-center mb-3">
                                         <i class="fas fa-check-circle"></i><br>
                                         Ya estás inscrito en este curso
+                                    </div>
+                                    
+                                    <!-- Botón para ir a la vista de cursando -->
+                                    <div class="d-grid gap-2 mb-3">
+                                        <a href="<?= route('cursos.cursando', ['id' => $curso['id']]) ?>" 
+                                           class="btn btn-primary btn-lg">
+                                            <i class="fas fa-play me-2"></i>Continuar Cursando
+                                        </a>
                                     </div>
                                     
                                     <!-- Botones para actualizar progreso -->

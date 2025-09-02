@@ -350,6 +350,114 @@ class CursoService
     }
 
     /**
+     * Obtener otros cursos en los que está inscrito el estudiante (excluyendo el actual)
+     */
+    public function getCursosInscrito(int $estudianteId, int $cursoActualId): array
+    {
+        try {
+            $db = DB::getInstance();
+            $query = "SELECT c.id, c.titulo, c.imagen, c.nivel, 
+                     cat.nombre as categoria_nombre, 
+                     p.progreso_porcentaje, p.completado,
+                     u.nombre as docente_nombre, u.apellido as docente_apellido
+                     FROM inscripciones i
+                     INNER JOIN cursos c ON i.curso_id = c.id
+                     LEFT JOIN progreso_estudiantes p ON i.estudiante_id = p.estudiante_id AND i.curso_id = p.curso_id
+                     LEFT JOIN categorias cat ON c.categoria_id = cat.id
+                     LEFT JOIN usuarios u ON c.docente_id = u.id
+                     WHERE i.estudiante_id = ? AND c.id != ?
+                     ORDER BY i.fecha_inscripcion DESC
+                     LIMIT 6";
+            
+            $result = $db->query($query, [$estudianteId, $cursoActualId]);
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Obtener estadísticas específicas del estudiante en un curso
+     */
+    public function getEstadisticasEstudiante(int $estudianteId, int $cursoId): array
+    {
+        try {
+            $db = DB::getInstance();
+            
+            // Obtener información básica del progreso
+            $queryProgreso = "SELECT progreso_porcentaje, tiempo_estudiado, completado, 
+                             fecha_inscripcion, ultima_actividad 
+                             FROM progreso_estudiantes 
+                             WHERE estudiante_id = ? AND curso_id = ?";
+            $resultProgreso = $db->query($queryProgreso, [$estudianteId, $cursoId]);
+            $progreso = $resultProgreso->fetch(PDO::FETCH_ASSOC);
+
+            // Obtener notas si existen
+            $queryNotas = "SELECT nota, fecha_calificacion 
+                          FROM notas 
+                          WHERE estudiante_id = ? AND curso_id = ?
+                          ORDER BY fecha_calificacion DESC";
+            $resultNotas = $db->query($queryNotas, [$estudianteId, $cursoId]);
+            $notas = $resultNotas->fetchAll(PDO::FETCH_ASSOC);
+
+            // Calcular días desde inscripción
+            $queryInscripcion = "SELECT fecha_inscripcion FROM inscripciones 
+                                WHERE estudiante_id = ? AND curso_id = ?";
+            $resultInscripcion = $db->query($queryInscripcion, [$estudianteId, $cursoId]);
+            $inscripcion = $resultInscripcion->fetch(PDO::FETCH_ASSOC);
+
+            $diasInscritos = 0;
+            if ($inscripcion) {
+                $fechaInscripcion = new \DateTime($inscripcion['fecha_inscripcion']);
+                $fechaActual = new \DateTime();
+                $diasInscritos = $fechaActual->diff($fechaInscripcion)->days;
+            }
+
+            return [
+                'progreso_porcentaje' => $progreso['progreso_porcentaje'] ?? 0,
+                'tiempo_estudiado' => $progreso['tiempo_estudiado'] ?? 0,
+                'completado' => $progreso['completado'] ?? 0,
+                'fecha_inicio' => $progreso['fecha_inscripcion'] ?? null,
+                'fecha_ultimo_acceso' => $progreso['ultima_actividad'] ?? null,
+                'notas' => $notas,
+                'promedio_notas' => !empty($notas) ? array_sum(array_column($notas, 'nota')) / count($notas) : null,
+                'dias_inscritos' => $diasInscritos,
+                'tiempo_formateado' => $this->formatearTiempo($progreso['tiempo_estudiado'] ?? 0)
+            ];
+        } catch (Exception $e) {
+            return [
+                'progreso_porcentaje' => 0,
+                'tiempo_estudiado' => 0,
+                'completado' => 0,
+                'fecha_inicio' => null,
+                'fecha_ultimo_acceso' => null,
+                'notas' => [],
+                'promedio_notas' => null,
+                'dias_inscritos' => 0,
+                'tiempo_formateado' => '0 min'
+            ];
+        }
+    }
+
+    /**
+     * Formatear tiempo en minutos a formato legible
+     */
+    private function formatearTiempo(int $minutos): string
+    {
+        if ($minutos < 60) {
+            return $minutos . ' min';
+        } elseif ($minutos < 1440) { // Menos de 24 horas
+            $horas = floor($minutos / 60);
+            $mins = $minutos % 60;
+            return $horas . 'h ' . $mins . 'min';
+        } else {
+            $dias = floor($minutos / 1440);
+            $horas = floor(($minutos % 1440) / 60);
+            return $dias . 'd ' . $horas . 'h';
+        }
+    }
+
+    /**
      * Inscribir estudiante a un curso
      */
     public function inscribirEstudiante(int $estudianteId, int $cursoId): bool
@@ -406,7 +514,7 @@ class CursoService
                      progreso_porcentaje = ?, 
                      tiempo_estudiado = ?, 
                      completado = ?,
-                     fecha_actualizacion = NOW()
+                     ultima_actividad = NOW()
                      WHERE estudiante_id = ? AND curso_id = ?";
             
             $db->query($query, [$porcentaje, $tiempoEstudiado, $completado, $estudianteId, $cursoId]);
@@ -460,6 +568,23 @@ class CursoService
             return $result->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             return [];
+        }
+    }
+
+    /**
+     * Actualizar último acceso del estudiante al curso
+     */
+    public function actualizarUltimoAcceso(int $estudianteId, int $cursoId): bool
+    {
+        try {
+            $db = DB::getInstance();
+            $query = "UPDATE progreso_estudiantes 
+                     SET ultima_actividad = NOW() 
+                     WHERE estudiante_id = ? AND curso_id = ?";
+            $db->query($query, [$estudianteId, $cursoId]);
+            return true;
+        } catch (Exception $e) {
+            return false;
         }
     }
 }

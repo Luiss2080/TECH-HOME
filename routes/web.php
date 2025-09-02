@@ -199,6 +199,10 @@ Router::get('/cursos/{id}', [CursoController::class, 'verCurso'])
     ->name('cursos.ver')
     ->middleware('role:administrador,docente,estudiante|has:cursos.ver');
 
+Router::get('/cursos/cursando/{id}', [CursoController::class, 'cursando'])
+    ->name('cursos.cursando')
+    ->middleware('role:estudiante|has:cursos.ver');
+
 Router::get('/cursos/{id}/editar', [CursoController::class, 'editarCurso'])
     ->name('cursos.editar')
     ->middleware('role:administrador,docente|has:cursos.editar');
