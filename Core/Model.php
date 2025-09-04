@@ -230,7 +230,7 @@ class Model
             $value = $operator;
             $operator = '=';
         } else if (!isset($value) && static::isOperator($operator)) {
-            throw new \Core\QueryException('Operador no válido', $operator);
+            throw new \Core\Exceptions\QueryException('Operador no válido', $operator);
         }
         return static::query()->where($column, $operator, $value);
     }

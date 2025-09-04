@@ -4,6 +4,7 @@ namespace Core;
 
 use PDO;
 use PDOException;
+use Core\Exceptions\QueryException;
 
 class QueryBuilder
 {
@@ -172,15 +173,5 @@ class QueryBuilder
     public function getBindings()
     {
         return $this->bindings;
-    }
-}
-class QueryException extends \RuntimeException
-{
-    public $sql;
-
-    public function __construct($message, $sql)
-    {
-        $this->sql = $sql;
-        parent::__construct($message);
     }
 }

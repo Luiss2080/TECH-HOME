@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\ActivationToken;
 use App\Models\CodigoOTP;
+use App\Services\TwoFactorDebugger;
 use Core\DB;
 use Core\Request;
 use Core\Session;
@@ -207,6 +208,9 @@ class AuthController extends Controller
     private function initiate2FA(User $user, string $email)
     {
         try {
+            // Limpiar cualquier sesión 2FA anterior para empezar limpio
+            $this->clear2FASession();
+            
             // Verificar si el usuario puede generar un nuevo código
             $canGenerate = CodigoOTP::canGenerateNewCode($user->id);
             if (!$canGenerate['can_generate']) {
@@ -220,6 +224,7 @@ class AuthController extends Controller
                     Session::set('2fa_user_id', $user->id);
                     Session::set('2fa_email', $email);
                     Session::set('2fa_start_time', time());
+                    Session::set('2fa_attempts', 0);
                     return redirect(route('auth.otp.verify'));
                 }
             }
@@ -247,11 +252,12 @@ class AuthController extends Controller
                 return redirect(route('login'));
             }
 
-            // Guardar datos de sesión 2FA
+            // Guardar datos de sesión 2FA de forma robusta
             Session::set('2fa_user_id', $user->id);
             Session::set('2fa_email', $email);
             Session::set('2fa_start_time', time());
             Session::set('2fa_attempts', 0);
+            Session::set('2fa_code_sent', true); // Flag adicional para verificar integridad
 
             // Log del proceso 2FA iniciado
             $this->log2FAEvent($user->id, $email, '2FA_INITIATED', [
@@ -273,23 +279,37 @@ class AuthController extends Controller
      */
     public function showOTPVerification()
     {
+        // Debug logging para troubleshooting
+        TwoFactorDebugger::logDebugInfo('show_otp_verification');
+
         // Verificar que hay una sesión 2FA activa
         if (!Session::has('2fa_user_id') || !Session::has('2fa_email')) {
+            error_log('2FA: Sesión expirada o inválida en showOTPVerification');
             Session::flash('error', 'Sesión de verificación expirada. Inicia sesión nuevamente.');
             return redirect(route('login'));
         }
 
-        // Verificar timeout de sesión 2FA (5 minutos máximo)
+        // Verificar timeout de sesión 2FA (10 minutos máximo para dar más tiempo)
         $startTime = Session::get('2fa_start_time', 0);
-        if (time() - $startTime > 300) { // 5 minutos
-            Session::remove('2fa_user_id');
-            Session::remove('2fa_email');
-            Session::remove('2fa_start_time');
+        if (time() - $startTime > 600) { // 10 minutos en lugar de 5
+            error_log('2FA: Timeout de sesión 2FA - Edad: ' . (time() - $startTime) . ' segundos');
+            $this->clear2FASession();
             Session::flash('error', 'Sesión de verificación expirada. Inicia sesión nuevamente.');
             return redirect(route('login'));
         }
 
         $email = Session::get('2fa_email');
+
+        // Regenerar datos de sesión para evitar pérdida
+        Session::set('2fa_user_id', Session::get('2fa_user_id'));
+        Session::set('2fa_email', Session::get('2fa_email'));
+        Session::set('2fa_start_time', Session::get('2fa_start_time'));
+
+        // Verificar consistencia del sistema
+        $consistency = TwoFactorDebugger::isSystemConsistent();
+        if (!$consistency['consistent']) {
+            error_log('2FA: Sistema inconsistente: ' . json_encode($consistency['issues']));
+        }
 
         return view('auth.otp-verification', [
             'title' => 'Verificación 2FA',
@@ -304,8 +324,8 @@ class AuthController extends Controller
      */
     public function verifyOTP(Request $request)
     {
-        // Verificar sesión 2FA
-        if (!Session::has('2fa_user_id') || !Session::has('2fa_email')) {
+        // Verificar sesión 2FA con validación más robusta
+        if (!Session::has('2fa_user_id') || !Session::has('2fa_email') || !Session::has('2fa_code_sent')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sesión de verificación expirada.',
@@ -315,6 +335,17 @@ class AuthController extends Controller
 
         $userId = Session::get('2fa_user_id');
         $email = Session::get('2fa_email');
+
+        // Verificar timeout extendido para sesión 2FA
+        $startTime = Session::get('2fa_start_time', 0);
+        if (time() - $startTime > 600) { // 10 minutos
+            $this->clear2FASession();
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesión de verificación expirada.',
+                'redirect' => route('login')
+            ], 401);
+        }
 
         // Validar código OTP
         $validator = new Validation();
@@ -357,12 +388,26 @@ class AuthController extends Controller
 
         // Verificar si se excedieron los intentos
         if ($attempts >= 3) {
-            // Limpiar sesión 2FA
+            // Limpiar sesión 2FA solo al exceder los intentos
             $this->clear2FASession();
+
+            if ($this->isAjaxRequest()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Se excedieron los intentos de verificación. Tu cuenta ha sido bloqueada temporalmente.',
+                    'redirect' => route('login'),
+                    'max_attempts_reached' => true
+                ], 429); // 429 Too Many Requests
+            }
 
             Session::flash('error', 'Se excedieron los intentos de verificación. Tu cuenta ha sido bloqueada temporalmente.');
             return redirect(route('login'));
         }
+
+        // Mantener sesión 2FA activa y solo actualizar intentos
+        Session::set('2fa_user_id', $userId);
+        Session::set('2fa_email', $email);
+        Session::set('2fa_code_sent', true);
 
         // Si es una solicitud AJAX, responder con JSON
         if ($this->isAjaxRequest()) {
@@ -519,8 +564,11 @@ class AuthController extends Controller
                 'new_expiration' => $otpResult['expira_en']
             ]);
 
-            // Reset attempts counter
+            // Reset attempts counter pero mantener sesión
             Session::set('2fa_attempts', 0);
+            Session::set('2fa_user_id', $userId);
+            Session::set('2fa_email', $email);
+            Session::set('2fa_code_sent', true);
 
             return response()->json([
                 'success' => true,
@@ -544,6 +592,7 @@ class AuthController extends Controller
         Session::remove('2fa_email');
         Session::remove('2fa_start_time');
         Session::remove('2fa_attempts');
+        Session::remove('2fa_code_sent');
     }
 
     /**

@@ -32,7 +32,25 @@ class CodigoOTP extends Model
         try {
             DB::beginTransaction();
 
-            // Invalidar códigos anteriores del usuario
+            // Verificar si ya hay un código activo válido
+            $activeCode = self::where('usuario_id', '=', $usuarioId)
+                            ->where('utilizado', '=', 0)
+                            ->whereRaw('expira_en >= NOW()')
+                            ->first();
+
+            if ($activeCode) {
+                // Si hay código activo, devolverlo en lugar de crear uno nuevo
+                DB::commit();
+                return [
+                    'success' => true,
+                    'codigo' => $activeCode->codigo,
+                    'expira_en' => $activeCode->expira_en,
+                    'expira_en_timestamp' => strtotime($activeCode->expira_en),
+                    'reutilizado' => true
+                ];
+            }
+
+            // Si no hay código activo, invalidar códigos anteriores
             self::invalidatePreviousCodes($usuarioId);
 
             // Generar código de 6 dígitos
@@ -285,8 +303,23 @@ class CodigoOTP extends Model
             return $canGenerate;
         }
 
-        // Permitir reenvío incluso si hay código activo
-        return self::generateOTP($usuarioId);
+        // Para reenvío, siempre generar nuevo código invalidando el anterior
+        try {
+            DB::beginTransaction();
+
+            // Invalidar todos los códigos anteriores
+            self::invalidatePreviousCodes($usuarioId);
+
+            // Generar nuevo código
+            $result = self::generateOTP($usuarioId);
+            
+            DB::commit();
+            return $result;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            error_log('Error en resendOTP: ' . $e->getMessage());
+            return ['success' => false, 'reason' => 'Error interno generando nuevo código'];
+        }
     }
 
     /**

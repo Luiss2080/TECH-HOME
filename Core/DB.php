@@ -4,6 +4,8 @@ namespace Core;
 
 use PDO;
 use PDOException;
+use Core\Exceptions\QueryException;
+use Core\Exceptions\DatabaseException;
 
 class DB
 {
@@ -149,12 +151,4 @@ class DB
 
         return $this->connection->lastInsertId();
     }
-}
-
-
-
-
-// Excepciones personalizadas
-class DatabaseException extends \RuntimeException
-{
 }
