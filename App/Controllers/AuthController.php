@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\ActivationToken;
 use App\Models\CodigoOTP;
-use App\Services\TwoFactorDebugger;
 use Core\DB;
 use Core\Request;
 use Core\Session;
@@ -152,7 +151,7 @@ class AuthController extends Controller
 
     public function loginForm(Request $request)
     {
-        // Validar datos del primer paso
+        // Validar datos de login
         $validator = new Validation();
         $rules = [
             'email' => 'required|email|max:150',
@@ -168,7 +167,7 @@ class AuthController extends Controller
         $email = $request->input('email');
         $password = $request->input('password');
 
-        // PASO 1: Verificar credenciales (email + password)
+        // Verificar credenciales (email + password)
         $user = $this->attempt($email, $password);
         if (!$user) {
             // Verificar si el usuario existe para mostrar mensaje específico de bloqueo
@@ -198,8 +197,8 @@ class AuthController extends Controller
             return redirect(route('login'));
         }
 
-        // PASO 2: Credenciales correctas - Iniciar proceso 2FA
-        return $this->initiate2FA($user, $email);
+        // Credenciales correctas - Completar login directamente (sin 2FA)
+        return $this->completeDirectLogin($user);
     }
 
     /**
@@ -279,9 +278,6 @@ class AuthController extends Controller
      */
     public function showOTPVerification()
     {
-        // Debug logging para troubleshooting
-        TwoFactorDebugger::logDebugInfo('show_otp_verification');
-
         // Verificar que hay una sesión 2FA activa
         if (!Session::has('2fa_user_id') || !Session::has('2fa_email')) {
             error_log('2FA: Sesión expirada o inválida en showOTPVerification');
@@ -304,12 +300,6 @@ class AuthController extends Controller
         Session::set('2fa_user_id', Session::get('2fa_user_id'));
         Session::set('2fa_email', Session::get('2fa_email'));
         Session::set('2fa_start_time', Session::get('2fa_start_time'));
-
-        // Verificar consistencia del sistema
-        $consistency = TwoFactorDebugger::isSystemConsistent();
-        if (!$consistency['consistent']) {
-            error_log('2FA: Sistema inconsistente: ' . json_encode($consistency['issues']));
-        }
 
         return view('auth.otp-verification', [
             'title' => 'Verificación 2FA',
@@ -510,6 +500,64 @@ class AuthController extends Controller
                 ], 500);
             }
 
+            Session::flash('error', 'Error completando el inicio de sesión. Intenta de nuevo.');
+            return redirect(route('login'));
+        }
+    }
+
+    /**
+     * Completar login directo (sin 2FA)
+     */
+    private function completeDirectLogin(User $user)
+    {
+        try {
+            // Crear sesión de usuario
+            Session::set('user', $user);
+            Session::set('user_id', $user->id);
+
+            // Log del login exitoso
+            error_log('Login directo exitoso para usuario: ' . $user->id . ' (' . $user->email . ')');
+
+            // Determinar redirección según rol
+            $roles = $user->roles();
+            $redirectRoute = route('home'); // fallback
+
+            if (!empty($roles)) {
+                $firstRole = strtolower($roles[0]['nombre']);
+                switch ($firstRole) {
+                    case 'administrador':
+                        $redirectRoute = route('admin.dashboard');
+                        break;
+                    case 'estudiante':
+                        $redirectRoute = route('estudiante.dashboard');
+                        break;
+                    case 'docente':
+                        $redirectRoute = route('docente.dashboard');
+                        break;
+                    case 'invitado':
+                        $redirectRoute = route('home');
+                        break;
+                }
+            }
+
+            // Si hay URL de retorno guardada, usarla solo si no es una ruta genérica
+            if (Session::has('back')) {
+                $backUrl = Session::get('back');
+                Session::remove('back');
+                
+                // Solo usar la URL de retorno si no es home, login, register, o rutas genéricas
+                $genericRoutes = ['/', '/login', '/register', '/auth/otp-verify', '', '/TECH-HOME', '/TECH-HOME/', '/TECH-HOME/login', '/TECH-HOME/register'];
+                $parsedUrl = parse_url($backUrl, PHP_URL_PATH);
+                
+                if (!in_array($parsedUrl, $genericRoutes) && $parsedUrl !== null) {
+                    $redirectRoute = $backUrl;
+                }
+            }
+
+            Session::flash('success', '¡Bienvenido! Has iniciado sesión correctamente.');
+            return redirect($redirectRoute);
+        } catch (\Exception $e) {
+            error_log('Error completando login directo: ' . $e->getMessage());
             Session::flash('error', 'Error completando el inicio de sesión. Intenta de nuevo.');
             return redirect(route('login'));
         }

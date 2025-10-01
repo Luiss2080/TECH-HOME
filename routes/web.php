@@ -35,21 +35,22 @@ Router::post('/reset-password', [AuthController::class, 'updatePassword'])->name
 // Ruta para activación de cuenta
 Router::get('/account/activation', [AuthController::class, 'activateAccount'])->name('account.activation');
 
-// ==================== RUTAS PARA 2FA (AUTENTICACIÓN DE DOS FACTORES) ====================
+// ==================== RUTAS PARA 2FA (DESHABILITADAS) ====================
+// NOTA: 2FA ha sido deshabilitado, solo se requieren credenciales para login
 
-// Vista de verificación OTP
-Router::get('/auth/otp-verify', [AuthController::class, 'showOTPVerification'])
-    ->name('auth.otp.verify');
+// Vista de verificación OTP (DESHABILITADA)
+// Router::get('/auth/otp-verify', [AuthController::class, 'showOTPVerification'])
+//     ->name('auth.otp.verify');
 
-// Verificar código OTP
-Router::post('/auth/otp-verify', [AuthController::class, 'verifyOTP'])
-    ->name('auth.verify.otp')
-    ->middleware('rateLimit:otp,3,5'); // Máximo 3 intentos cada 5 minutos
+// Verificar código OTP (DESHABILITADA)
+// Router::post('/auth/otp-verify', [AuthController::class, 'verifyOTP'])
+//     ->name('auth.verify.otp')
+//     ->middleware('rateLimit:otp,3,5'); // Máximo 3 intentos cada 5 minutos
 
-// Reenviar código OTP
-Router::post('/auth/otp-resend', [AuthController::class, 'resendOTP'])
-    ->name('auth.resend.otp')
-    ->middleware('rateLimit:otp,2,1'); // Máximo 2 reenvíos por minuto
+// Reenviar código OTP (DESHABILITADA)
+// Router::post('/auth/otp-resend', [AuthController::class, 'resendOTP'])
+//     ->name('auth.resend.otp')
+//     ->middleware('rateLimit:otp,2,1'); // Máximo 2 reenvíos por minuto
 
 Router::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')

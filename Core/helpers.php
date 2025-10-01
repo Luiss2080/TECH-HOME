@@ -191,13 +191,6 @@ function mailService()
     return \App\Services\MailServiceFactory::create();
 }
 
-function dd(...$value)
-{
-    http_response_code(400);
-    echo "<pre>", print_r($value, true), "</pre>";
-    die();
-}
-
 function loadEnv($path)
 {
     if (!file_exists($path)) {
@@ -215,6 +208,15 @@ function loadEnv($path)
         list($key, $value) = explode('=', $line, 2);
         $key = trim($key);
         $value = trim($value);
+        
+        // Procesar valores con comillas
+        if (!empty($value) && strlen($value) >= 2) {
+            if (($value[0] === '"' && $value[strlen($value) - 1] === '"') || 
+                ($value[0] === "'" && $value[strlen($value) - 1] === "'")) {
+                $value = substr($value, 1, -1);
+            }
+        }
+        
         $env[$key] = $value;
     }
 

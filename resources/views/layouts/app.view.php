@@ -1,6 +1,6 @@
 <?php
 $user = auth();
-$roles = $user ? $user->roles : [];
+$roles = $user ? $user->roles() : [];
 $isAuth = $user ? true : false;
 $isAdmin = in_array('administrador', array_column($roles, 'nombre'));
 $isDocente = in_array('docente', array_column($roles, 'nombre'));
@@ -30,7 +30,7 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
     <meta property="og:title" content="Tech Home Bolivia">
     <meta property="og:description" content="Explora nuestra plataforma educativa para estudiar, comprar libros y herramientas, y realizar cursos especializados.">
     <meta property="og:image" content="<?= asset('faviconTH.png') ?>">
-    <meta property="og:url" content="<?= $_ENV['APP_URL'] ?>">
+    <meta property="og:url" content="<?= $_ENV['APP_URL'] ?? currentUrl() ?>">
     <meta name="twitter:card" content="summary_large_image">
 </head>
 

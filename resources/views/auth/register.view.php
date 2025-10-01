@@ -417,8 +417,6 @@ $errors = flashGet('errors') ?? [];
                 setTimeout(() => alert.remove(), 500);
             });
         }, 5000);
-
-        console.log('🚀 Register page loaded');
     </script>
 
     <!-- SweetAlert2 JS -->

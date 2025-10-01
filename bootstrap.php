@@ -2,7 +2,9 @@
 
 // Constantes básicas del sistema
 define('BASE_PATH', __DIR__ . '/');
-define('BASE_URL', '/TECH-HOME');
+// Detectar si estamos en servidor de desarrollo o XAMPP
+$isDevServer = php_sapi_name() === 'cli-server';
+define('BASE_URL', $isDevServer ? '' : '/TECH-HOME');
 define('API_PREFIX', '/api');
 
 // Configuración de sesión
