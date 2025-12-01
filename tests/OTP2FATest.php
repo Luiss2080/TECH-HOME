@@ -76,10 +76,10 @@ class OTP2FATest
         echo "📋 Setting up test environment...\n";
         
         // Configurar variables de entorno de prueba
-        $_ENV['DB_HOST'] = $_ENV['DB_HOST'] ?? 'localhost';
-        $_ENV['DB_NAME'] = $_ENV['DB_NAME'] ?? 'tech_home';
-        $_ENV['DB_USER'] = $_ENV['DB_USER'] ?? 'root';
-        $_ENV['DB_PASS'] = $_ENV['DB_PASS'] ?? '';
+        $_ENV['DB_HOST'] = $_ENV['DB_HOST'] ?? '127.0.0.1';
+        $_ENV['DB_NAME'] = $_ENV['DB_NAME'] ?? 'techhome';
+        $_ENV['DB_USER'] = $_ENV['DB_USER'] ?? $_ENV['DB_USERNAME'] ?? 'root';
+        $_ENV['DB_PASS'] = $_ENV['DB_PASS'] ?? $_ENV['DB_PASSWORD'] ?? '';
         
         // Crear usuario de prueba
         $this->createTestUser();

@@ -40,6 +40,18 @@
             color: #f9fafb;
         }
 
+        body.ithr-dark-mode .footer-column,
+        body.dark-theme .footer-column {
+            background: transparent;
+            border: none;
+        }
+
+        body.ithr-dark-mode .footer-column-title,
+        body.dark-theme .footer-column-title {
+            color: #f9fafb;
+            border-bottom-color: rgba(220, 38, 38, 0.3);
+        }
+
         /* Contenedor para la animación de fondo */
         .footer-bg-animation {
             position: absolute;
@@ -119,10 +131,10 @@
             align-items: center;
         }
 
-        /* Contenido principal con grid adaptativo - DISTRIBUCIÓN COMPLETA */
+        /* Contenido principal con grid adaptativo - DISTRIBUCIÓN LIMPIA */
         .footer-main-content {
             display: grid;
-            gap: 2rem;
+            gap: 3rem;
             align-items: start;
             margin-bottom: 2.5rem;
             width: 100%;
@@ -130,47 +142,47 @@
             margin-left: auto !important;
             margin-right: auto !important;
             box-sizing: border-box;
+            padding: 2rem;
         }
 
-        /* Grid cuando usuario está autenticado (3 columnas + divisores) - DISTRIBUCIÓN COMPLETA */
+        /* Grid cuando usuario está autenticado (3 columnas) */
         .footer-main-content.authenticated {
-            grid-template-columns: 1fr auto 1fr auto 1fr;
-            justify-content: stretch;
+            grid-template-columns: 1fr 1fr 1fr;
+            justify-content: space-between;
             width: 100%;
         }
 
-        /* Grid cuando usuario NO está autenticado (2 columnas + divisor) - DISTRIBUCIÓN COMPLETA */
+        /* Grid cuando usuario NO está autenticado (2 columnas) */
         .footer-main-content.non-authenticated {
-            grid-template-columns: 1fr auto 1fr;
-            justify-content: stretch;
+            grid-template-columns: 1fr 1fr;
+            justify-content: space-between;
             width: 100%;
             margin-bottom: 2.5rem;
         }
 
-        /* Columnas individuales - DISTRIBUCIÓN COMPLETA */
+        /* Columnas individuales - LAYOUT INTEGRADO */
         .footer-column {
             min-height: 250px;
-            padding: 0;
+            padding: 1.5rem;
             width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            background: transparent;
+            border: none;
+            box-shadow: none;
         }
 
-        /* Optimización del espacio para columnas */
-        .footer-main-content.authenticated .footer-column:first-child,
-        .footer-main-content.non-authenticated .footer-column:first-child {
-            padding-right: 1rem;
+        /* Eliminar divisores verticales innecesarios */
+        .footer-divider {
+            display: none;
         }
 
-        .footer-main-content.authenticated .footer-column:last-child,
-        .footer-main-content.non-authenticated .footer-column:last-child {
-            padding-left: 1rem;
-        }
-
-        /* Columna del medio (cuando hay 3 columnas) */
-        .footer-main-content.authenticated .footer-column:nth-child(3) {
-            padding: 0 1rem;
+        /* Estilos específicos para cada tipo de columna */
+        .footer-contact-column,
+        .footer-nav-column,
+        .footer-about-column {
+            /* Estilos base sin bordes de color */
         }
 
         /* Título de columna */
@@ -178,6 +190,22 @@
             font-size: 1.2rem;
             font-weight: bold;
             color: #1f2937;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(220, 38, 38, 0.2);
+            position: relative;
+        }
+
+        .footer-column-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 30%;
+            height: 2px;
+            background: #dc2626;
+            border-radius: 1px;
+        }
             margin-bottom: 1.5rem;
             padding-bottom: 0.5rem;
             border-bottom: 2px solid rgba(220, 38, 38, 0.3);
@@ -689,13 +717,21 @@
 
         /* Para pantallas hasta 768px (tablets) */
         @media (max-width: 768px) {
+            .footer-container-wrapper {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+
             .footer-container {
                 padding: 2rem 1rem 0;
             }
 
-            .footer-main-content {
+            .footer-main-content,
+            .footer-main-content.authenticated,
+            .footer-main-content.non-authenticated {
                 grid-template-columns: 1fr;
                 gap: 2rem;
+                padding: 1rem;
             }
 
             .footer-divider {
@@ -704,6 +740,7 @@
 
             .footer-column {
                 min-height: auto;
+                margin-bottom: 1rem;
             }
 
             .footer-bottom {

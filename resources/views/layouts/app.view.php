@@ -887,7 +887,7 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                  ============================================================================ -->
                     <div class="footer-main-content <?= $isAuth ? 'authenticated' : 'non-authenticated' ?>">
                         <!-- Columna 1: Información de Contacto -->
-                        <div class="footer-column">
+                        <div class="footer-column footer-contact-column">
                             <h6 class="footer-column-title">Contacto</h6>
                             <div class="footer-contact-info">
                                 <!-- Dirección física -->
@@ -913,12 +913,9 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                             </div>
                         </div>
 
-                        <!-- Línea divisoria vertical -->
-                        <div class="footer-divider"></div>
-
                         <?php if ($isAuth): ?>
                             <!-- Columna 2: Enlaces de Navegación del Sistema -->
-                            <div class="footer-column">
+                            <div class="footer-column footer-nav-column">
                                 <h6 class="footer-column-title">Sistema</h6>
                                 <div class="footer-nav-links">
                                     <!-- Enlace al Dashboard principal -->
@@ -955,12 +952,8 @@ $isEstudiante = in_array('estudiante', array_column($roles, 'nombre'));
                             </div>
                         <?php endif; ?>
 
-
-                        <!-- Línea divisoria vertical -->
-                        <div class="footer-divider"></div>
-
-                        <!-- Columna 4: Información Acerca del Instituto -->
-                        <div class="footer-column">
+                        <!-- Columna 3: Información Acerca del Instituto -->
+                        <div class="footer-column footer-about-column">
                             <h6 class="footer-column-title">TECH HOME</h6>
                             <div class="footer-about">
                                 <!-- Descripción del instituto -->

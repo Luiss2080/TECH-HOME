@@ -2,7 +2,7 @@
 
 // Definición de constantes
 define('BASE_PATH', __DIR__ . DIRECTORY_SEPARATOR);
-define('BASE_URL', '/TECH-HOME');
+define('BASE_URL', '/TECH-HOME-TEST');
 define('API_PREFIX', '/api');
 define('DEBUG_MODE', true);
 

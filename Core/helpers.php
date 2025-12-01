@@ -3,16 +3,48 @@
 
 function asset($path)
 {
-    $baseUrl = getBaseUrl() . BASE_URL . '/public/';
+    // Detectar automáticamente la URL base correcta
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    
+    // Detectar el directorio del proyecto
+    $scriptName = $_SERVER['SCRIPT_NAME'];
+    $basePath = dirname($scriptName);
+    
+    // Si estamos en la raíz del servidor, no agregamos el path
+    if ($basePath === '/' || $basePath === '\\') {
+        $basePath = '';
+    }
+    
+    $baseUrl = $protocol . $host . $basePath . '/public/';
+    
     // Elimina la barra inicial si existe en el path
     $path = ltrim($path, '/');
+
+    // Debug temporal - eliminar después de verificar que funciona
+    if (DEBUG_MODE && isset($_GET['debug_asset'])) {
+        echo "<!-- DEBUG ASSET: $baseUrl$path -->";
+    }
 
     // Retorna la ruta completa al recurso
     return $baseUrl . $path;
 }
 function url($path = '')
 {
-    return getBaseUrl() . BASE_URL . '/public/' . ltrim($path, '/');
+    // Detectar automáticamente la URL base correcta
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    
+    // Detectar el directorio del proyecto
+    $scriptName = $_SERVER['SCRIPT_NAME'];
+    $basePath = dirname($scriptName);
+    
+    // Si estamos en la raíz del servidor, no agregamos el path
+    if ($basePath === '/' || $basePath === '\\') {
+        $basePath = '';
+    }
+    
+    return $protocol . $host . $basePath . '/public/' . ltrim($path, '/');
 }
 
 function loadEnv($path)

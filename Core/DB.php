@@ -23,12 +23,12 @@ class DB
         if (!self::$instance) {
             if (!$config) {
                 $config = [
-                    'driver' => $_ENV['DB_DRIVER'] ?? '',
-                    'host' => $_ENV['DB_HOST'] ?? '',
-                    'port' => $_ENV['DB_PORT'] ?? '3307',
-                    'database' => $_ENV['DB_NAME'] ?? '',
-                    'username' => $_ENV['DB_USER'] ?? '',
-                    'password' => $_ENV['DB_PASS'] ?? '',
+                    'driver' => $_ENV['DB_DRIVER'] ?? $_ENV['DB_CONNECTION'] ?? 'mysql',
+                    'host' => $_ENV['DB_HOST'] ?? '127.0.0.1',
+                    'port' => $_ENV['DB_PORT'] ?? '3306',
+                    'database' => $_ENV['DB_NAME'] ?? $_ENV['DB_DATABASE'] ?? '',
+                    'username' => $_ENV['DB_USER'] ?? $_ENV['DB_USERNAME'] ?? '',
+                    'password' => $_ENV['DB_PASS'] ?? $_ENV['DB_PASSWORD'] ?? '',
                     'charset' => 'utf8mb4',
                     'collation' => 'utf8mb4_unicode_ci',
                     'prefix' => '',
